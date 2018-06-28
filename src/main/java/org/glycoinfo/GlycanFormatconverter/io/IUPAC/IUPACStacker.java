@@ -1,0 +1,90 @@
+package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
+import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
+
+public class IUPACStacker {
+
+	private ArrayList<Node> nodes = new ArrayList<Node>();
+	private ArrayList<String> notations = new ArrayList<String>();
+	private HashMap<Node, Node> family = new HashMap<Node, Node>();
+	private int numOfNode = -1;
+
+	public IUPACStacker () {
+		
+	}
+	
+	public ArrayList<Node> getNodes () {
+		return this.nodes;
+	}
+	
+	public ArrayList<String> getNotations () {
+		return this.notations;
+	}
+	
+	public int getNumOfNode () {
+		return this.numOfNode;
+	}
+	
+	public void setNodes (ArrayList<Node> _nodes) {
+		nodes.addAll(_nodes);
+	}
+	
+	public void setNotations (ArrayList<String> _notations) {
+		notations.addAll(_notations);
+	}
+
+	public void setNumOfNode (int _numOfNode) {
+		this.numOfNode = _numOfNode;
+	}
+	
+	public boolean isComposition () {
+		return (this.numOfNode != -1);
+	}
+	
+	public boolean haveChild (Node _child) {
+		return (family.containsKey(_child));
+	}
+
+	public void addFamily (Node _child, Node _parent) {
+		family.put(_child, _parent);
+	}
+
+	public Node getParent(Node _child) {return family.get(_child);}
+
+	public ArrayList<Node> getChildren (Node _parent) {
+		ArrayList<Node> ret = new ArrayList<Node>();
+		for (Node node : family.keySet()) {
+			if (family.get(node).equals(_parent)) ret.add(node);
+		}
+
+		return ret;
+	}
+
+	public int getIndexByNode (Node _node) {
+		return nodes.indexOf(_node);
+	}
+	
+	public String getNotationByIndex (int _ind) { 
+		return notations.get(_ind);
+	}
+	
+	public Node getNodeByIndex (int _ind) {
+		return nodes.get(_ind);
+	}
+
+	public boolean addNode (Node _node) throws GlyCoImporterException {
+		if (_node == null) 
+			throw new GlyCoImporterException("Invalid node.");
+		return this.nodes.add(_node);
+	}
+	
+	public boolean addNotation (String _notation) throws GlyCoImporterException { 
+		if (_notation.equals(""))
+			throw new GlyCoImporterException("Invalid notation.");
+		return this.notations.add(_notation);
+	}
+}

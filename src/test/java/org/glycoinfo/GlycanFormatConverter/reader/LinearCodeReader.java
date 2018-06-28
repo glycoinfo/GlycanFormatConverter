@@ -1,0 +1,124 @@
+package org.glycoinfo.GlycanFormatConverter.reader;
+
+import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporter;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStyleDescriptor;
+import org.glycoinfo.GlycanFormatconverter.io.KCF.KCFImporter;
+import org.glycoinfo.GlycanFormatconverter.io.LinearCode.LinearCodeImporter;
+import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
+import org.glycoinfo.WURCSFramework.wurcs.array.RES;
+import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedHashMap;
+
+/**
+ * Created by e15d5605 on 2017/08/28.
+ */
+public class LinearCodeReader {
+
+	@Test
+	public void readLinearCode () throws Exception {
+		//String directory = "src/test/resources/Atlas_LC_sample1";
+
+		//if (directory == null || directory.equals("")) throw new Exception("File could not found!");
+
+		File file = new File("/Users/e15d5605/Dataset/Atlas_LC_sample2");
+
+		if (file.isFile()) {
+			LinkedHashMap<String, String> lncIndex = openString(file.getAbsolutePath());
+			StringBuilder results = new StringBuilder();
+
+			for (String key : lncIndex.keySet()) {
+				try {
+					LinearCodeImporter lci = new LinearCodeImporter();
+					GlyContainer glyco = lci.start(lncIndex.get(key));
+
+					ExporterEntrance ee = new ExporterEntrance(glyco);
+
+					/* for IUPAC */
+					//results.append(key + "\t" + ee.toIUPAC(IUPACStyleDescriptor.GREEK) + "\n");
+
+					/* for WURCS */
+					results.append(key + "\t" + ee.toWURCS() + "\n");
+				} catch (Exception e) {
+					results.append(key + "\t%" + e.getMessage() + "\n");
+					e.printStackTrace();
+				}
+			}
+
+			/* define file name */
+			Date date = new Date();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+			String fileName = sdf.format(date) + "_WURCSSample_from_LC_group2";
+
+			/* write WURCS */
+			writeFile(results.toString(), "", fileName);	
+
+
+			System.out.println(results);
+		}
+	}
+
+	public void writeFile (String _result, String _error, String _fileName) throws IOException {
+        /* file open */
+        File file = new File(_fileName);
+        FileWriter fw = new FileWriter(file);
+        BufferedWriter bw = new BufferedWriter(fw);
+
+        /* write file */
+        PrintWriter pw = new PrintWriter(bw);
+        pw.println(_result);
+        pw.println(_error);
+
+        pw.close();
+
+        return;
+    }
+	
+	public LinkedHashMap<String, String> openString(String _directory) throws Exception {
+		try {
+			return readKCF(new BufferedReader(new FileReader(_directory)));
+		} catch (IOException e) {
+			throw new Exception();
+		}
+	}
+
+	public LinkedHashMap<String, String> readKCF(BufferedReader _bf) throws IOException {
+		String line = "";
+		LinkedHashMap<String, String> ret = new LinkedHashMap<String, String>();
+
+		while ((line = _bf.readLine()) != null) {
+			line = line.trim();
+			String key = "";
+
+			if (line.equals("")) continue;
+			if (line.startsWith("%")) continue;
+
+			if (line.indexOf("\t") != -1) {
+				String[] items = line.split("\t");
+				key = items[0];
+				line = items[1];
+			}
+
+			if (key.equals("null") || line.equals("unknown")) {
+				//System.out.println(key + " " + line);
+				continue;
+			}
+
+			ret.put(key, line);
+		}
+
+		_bf.close();
+
+		return ret;
+	}
+}
