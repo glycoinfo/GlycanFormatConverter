@@ -102,10 +102,10 @@ public class Edge implements Visitable {
 		Monosaccharide childMono = (Monosaccharide) child;
 		int childPos = linkages.get(0).getChildLinkages().get(0);
 		int anomericPos = childMono.getAnomericPosition();
-
+		
 		if (!childMono.getAnomer().equals(AnomericStateDescriptor.OPEN)) {
 			if(childPos != -1) return true;
-			//if (anomericPos != -1 && childPos == -1) return true;
+			if (anomericPos != -1 && childPos == -1) return true;
 		} else {
 			if(anomericPos == childPos) return true;
 			if (anomericPos == 0 && !linkages.get(0).getChildLinkages().contains(anomericPos)) return true;

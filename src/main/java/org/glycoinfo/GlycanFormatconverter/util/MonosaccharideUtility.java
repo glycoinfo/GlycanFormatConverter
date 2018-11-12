@@ -2,7 +2,9 @@ package org.glycoinfo.GlycanFormatconverter.util;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.ModifiedMonosaccharideDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameDictionary;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.GlyCoModificationComparater;
 
@@ -126,7 +128,7 @@ public class MonosaccharideUtility {
     public Monosaccharide makeRingSize (Monosaccharide _mono, String _ringSize, String _code, ArrayList<String> _modifications) throws GlycanException {
         int pos = _mono.getAnomericPosition();
         boolean haveKetose = this.haveKetoneAtAnomer(_mono, _modifications);
-
+        
 		/* Modify anomeric position */
         if (pos == 0) {
             MonosaccharideIndex monoIndex = MonosaccharideIndex.forTrivialNameWithIgnore(_code);
@@ -158,6 +160,14 @@ public class MonosaccharideUtility {
 
     private boolean haveKetoneAtAnomer(Monosaccharide _mono, ArrayList<String> _modifications) {
         int anomericPos = _mono.getAnomericPosition();
+        
+        if (anomericPos == 0) {
+        		String ketone = "";
+        		for (String mod : _modifications) {
+        			if (ketone.equals("") && mod.contains("ulo")) ketone = mod;
+        		}
+        		if (ketone.equals("1ulo") || ketone.equals("2ulo")) return true;
+        }
         
         if (_modifications.contains("2ulo") && anomericPos == 2) return true;
         if (_modifications.contains("3ulo") && anomericPos == 3) return true;
@@ -384,5 +394,41 @@ public class MonosaccharideUtility {
         _hashMod.put(_pos, (isDeoxy1) ? ModificationTemplate.UNSATURATION_FL : ModificationTemplate.UNSATURATION_FU);
         _hashMod.put(_pos + 1, (isDeoxy2) ? ModificationTemplate.UNSATURATION_FL : ModificationTemplate.UNSATURATION_FU);
         return _hashMod;
+    }
+
+    public Monosaccharide modifiedSubstituents (String _trivialName, Node _node) throws GlycanException {
+        Monosaccharide mono = (Monosaccharide) _node;
+
+        ModifiedMonosaccharideDescriptor modMonoDesc = ModifiedMonosaccharideDescriptor.forTrivialName(_trivialName);
+
+        if (modMonoDesc != null) {
+            for (String sub : modMonoDesc.getSubstituents().split("_")) {
+                removeSubstituents(sub, _node);
+            }
+
+            return mono;
+        }
+
+        return mono;
+    }
+
+    private void removeSubstituents (String _notation, Node _node) throws GlycanException {
+        String[] posNot = _notation.split("\\*");
+        SubstituentTemplate subTemp = SubstituentTemplate.forIUPACNotationWithIgnore(posNot[1]);
+        SubstituentUtility subUtil = new SubstituentUtility();
+
+        for (Edge edge : _node.getChildEdges()) {
+            if (edge.getSubstituent() == null) continue;
+            if (edge.getSubstituent() != null && edge.getChild() != null) continue;
+
+            Substituent sub = (Substituent) edge.getSubstituent();
+            SubstituentTemplate convSub = subUtil.convertOTypeToNType(sub.getSubstituent());
+
+            if (subTemp.equals(convSub) && sub.getFirstPosition().getParentLinkages().contains(Integer.parseInt(posNot[0]))) {
+                _node.removeChildEdge(edge);
+            }
+        }
+
+        return;
     }
 }

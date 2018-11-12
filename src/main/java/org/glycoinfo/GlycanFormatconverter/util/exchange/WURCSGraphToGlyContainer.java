@@ -64,7 +64,7 @@ public class WURCSGraphToGlyContainer {
 			/**/
 			GlyContainerEdgeAnalyzer gcEdgeAnalyzer = new GlyContainerEdgeAnalyzer(glyCo);
 			gcEdgeAnalyzer.start(backbone2node, root);
-		}
+		}		
 	}
 
 	private void WURCSEdgeToLinkage(Backbone _backbone) throws GlycanException, ConverterExchangeException {
@@ -74,13 +74,13 @@ public class WURCSGraphToGlyContainer {
 		for (Backbone antennae : antennae) {
 			if (antennae.equals(_backbone)) backboneToUndefinedUnit(_backbone);
 		}
-
+		
 		for (WURCSEdge cEdge : _backbone.getChildEdges()) {
 			Modification mod = cEdge.getModification();
 
 			if (mod.isRing()) continue;
 			if (isSubstituentEdge(cEdge)) continue;
-
+			
 			/* define simple linkage */
 			if (!(mod instanceof ModificationRepeat)) {
 				extractSimpleLinkage(_backbone, cEdge, mod);
@@ -118,7 +118,7 @@ public class WURCSGraphToGlyContainer {
 			cpBackbone = cp.getBackbone();
 			donor = cp.getLinkages();
 		}
-
+		
 		if (ccBackbone == null && cpBackbone == null) return;
 
 		if (cpBackbone != null) {
@@ -132,7 +132,7 @@ public class WURCSGraphToGlyContainer {
 			if (haveChild(backbone2node.get(ccBackbone), backbone2node.get(_backbone), sub)) return;
 			donor = _c.getLinkages();
 		}
-
+		
 		if (isFlipFlop(_backbone, ccBackbone != null ? ccBackbone : cpBackbone != null ? cpBackbone : null)) {
 			Backbone tmp = _backbone;
 			LinkedList<LinkagePosition> temp = acceptor;
@@ -178,12 +178,12 @@ public class WURCSGraphToGlyContainer {
 		}
 
 		edge.setSubstituent(sub);
-
-		if (ccBackbone != null) {
+		
+		if (ccBackbone != null && !isDefinedLinkage(_backbone, edge, ccBackbone)) { //&& !containNodes(_backbone, ccBackbone)) {
 			glyCo.addNode(backbone2node.get(_backbone), edge, backbone2node.get(ccBackbone));
 		}
 
-		if (cpBackbone != null) {
+		if (cpBackbone != null && !isDefinedLinkage(_backbone, edge, cpBackbone)) {// && !containNodes(_backbone, cpBackbone)) {
 			glyCo.addNode(backbone2node.get(_backbone), edge, backbone2node.get(cpBackbone));
 		}
 
@@ -198,7 +198,7 @@ public class WURCSGraphToGlyContainer {
 		/* define repeating linkage position */
 		LinkedList<LinkagePosition> donor = _mod.getParentEdges().getLast().getLinkages();
 		LinkedList<LinkagePosition> acceptor = _mod.getParentEdges().getFirst().getLinkages();
-
+		
 		/* define start rep */
 		end = backbone2node.get(_mod.getParentEdges().getLast().getBackbone());
 
@@ -206,8 +206,8 @@ public class WURCSGraphToGlyContainer {
 		start = backbone2node.get(_mod.getParentEdges().getFirst().getBackbone());
 
 		if (!current.equals(end) /*&& !start.equals(end)*/) return;
-
-		if (_backbone.getParentEdges().isEmpty() && current.equals(end)) {
+		
+		/*if (_backbone.getParentEdges().isEmpty() && current.equals(end)) {
 			LinkedList<LinkagePosition> linkTemp = donor;
 			donor = acceptor;
 			acceptor = linkTemp;
@@ -215,7 +215,7 @@ public class WURCSGraphToGlyContainer {
 			Node temp = end;
 			end = start;
 			start = temp;
-		}
+		}*/
 
 		Edge parentEdge = WURCSEdgeToEdge(donor, acceptor);
 
@@ -438,7 +438,7 @@ public class WURCSGraphToGlyContainer {
 		Backbone end = null;
 
 		//if (!_backbone.isRoot()) return isCyclic;
-
+		
 		for (WURCSEdge edge : _backbone.getChildEdges()) {
 			if (edge.getModification().isRing()) continue;
 			if (isSubstituentEdge(edge) || edge.getModification() instanceof ModificationRepeat) break;
@@ -446,7 +446,13 @@ public class WURCSGraphToGlyContainer {
 
 			for (WURCSEdge cp : edge.getNextComponent().getParentEdges()) {
 				if (cp.getNextComponent() instanceof ModificationAlternative) continue;
-				if (!_backbone.equals(cp.getBackbone())) end = cp.getBackbone();
+				if (!_backbone.equals(cp.getBackbone()) && !cp.getBackbone().getParentEdges().isEmpty()) {
+					end = cp.getBackbone();
+				}
+			}
+			
+			for (WURCSEdge cc : edge.getNextComponent().getChildEdges()) {
+				if (cc.getNextComponent() instanceof ModificationAlternative) continue;
 			}
 
 			if (end == null) continue;
@@ -468,7 +474,7 @@ public class WURCSGraphToGlyContainer {
 		if (isSubstituentEdge(_edge)) return false;
 		if (_edge.getModification().isRing()) return false;
 		if (_edge.getModification().isGlycosidic() && !_edge.getModification().getMAPCode().equals("")) return false;
-
+		
 		return (isCyclicNode(_edge.getBackbone()));
 	}
 
@@ -525,7 +531,8 @@ public class WURCSGraphToGlyContainer {
 
 	private boolean isFlipFlop (Backbone _parent, Backbone _child) {
 		if (!_parent.isRoot() || root.equals(_parent) || antennae.contains(_parent)) return false;
-		return (!backbone2node.get(_child).getParentEdges().isEmpty() && backbone2node.get(_parent).getParentEdges().isEmpty());
+		return (backbone2node.get(_parent).getParentEdges().isEmpty());
+		//return (!backbone2node.get(_child).getParentEdges().isEmpty() && backbone2node.get(_parent).getParentEdges().isEmpty());
 	}
 
 	private boolean isCompositions (WURCSGraph _graph) { 
@@ -539,6 +546,39 @@ public class WURCSGraphToGlyContainer {
 		return (_graph.getBackbones().size() == count);
 	}
 
+	private boolean isDefinedLinkage (Backbone _acceptor, Edge _edge, Backbone _donor) {
+		Node donor = backbone2node.get(_donor);
+		Node acceptor = backbone2node.get(_acceptor);
+		
+		if (donor == null || acceptor == null) return false;
+		
+		boolean isDefined = false;
+		
+		int currentDonorPos = -1;
+		int currentAcceptorPos = -1;
+
+		for (Linkage lin : _edge.getGlycosidicLinkages()) {
+			if (lin.getChildLinkages().size() > 1 || lin.getParentLinkages().size() > 1) continue;
+			currentDonorPos = lin.getChildLinkages().get(0);
+			currentAcceptorPos = lin.getParentLinkages().get(0);
+		}
+		
+		for (Edge edge : acceptor.getChildEdges()) {
+			if (edge.getChild() == null || edge.getParent() == null) continue;
+			if (edge.getChild().equals(donor) && edge.getParent().equals(acceptor)) {
+				for (Linkage lin : edge.getGlycosidicLinkages()) {
+					if (lin.getChildLinkages().size() > 1 || lin.getParentLinkages().size() > 1) continue;
+					if (lin.getChildLinkages().indexOf(currentDonorPos) != -1 && 
+							lin.getParentLinkages().indexOf(currentAcceptorPos) != -1) {
+						isDefined = true;
+					}
+				}
+			}
+		}
+
+		return isDefined;
+	}
+	
 	/**
 	 * for debug
 	 * */
@@ -549,11 +589,13 @@ public class WURCSGraphToGlyContainer {
 
 		if (_ccBackbone != null) {
 			System.out.println("cc : " + _ccBackbone + "<-" + _backbone);
-	//		System.out.println("cc : " + backbone2node.get(_ccBackbone) + "<-" + backbone2node.get(_backbone));
+			System.out.println(_ccBackbone.getSkeletonCode() + " " + _backbone.getSkeletonCode());
+			System.out.println("cc : " + backbone2node.get(_ccBackbone) + "<-" + backbone2node.get(_backbone));
 		}
 		if (_cpBackbone != null) {
 			System.out.println("cp : " + _cpBackbone + "<=" + _backbone);
-	//		System.out.println("cc : " + backbone2node.get(_cpBackbone) + "<-" + backbone2node.get(_backbone));
+			System.out.println(_cpBackbone.getSkeletonCode() + " " + _backbone.getSkeletonCode());
+			System.out.println("cp : " + backbone2node.get(_cpBackbone) + "<-" + backbone2node.get(_backbone));
 		}
 
 		if (_acceptor != null) {
