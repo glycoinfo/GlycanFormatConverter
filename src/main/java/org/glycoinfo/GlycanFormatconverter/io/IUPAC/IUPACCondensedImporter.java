@@ -3,10 +3,7 @@ package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by e15d5605 on 2017/07/31.
@@ -20,14 +17,22 @@ public class IUPACCondensedImporter {
     }
 
     public void start (String _iupac) throws GlyCoImporterException, GlycanException {
-        System.out.println(_iupac);
+        _iupac = _iupac.replaceAll("[\\xc2\\xa0]", "");
+        _iupac = _iupac.replaceAll(" ", "");
+        _iupac = _iupac.trim();
+
+        //Linkage is represented by parentheses.
+        if (_iupac.indexOf("[") != -1) {
+            _iupac = _iupac.replaceAll("\\(", "").replaceAll("\\)", "");
+            _iupac = _iupac.replaceAll("\\[", "(").replaceAll("]", ")");
+        }
 
         LinkedHashMap<Node, String> nodeIndex = new LinkedHashMap<Node, String>();
 
         /**/
         List<String> notations = new ArrayList<String>();
         for (String unit : _iupac.split("\\$,")) {
-            if (unit.matches(".+=[\\d\\?]")) unit += "$,";
+            if (unit.matches(".+=[\\d?]")) unit += "$,";
             notations.add(unit);
         }
         Collections.reverse(notations);
@@ -37,29 +42,78 @@ public class IUPACCondensedImporter {
             IUPACStacker stacker = new IUPACStacker();
             stacker.setNotations(parseNotation(subst));
 
-            System.out.println(stacker.getNotations());
-
-			/* generate moonsaccharide */
+			//generate moonsaccharide
             IUPACCondensedNotationParser iupacNP = new IUPACCondensedNotationParser();
             for (String unit : stacker.getNotations()) {
-                //Node node = iupacNP.start(unit);
                 Node node = iupacNP.parseMonosaccharide(unit);
+
+                if (node == null) continue;
+
                 nodeIndex.put(node, unit);
                 stacker.addNode(node);
             }
 
-			/* define family in each nodes */
-            parseChildren(stacker, nodeIndex);
+			//define family in each nodes
+            parseChildren(stacker, nodeIndex, subst);
 
-			/* define linkages */
-            IUPACLinkageParser iupacLP = new IUPACLinkageParser(glyCo, nodeIndex, stacker);
-            iupacLP.start();
-
-            glyCo = iupacLP.getGlyCo();
+			//define linkages
+            IUPACCondensedLinkageParser iclp =
+                    new IUPACCondensedLinkageParser(glyCo, nodeIndex, stacker);
+            glyCo = iclp.start();
         }
     }
 
-    private ArrayList<String> parseNotation(String _iupac) {
+    private ArrayList<String> parseNotation (String _iupac) {
+        ArrayList<String> ret = new ArrayList<>();
+        boolean isLinkage = false;
+        boolean isSub = false;
+        String node = "";
+
+        for (int i = 0; i < _iupac.length(); i++) {
+            char item = _iupac.charAt(i);
+            node += item;
+
+            //End
+            if (i == _iupac.length() - 1) {
+                ret.add(node);
+                break;
+            }
+
+            //Parse child of substituent
+            if (!isLinkage && String.valueOf(item).matches("[\\d?]")) {
+                isSub = true;
+            }
+
+            //Add substituent to list
+            if (isSub && item == ')') {
+                ret.add(node);
+                node = "";
+                isSub = false;
+                isLinkage = false;
+
+                continue;
+            }
+
+            //parse anomeric state
+            char linkage = _iupac.charAt(i+1);
+            if ((item == 'a' || item == 'b' || item == '?') &&
+                    String.valueOf(linkage).matches("[\\d?-]")) {
+                isLinkage = true;
+            }
+
+            //add monosaccharide notation to list.
+            char nextItem = _iupac.charAt(i+1);
+            if (isLinkage && String.valueOf(nextItem).matches("[A-Z(]")) {
+                ret.add(node);
+                isLinkage = false;
+                node = "";
+            }
+        }
+
+        return ret;
+    }
+
+    /*private ArrayList<String> parseNotation(String _iupac) {
         ArrayList<String> ret = new ArrayList<String>();
 
         String mono = "";
@@ -78,7 +132,7 @@ public class IUPACCondensedImporter {
                 isbisect = false;
             }
 
-			/* for end of multiple parent */
+			// for end of multiple parent
             if (isMultipleParent && _iupac.charAt(i) == ')') {
                 if (_iupac.charAt(i + 1) == ']' && _iupac.charAt(i + 2) != '-') {
                     isbisect = true;
@@ -90,7 +144,7 @@ public class IUPACCondensedImporter {
                 isMultipleParent = false;
             }
 
-			/* for linkage */
+			// for linkage
             if (isLinkage && _iupac.charAt(i) == ')') {
                 if (_iupac.charAt(i + 1) == '=') {
                     isLinkage = false;
@@ -103,22 +157,22 @@ public class IUPACCondensedImporter {
                 }*/
 
                 //if (String.valueOf(_iupac.charAt(i + 1)).matches("[a-zA-Z,]")) continue;
-                ret.add(mono);
+/*                ret.add(mono);
                 mono = "";
                 isLinkage = false;
             }
-			/* for repeating */
+			// for repeating
             if (isLinkage && _iupac.charAt(i) == ']') {
                 isLinkage = false;
                 isRepeat = true;
                 continue;
             }
-			/* for root */
+			// for root
             if ((_iupac.length() - 1) == i) {
                 ret.add(mono);
                 break;
             }
-			/* for repeating count */
+			// for repeating count
             if (isRepeat) {
                 if (String.valueOf(_iupac.charAt(i)).matches("[\\dn]")) {
                     if (String.valueOf(_iupac.charAt(i + 1)).matches("\\d")) continue;
@@ -144,59 +198,60 @@ public class IUPACCondensedImporter {
 
         return ret;
     }
+*/
 
-    private void parseChildren(IUPACStacker _stacker, LinkedHashMap<Node, String> _index) {
+    private void parseChildren(IUPACStacker _stacker, LinkedHashMap<Node, String> _index, String _subst) {
         ArrayList<Node> nodes = new ArrayList<Node>();
         nodes.addAll(_stacker.getNodes());
 
         Collections.reverse(nodes);
 
         for (Node node : nodes) {
-            String current = _index.get(node);
-            if (haveChild(current)) {
+            if (haveChild(node, _index)) {
                 int childIndex = nodes.indexOf(node) + 1;
                 Node child = nodes.get(childIndex);
                 _stacker.addFamily(child, node);
             }
 
-            if (isStartOfBranch(current)) {
+            if (isStartOfBranch(node, _index)) {
                 int childIndex = nodes.indexOf(node) + 1;
                 Node child = nodes.get(childIndex);
                 _stacker.addFamily(child, node);
 
-                for (Node cNode : pickChildren(nodes, node, _index)) {
+                for (Node cNode : pickChildren(nodes, node, _index, _subst)) {
                     _stacker.addFamily(cNode, node);
                 }
             }
         }
     }
 
-    private ArrayList<Node> pickChildren (ArrayList<Node> _nodes, Node _branch, LinkedHashMap<Node, String> _index) {
+    private ArrayList<Node> pickChildren (ArrayList<Node> _nodes, Node _branch, LinkedHashMap<Node, String> _index, String _subst) {
         ArrayList<Node> children = new ArrayList<Node>();
         int count = 0;
         boolean isChild = false;
 
-        if (isStartOfBranch(_index.get(_branch))) count = -1;
+        if (isStartOfBranch(_branch, _index)) count = -1;
 
         for (Node node : _nodes.subList(_nodes.indexOf(_branch) + 1, _nodes.size())) {
-            String notation = _index.get(node);
             if (isChild) {
                 children.add(node);
             }
 
-            if (count == 0 && !isBisecting(notation)) {
-                if (isStartOfBranch(notation)) break;
-                if (isEndOfBranch(notation)) break;
-                if (haveChild(notation)) break;
+            if (count == 0 && !isBisecting(node, _index)) {
+                if (isStartOfBranch(node, _index)) break;
+                if (isEndOfBranch(node, _index)) break;
+                if (haveChild(node, _index)) break;
             }
 
-            if (isStartOfBranch(notation)) count--;
-            if (isEndOfBranch(notation)) count++;
-            if (isBisecting(notation)) count--;
+            if (isStartOfBranch(node, _index)) {
+                count--;
+            }
+            if (isEndOfBranch(node, _index)) count++;
+            if (isBisecting(node, _index)) count--;
 
             if (count == 0) {
-                if (isBisecting(notation)) isChild = true;
-                if (isEndOfBranch(notation)) isChild = true;
+                if (isBisecting(node, _index)) isChild = true;
+                if (isEndOfBranch(node, _index)) isChild = true;
                 continue;
             }
 
@@ -206,21 +261,45 @@ public class IUPACCondensedImporter {
         return children;
     }
 
-    private boolean isBisecting (String _notation) {
-        return (_notation.endsWith("]"));
+    private boolean isBisecting (Node _node, LinkedHashMap<Node, String> _index) {
+        int currentIndex = new ArrayList(_index.keySet()).indexOf(_node);
+
+        if (currentIndex == 0)
+            return false;
+        if (!_index.get(_node).endsWith(")"))
+            return false;
+
+        Node next = (Node) new ArrayList(_index.keySet()).get(currentIndex + 1);
+        return (_index.get(next).startsWith("("));
     }
 
-    private boolean haveChild (String _notation) {
-        return (_notation.startsWith("-"));
+    private boolean haveChild (Node _node, LinkedHashMap<Node, String> _index) {
+        int currentIndex = new ArrayList(_index.keySet()).indexOf(_node);
+
+        if (currentIndex == 0)
+            return false;
+        if (_index.get(_node).startsWith("("))
+            return false;
+        return true;
     }
 
-    private boolean isStartOfBranch (String _notation) {
-        return (_notation.startsWith("]-"));
+    private boolean isStartOfBranch (Node _node, LinkedHashMap<Node, String> _index) {
+        int currentIndex = new ArrayList(_index.keySet()).indexOf(_node);
+
+        if (currentIndex == 0)
+            return false;
+        if (_index.get(_node).startsWith("("))
+            return false;
+
+        Node next = (Node) new ArrayList(_index.keySet()).get(currentIndex - 1);
+        if (_index.get(next).endsWith(")"))
+            return true;
+
+        return false;
     }
 
-    private boolean isEndOfBranch (String _notation) {
-        //if(isBisecting(_notation)) return false;
-        if (_notation.matches("\\[\\d\\).+")) return false;
-        return (_notation.startsWith("["));
+    private boolean isEndOfBranch (Node _node, LinkedHashMap<Node, String> _index) {
+        return (_index.get(_node).startsWith("("));
+        //return (_notation.startsWith("("));
     }
 }

@@ -14,6 +14,7 @@ import org.glycoinfo.GlycanFormatconverter.util.analyzer.ThreeLetterCodeAnalyzer
 public class IUPACNotationParser {
 
 	public Node parseMonosaccharide (String _iupacNotation) throws GlycanException, GlyCoImporterException{
+		System.out.println(_iupacNotation);
 		/* remove */
 		String temp = this.trim(_iupacNotation);
 		
@@ -161,7 +162,7 @@ public class IUPACNotationParser {
 		Matcher matTail = Pattern.compile("([pf?])?([\\d,\\w/:(%)\\-\\?]+)?").matcher(coreNotation);
 		if (matTail.find() && (matTail.group(1) != null || matTail.group(2) != null)) {
 			boolean isRingSize = false;
-
+			
 			if (matTail.group(2) == null) isRingSize = true;
 			if (matTail.group(2) != null) {
 				if (coreNotation.length() > 1 && String.valueOf(coreNotation.charAt(1)).matches("[\\dNA\\\\?]"))
@@ -206,7 +207,7 @@ public class IUPACNotationParser {
 		
 		/* check and modify configuration */
 		mono = monoUtil.checkTruelyConfiguration(threeLetterCode, configurations, mono);
-		
+
 		return mono;
 	}
 

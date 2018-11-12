@@ -65,7 +65,6 @@ public class IUPACLinkageParser extends SubstituentUtility {
 
 	public GlycanUndefinedUnit makeUndefinedUnit (Node _node, String _notation) throws GlycanException {
 		GlycanUndefinedUnit ret = new GlycanUndefinedUnit();
-		ret = new GlycanUndefinedUnit();
 		ret.addNode(_node);
 		ret.setConnection(_node.getParentEdge());
 		for(Node parent : parseFragmentParents(_notation)) {
@@ -361,7 +360,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 
 	private ArrayList<Node> countRepeats (Collection<Node> _nodes) {
 		int numOfstart = 0;
-		String regex = "\\[(\u002D[\\w\\(\\)]+\u002D)?[\\d\\?/]+\\)";
+		String regex = "\\[(\u002D[\\w()]+\u002D)?[\\d\\?/]+\\)";
 		Node ret = null;
 		ArrayList<Node> retNodes = new ArrayList<Node>();
 
