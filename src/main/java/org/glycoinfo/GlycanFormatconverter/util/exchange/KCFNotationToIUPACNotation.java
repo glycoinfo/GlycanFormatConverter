@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public class KCFNotationToIUPACNotation {
 
     public String start (String _input) throws ConverterExchangeException, GlyCoImporterException, GlycanException {
-        String ulosonic = "";
+    		String ulosonic = "";
         String ringSize = "";
         String tailStatus = "";
 
@@ -187,22 +187,24 @@ public class KCFNotationToIUPACNotation {
 
         /* append ring size */
         if (secondUnit != null) {
-            if (!haveMod) ringSize = "?";
-            else ringSize = modifyRingSize(ringSize, secondConfig, secondUnit);
+            //if (!haveMod) ringSize = "?";
+            //else 
+            	ringSize = modifyRingSize(ringSize, secondConfig, secondUnit);
         }
         if (firstUnit != null && secondUnit == null) {
             ringSize = modifyRingSize(ringSize, firstConfig, firstUnit);
-            if (!haveDeoxy(mods) && haveUnsaturation(subs)) ringSize = "?";
-            if (haveDeoxy(mods)) {
-                if (!haveMultipleDeoxy(mods, superClass)) ringSize = "?";
-                if (firstUnit.equals(KCFMonosaccharideDescriptor.ARA)) ringSize = "p";
-            }
+            //if (!haveDeoxy(mods) && haveUnsaturation(subs)) ringSize = "?";
+            //if (haveDeoxy(mods)) {
+             //   if (!haveMultipleDeoxy(mods, superClass)) ringSize = "?";
+             //   if (firstUnit.equals(KCFMonosaccharideDescriptor.ARA)) ringSize = "p";
+            //}
         }
         if (firstUnit == null && secondUnit == null && superClass != null) {
             ringSize = "p";
 
-            if (!firstConfig.equals("") && !haveDeoxy(mods)) ringSize = "?";
+            //if (!firstConfig.equals("") && !haveDeoxy(mods)) ringSize = "?";
         }
+        
         notation.append(ringSize);
 
         /* append substituents */
@@ -213,9 +215,7 @@ public class KCFNotationToIUPACNotation {
 
         /* append tail modification */
         notation.append(tailStatus);
-
-        System.out.println(notation);
-
+        
         return notation.toString();
     }
 
@@ -433,25 +433,15 @@ public class KCFNotationToIUPACNotation {
     private String modifyRingSize (String _ringSize, String _config, KCFMonosaccharideDescriptor _kcfDesc) {
         if (!_ringSize.equals("")) return _ringSize;
 
+        //Api, Ery, Tho, Thr 
         if (_kcfDesc.equals(KCFMonosaccharideDescriptor.THR) ||
-                /*_kcfDesc.equals(KCFMonosaccharideDescriptor.ERY) || */
-                _kcfDesc.equals(KCFMonosaccharideDescriptor.API)) {
-            if (!_config.equals("D")) return "?";
+                _kcfDesc.equals(KCFMonosaccharideDescriptor.ERY) || 
+                _kcfDesc.equals(KCFMonosaccharideDescriptor.API) ||
+                _kcfDesc.equals(KCFMonosaccharideDescriptor.THO)) {
             return "f";
         }
 
-        if (_kcfDesc.equals(KCFMonosaccharideDescriptor.RIB)) return "f";
-        if (_kcfDesc.equals(KCFMonosaccharideDescriptor.FRU)) return "?";
-        if (_kcfDesc.equals(KCFMonosaccharideDescriptor.ARA)) {
-            if (_config.equals("L")) return "?";
-            else return "p";
-        }
-
         return "p";
-        //MonosaccharideIndex modInd = MonosaccharideIndex.forTrivialNameWithIgnore(_notation);
-        //if (modInd != null) return modInd.getRingSize();
-
-        //return "?";
     }
 
     private String extractRingSize (String _kcfNotation, String _notation) {

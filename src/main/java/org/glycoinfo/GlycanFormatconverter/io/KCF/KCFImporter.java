@@ -114,14 +114,14 @@ public class KCFImporter {
 
             anomericState = kcfUtil.extractAnomerixState(units.get(1));
         }
-
+ 
         if (childNode == null && parentNode == null || parentNode == null && childNode instanceof Substituent) return;
         if (childNode instanceof Substituent && parentNode instanceof Substituent) return;
 
         Edge edge = new Edge();
 
         if (parentNode == null) {
-            /* define anomeric status for child node */
+            /* define anomeric status for child node */             
             defineAnomericStatus(anomericState, parentLin, childNode);
             glyco.addNode(childNode);
             return;
@@ -207,7 +207,7 @@ public class KCFImporter {
     private void defineAnomericStatus (String _childLin, String _parentLin, Node _node) throws GlycanException {
         if (_childLin == null) return;
         if (_node instanceof Substituent) return;
-
+        
         int pos = _childLin.length() == 1 ? charToint(_childLin.charAt(0)) : charToint(_childLin.charAt(1));
         char anomericSymbol = _childLin.length() == 1 ? 'x' : modifyAnomericSymbol(_childLin.charAt(0));
 
@@ -222,12 +222,12 @@ public class KCFImporter {
             anomericSymbol = anomericSymbol == 'o' ? 'x' : anomericSymbol;
             pos = _childLin.length() == 1 ? charToint(_childLin.charAt(0)) : charToint(_childLin.charAt(1));
         }
-
+        
         /* define anomeric information for child node */
         mono.setAnomericPosition(pos);
         AnomericStateDescriptor anomState = AnomericStateDescriptor.forAnomericState(anomericSymbol);
         mono.setAnomer(anomState);
-
+        
         if (mono.getRingStart() != -1 && mono.getRingEnd() != -1) return;
 
         /* modify ring size */
@@ -236,7 +236,7 @@ public class KCFImporter {
         }
         if (mono.getAnomericPosition() != mono.getRingStart()) {
             mono.setRingStart(mono.getAnomericPosition());
-        }
+        }        
     }
 
     private int charToint (char _char) {
@@ -260,6 +260,11 @@ public class KCFImporter {
     private boolean isOpenStatus (Node _node) {
         Monosaccharide mono = (Monosaccharide) _node;
         if (mono.getAnomericPosition() == 2) return false;
+        for (GlyCoModification mod : mono.getModifications()) {
+        		if (mod.getPositionOne() == 2) {
+        			if (mod.getModificationTemplate().equals(ModificationTemplate.KETONE_U)) return false;
+        		}
+        }
         if (mono.getAnomericPosition() == Monosaccharide.OPEN_CHAIN &&
                 mono.getAnomer().equals(AnomericStateDescriptor.OPEN)) return true;
         for (GlyCoModification mod : mono.getModifications()) {

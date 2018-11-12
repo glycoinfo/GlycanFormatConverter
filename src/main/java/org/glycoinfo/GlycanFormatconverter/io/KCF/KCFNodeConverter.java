@@ -45,7 +45,7 @@ public class KCFNodeConverter {
             node = inp.parseMonosaccharide(kcf2iupac.start(notation));
             modifyMonosaccharide(node);
         }
-
+        
         return node;
     }
 
@@ -56,15 +56,19 @@ public class KCFNodeConverter {
         /* modify methyl */
         unit = unit.equalsIgnoreCase("Me") ? "O" + unit : unit;
         unit = unit.equals("PP") ? "PyrP" : unit;
-
+        unit = unit.equals("EtN") ? SubstituentTemplate.ETHANOLAMINE.getIUPACnotation() : unit;
+        unit = unit.equals("EtnP") ? SubstituentTemplate.PHOSPHOETHANOLAMINE.getIUPACnotation() : unit;
+        
         if (!isSubstituent(unit)) return null;
 
         if (haveChild(_notation)) {
-            if (isPyrophosphate(_notation)) {
-                return modifyLinkageType(new Substituent(SubstituentTemplate.PYROPHOSPHATE));
-            } else {
-                return modifyLinkageType((Substituent) makeCrossLinkedSubstituent(unit));
-            }
+        		if (isPyrophosphate (_notation)) {
+        			 return modifyLinkageType(new Substituent(SubstituentTemplate.PYROPHOSPHATE));
+        		}
+        		if (isPhosphoEthanolamine(_notation)) {
+        			 return modifyLinkageType(new Substituent(SubstituentTemplate.PHOSPHOETHANOLAMINE));
+        		}
+            return modifyLinkageType((Substituent) makeCrossLinkedSubstituent(unit));
         } else {
             return modifyLinkageType((Substituent) makeSimpleSubstituent(unit));
         }
@@ -156,6 +160,35 @@ public class KCFNodeConverter {
         return false;
     }
 
+    private boolean isPhosphoEthanolamine (String _notation) {
+	    	String currentID = kcfUtil.splitNotation(_notation).get(0);
+	    	String childNotation = kcfUtil.extractEdgeByID(currentID, true);
+	
+	    	if (!childNotation.equals("")) {
+	    		String childNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(childNotation).get(1));
+	    		String parentNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(childNotation).get(2));
+
+	    		if (childNode.equals("") || parentNode.equals("")) return false;
+
+	    		childNode = kcfUtil.splitNotation(childNode).get(1);
+	    		parentNode = kcfUtil.splitNotation(parentNode).get(1);
+	    		
+	    		if (childNode.equals("EtN"))
+	    			childNode = SubstituentTemplate.ETHANOLAMINE.getIUPACnotation();
+	
+	    		SubstituentTemplate parentT =
+	    				SubstituentTemplate.forIUPACNotationWithIgnore(parentNode);
+	    		SubstituentTemplate childT =
+	    				SubstituentTemplate.forIUPACNotationWithIgnore(childNode);
+	    		
+	    		if (parentT == null || childT == null) return false;
+	    		if (parentT.equals(SubstituentTemplate.PHOSPHATE) && childT.equals(SubstituentTemplate.ETHANOLAMINE)) return true;
+	    	}
+	
+	
+	    	return false;
+    }
+    
     private boolean isLinkageSubstituents (String _notation) {
         String currentID = kcfUtil.splitNotation(_notation).get(0);
         String parentSideNotation = kcfUtil.extractEdgeByID(currentID, false);
@@ -167,6 +200,11 @@ public class KCFNodeConverter {
 
         if (childID.contains(":") || parentID.contains(":")) return false;
 
+        //Phospho-ethanolamine
+        if (kcfUtil.splitNotation(kcfUtil.getNodeByID(childID)).get(1).equals("EtN") &&
+        			kcfUtil.splitNotation(kcfUtil.getNodeByID(parentID)).get(1).equals("P")) return true;
+    
+        //Di-phosphate
         if (kcfUtil.splitNotation(kcfUtil.getNodeByID(childID)).get(1).equals("P") &&
                 kcfUtil.splitNotation(kcfUtil.getNodeByID(parentID)).get(1).equals("P")) return true;
         //if (isSubstituent(kcfUtil.splitNotation(kcfUtil.getNodeByID(childID)).get(1)) &&
