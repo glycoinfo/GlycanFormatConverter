@@ -21,10 +21,8 @@ public class IUPACCondensedImporter {
         _iupac = _iupac.replaceAll(" ", "");
         _iupac = _iupac.trim();
 
-        //Linkage is represented by parentheses.
         if (_iupac.indexOf("[") != -1) {
-            _iupac = _iupac.replaceAll("\\(", "").replaceAll("\\)", "");
-            _iupac = _iupac.replaceAll("\\[", "(").replaceAll("]", ")");
+            _iupac = this.replaceBlockBrakcets(_iupac);
         }
 
         LinkedHashMap<Node, String> nodeIndex = new LinkedHashMap<Node, String>();
@@ -101,9 +99,15 @@ public class IUPACCondensedImporter {
                 isLinkage = true;
             }
 
+            if (isLinkage && item == ')') {
+                ret.add(node);
+                isLinkage = false;
+                node = "";
+            }
+
             //add monosaccharide notation to list.
             char nextItem = _iupac.charAt(i+1);
-            if (isLinkage && String.valueOf(nextItem).matches("[A-Z(]")) {
+            if (isLinkage && String.valueOf(nextItem).matches("[A-Z(\\[]")) {
                 ret.add(node);
                 isLinkage = false;
                 node = "";
@@ -111,6 +115,23 @@ public class IUPACCondensedImporter {
         }
 
         return ret;
+    }
+
+    private String replaceBlockBrakcets (String _iupac) {
+        StringBuilder ret = new StringBuilder(_iupac);
+
+        for (int i = 0; i < _iupac.length(); i++) {
+            char item = _iupac.charAt(i);
+            if (item == '[') {
+                if (_iupac.charAt(i+2) != ')') ret.replace(i, i+1, "(");
+            }
+
+            if (item == ']') {
+                if (_iupac.charAt(i-1) != '-') ret.replace(i, i+1, ")");
+            }
+        }
+
+        return ret.toString();
     }
 
     /*private ArrayList<String> parseNotation(String _iupac) {

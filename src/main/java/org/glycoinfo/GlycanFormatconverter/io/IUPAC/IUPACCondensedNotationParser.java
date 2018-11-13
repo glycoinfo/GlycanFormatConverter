@@ -21,6 +21,11 @@ public class IUPACCondensedNotationParser {
     public Node parseMonosaccharide (String _notation) throws GlycanException, GlyCoImporterException{
         String temp = this.trimParentheses(_notation);
 
+        if (_notation.matches("\\[[\\d?]\\)"))
+            throw new GlyCoImporterException("Repeating structure could not parse !");
+        if (_notation.matches("[\\d?]\\)") || _notation.matches("\\([ab?][\\d?]-"))
+            throw new GlyCoImporterException("Cyclic structure could not parse !");
+
         Monosaccharide mono = new Monosaccharide();
         ArrayList<String> subNotation = new ArrayList<String>();
         ArrayList<String> modifications = new ArrayList<String>();
@@ -77,12 +82,21 @@ public class IUPACCondensedNotationParser {
                 if (i == 1 && String.valueOf(item).matches("[\\d]")) {
                     anomericPosition = Integer.parseInt(String.valueOf(item));
                 }
+                if (i == 0 && item == '-') {
+                    anomericState = AnomericStateDescriptor.UNKNOWN.getIUPACAnomericState();
+                    anomericPosition = 1;
+                }
             }
         }
 
         //parse native substituent
         if (!temp.equals("")) {
-            subNotation.add(temp);
+            if (temp.matches("NA\\d?")) {
+                subNotation.add("N");
+                modifications.add("6A");
+            } else {
+                subNotation.add(temp);
+            }
         }
 
         MonosaccharideIndex mi = MonosaccharideIndex.forTrivialNameWithIgnore(threeLetterCode);
@@ -131,6 +145,10 @@ public class IUPACCondensedNotationParser {
         int anomericPosition = ((Monosaccharide) _mono).getAnomericPosition();
 
         if (anomericPosition != -1) {
+            if (((Monosaccharide) _mono).getAnomer().equals(AnomericStateDescriptor.UNKNOWN_STATE)) {
+                mono.setRing(anomericPosition, Monosaccharide.UNKNOWN_RING);
+                return (Monosaccharide) _mono;
+            }
             if (_mi.getRingSize().equals("p")) {
                 if (anomericPosition == 1) {
                     mono.setRing(anomericPosition, 5);
@@ -200,6 +218,10 @@ public class IUPACCondensedNotationParser {
     private String extractLinkage (String _notation) {
         String ret = "";
         boolean isLinkage = false;
+
+        if (_notation.endsWith("-") && !_notation.matches(".*[ab?]-")) {
+            return "-";
+        }
 
         for (int i = 0; i < _notation.length(); i++) {
             char item = _notation.charAt(i);
