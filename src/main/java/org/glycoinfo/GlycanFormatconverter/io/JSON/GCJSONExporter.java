@@ -1,7 +1,10 @@
 package org.glycoinfo.GlycanFormatconverter.io.JSON;
 
+import org.apache.commons.collections.BidiMap;
+import org.apache.commons.collections.bidimap.DualHashBidiMap;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationConverter;
+import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 import org.json.JSONArray;
@@ -21,23 +24,30 @@ public class GCJSONExporter {
     public String start(GlyContainer _glyco, boolean _isVisualize) throws GlycanException, ConverterExchangeException {
         //TODO : 単糖のソート処理の実装
         nodeIndex = makeTreeMap(_glyco);
+        MonosaccharideUtility monoUtil = new MonosaccharideUtility();
 
         JSONObject monosaccharides = new JSONObject();
+        JSONObject bridges = new JSONObject();
+        JSONObject repeat = new JSONObject();
+        JSONObject edge = new JSONObject();
+
         for (Integer key : nodeIndex.keySet()) {
             Monosaccharide mono = (Monosaccharide) nodeIndex.get(key);
 
             /* parse monosaccharide */
             JSONObject monosaccharide = new JSONObject();
-            monosaccharide.accumulate("AnomericSymbol", mono.getAnomer());
-            monosaccharide.accumulate("AnomericPosition", mono.getAnomericPosition());
+            monosaccharide.accumulate("AnomState", mono.getAnomer().getAnomericState());
+            monosaccharide.accumulate("AnomPosition", mono.getAnomericPosition());
             monosaccharide.accumulate("TrivialName", extractTrivialName(mono.getStereos()));
+            monosaccharide.accumulate("Configuration", extractConfiguration(mono.getStereos()));
             monosaccharide.accumulate("SuperClass", mono.getSuperClass());
-            monosaccharide.accumulate("RingStart", mono.getRingStart());
-            monosaccharide.accumulate("RingEnd", mono.getRingEnd());
+            monosaccharide.accumulate("RingSize", makeRingSymbol(mono));
 
             /* define trivial notation */
             if (_isVisualize) {
-                monosaccharide.accumulate("TrivialNotation", makeTrivialNotation(mono));
+                String trivialName = makeTrivialNotation(mono);
+                monosaccharide.accumulate("Notation", trivialName);
+                monoUtil.modifiedSubstituents(trivialName, mono);
             }
 
             /* extract modifications */
@@ -56,45 +66,103 @@ public class GCJSONExporter {
             /* extract substituent */
             monosaccharide.put("Substituents", extractSubstituents(mono));
 
-            /* extract edges */
-            monosaccharide.put("Edge", extractEdge(mono, _glyco.getUndefinedUnit()));
+            // Extract edges */
+            for (Object obj : extractEdge(mono)) {
+                edge.accumulate("e" + edge.length(), obj);
+            }
 
-            monosaccharides.accumulate(String.valueOf(key), monosaccharide);
+            // Extract repeat
+            for (Object obj : extractRepeat(mono)) {
+                repeat.accumulate("r" + repeat.length(), obj);
+            }
+
+            // extract cross-linked substituent
+            JSONObject bridge = extractBridge(mono, false);
+            if (bridge.length() != 0) {
+                bridges.accumulate("b" + bridges.keySet().size(), bridge);
+            }
+
+            monosaccharides.accumulate("m" + String.valueOf(key), monosaccharide);
         }
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("Monosaccharides", monosaccharides);
 
-        /* extract substituent fragments */
-        jsonObject.put("SubFragments", extractSubstituentFragments(_glyco.getUndefinedUnit()));
+        //
+        jsonObject.put("Edges", edge);
+
+        //
+        jsonObject.put("Bridge", bridges);
+
+        //extract repeating notation
+        jsonObject.put("Repeat", repeat);
+
+        // Extract monosaccharide fragments
+        jsonObject.accumulate("Fragments", extractFragment(_glyco));
 
         return jsonObject.toString();
     }
 
-    private JSONObject extractSubstituentFragments (ArrayList<GlycanUndefinedUnit> _fragments) throws GlycanException {
-        JSONObject ret = new JSONObject();
-        for (GlycanUndefinedUnit undefUnit : _fragments) {
-            if (undefUnit.getNodes().get(0) instanceof Substituent) {
-                JSONObject unit = new JSONObject();
+    private JSONArray extractRepeat (Monosaccharide _mono) {
+        JSONArray ret = new JSONArray();
 
-                /**/
-                for (Linkage linkage : undefUnit.getConnection().getGlycosidicLinkages()) {
-                    unit = extractLinkage(linkage);
-                }
+        BidiMap flip = makeFlipMap();
 
-                /**/
-                Substituent frag = (Substituent) undefUnit.getRootNodes().get(0);
-                unit.accumulate("Notation", frag.getSubstituent());
+        for (Edge parent : _mono.getParentEdges()) {
+            Substituent sub = (Substituent) parent.getSubstituent();
+            if (sub == null) continue;
+            if (!(sub instanceof GlycanRepeatModification)) continue;
 
-                /**/
-                JSONArray parents = new JSONArray();
-                for (Node parent : undefUnit.getParents()) {
-                    parents.put(getIndex(parent));
-                }
-                unit.put("ParentNodeID", parents);
+            GlycanRepeatModification repMod = (GlycanRepeatModification) sub;
 
-                ret.accumulate(String.valueOf(_fragments.indexOf(undefUnit)), unit);
+            JSONObject repUnit = new JSONObject();
+            for (Linkage lin : parent.getGlycosidicLinkages()) {
+                repUnit = extractLinkage(lin, false);
             }
+
+            repUnit.accumulate("Min", repMod.getMinRepeatCount());
+            repUnit.accumulate("Max", repMod.getMaxRepeatCount());
+            repUnit.accumulate("Bridge", extractBridge(_mono, true));
+            repUnit.accumulate("Start", "m" + flip.get(parent.getChild()));
+            repUnit.accumulate("End", "m" + flip.get(parent.getParent()));
+
+            ret.put(repUnit);
+        }
+
+        return ret;
+    }
+
+    private JSONObject extractFragment (GlyContainer _glyCo) throws GlycanException {
+        JSONObject ret = new JSONObject();
+        BidiMap flip = makeFlipMap();
+
+        for (GlycanUndefinedUnit und : _glyCo.getUndefinedUnit()) {
+            JSONObject unit = new JSONObject();
+            Node root = und.getRootNodes().get(0);
+
+            JSONArray acceptors = new JSONArray();
+            for (Node acceptor : und.getParents()) {
+                if (flip.get(acceptor) == null) continue;
+                acceptors.put("m" + flip.get(acceptor));
+            }
+            unit.put("Acceptor", acceptors);
+
+            JSONObject pos = new JSONObject();
+            if (!und.isComposition()) {
+                for (Linkage linkage : und.getConnection().getGlycosidicLinkages()) {
+                    pos = extractLinkage(linkage, false);
+                }
+            }
+            unit.accumulate("Edge", pos);
+
+            // Substituent notation
+            if (root instanceof Substituent) {
+                unit.accumulate("Donor", ((Substituent) root).getNameWithIUPAC());
+            } else {
+                unit.accumulate("Donor", "m" + flip.get(root));
+            }
+
+            ret.accumulate("f" + _glyCo.getUndefinedUnit().indexOf(und), unit);
         }
 
         return ret;
@@ -114,10 +182,10 @@ public class GCJSONExporter {
             unit.accumulate("Notation", sub.getSubstituent());
 
             /* extract position one */
-            unit.accumulate("PositionOne", extractLinkage(sub.getFirstPosition()));
+            unit.accumulate("PositionOne", extractLinkage(sub.getFirstPosition(), false));
 
             /* extract position two */
-            unit.accumulate("PositionTwo", extractLinkage(sub.getSecondPosition()));
+            unit.accumulate("PositionTwo", extractLinkage(sub.getSecondPosition(), false));
 
             ret.put(unit);
         }
@@ -125,144 +193,112 @@ public class GCJSONExporter {
         return ret;
     }
 
-    private JSONObject extractLinkage(Linkage _lin) {
+    private JSONObject extractProbability (Linkage _lin, boolean _isDonor) {
+        JSONObject prob = new JSONObject();
+
+        //is donor side
+        if (_isDonor) {
+            prob.accumulate("Low", _lin.getParentProbabilityLower());
+            prob.accumulate("High", _lin.getParentProbabilityUpper());
+        }
+
+        //is acceptor side
+        if (!_isDonor) {
+            prob.accumulate("Low", _lin.getParentProbabilityLower());
+            prob.accumulate("High", _lin.getParentProbabilityUpper());
+        }
+
+        return prob;
+    }
+
+    private JSONObject extractLinkage(Linkage _lin, boolean _isDonor) {
         JSONObject ret = new JSONObject();
 
         if (_lin == null) return ret;
 
         /* extract position */
         JSONObject pos = new JSONObject();
-        pos.accumulate("ParentSide", _lin.getParentLinkages());
-        pos.accumulate("ChildSide", _lin.getChildLinkages());
+        pos.accumulate("Acceptor", _lin.getParentLinkages());
+        pos.accumulate("Donor", _lin.getChildLinkages());
 
-        /* extract probability annotation */
-        JSONObject prob = new JSONObject();
-
-        JSONObject parentSideProb = new JSONObject();
-        parentSideProb.accumulate("Low", _lin.getParentProbabilityLower());
-        parentSideProb.accumulate("High", _lin.getParentProbabilityUpper());
-        prob.accumulate("ParentSide", parentSideProb);
-
-        JSONObject childSideProb = new JSONObject();
-        childSideProb.accumulate("Low", _lin.getChildProbabilityLower());
-        childSideProb.accumulate("High", _lin.getChildProbabilityUpper());
-        prob.accumulate("ChildSide", childSideProb);
+        // extract probability annotation */
+        ret.accumulate("Probability", extractProbability(_lin, _isDonor));
 
         /* extract linkage type */
         JSONObject type = new JSONObject();
-        type.accumulate("ParentSide", _lin.getParentLinkageType());
-        type.accumulate("ChildSide", _lin.getChildLinkageType());
+        type.accumulate("Acceptor", _lin.getParentLinkageType());
+        type.accumulate("Donor", _lin.getChildLinkageType());
 
         /**/
         ret.accumulate("Position", pos);
-        ret.accumulate("Probability", prob);
         ret.accumulate("LinkageType", type);
 
         return ret;
     }
 
-    private JSONObject extractEdge(Monosaccharide _mono, ArrayList<GlycanUndefinedUnit> _fragments) throws GlycanException {
-        JSONObject parentObj = new JSONObject();
+    private JSONArray extractEdge (Monosaccharide _mono) {
+        JSONArray ret = new JSONArray();
+        BidiMap flip = makeFlipMap();
 
-        /* extract parent side edge */
-        JSONArray repeat = new JSONArray();
-        JSONArray simples = new JSONArray();
+        for (Edge acceptor : _mono.getParentEdges()) {
+            Substituent sub = (Substituent) acceptor.getSubstituent();
+            if (sub != null && sub instanceof GlycanRepeatModification) continue;
+            if (acceptor.getParent() == null) continue;
 
-        for (Edge parent : _mono.getParentEdges()) {
-            Substituent sub = (Substituent) parent.getSubstituent();
-
-            /* extract repeating status */
-            if (sub instanceof GlycanRepeatModification) {
-                GlycanRepeatModification repMod = (GlycanRepeatModification) sub;
-
-                JSONObject repUnit = new JSONObject();
-                for (Linkage lin : parent.getGlycosidicLinkages()) {
-                    repUnit = extractLinkage(lin);
-                }
-
-                repUnit.accumulate("Min", repMod.getMinRepeatCount());
-                repUnit.accumulate("Max", repMod.getMaxRepeatCount());
-                repUnit.accumulate("Bridge", extractBridge(repMod));//repMod.getSubstituent() == null ? "" : repMod.getSubstituent());
-                repUnit.accumulate("ParentNodeID", getIndex(parent.getParent()));
-
-                repeat.put(repUnit);
-
-                continue;
+            JSONObject edge = new JSONObject();
+            for (Linkage lin : acceptor.getGlycosidicLinkages()) {
+                edge = extractLinkage(lin, false);
             }
 
-            /* extract standard parent side linkage */
-            if (parent.getParent() != null) {
-                JSONObject simple = new JSONObject();
-                for (Linkage linkage : parent.getGlycosidicLinkages()) {
-                    simple = extractLinkage(linkage);
-                }
+            edge.accumulate("Donor", "m" + flip.get(acceptor.getChild()));
+            edge.accumulate("Acceptor", "m" + flip.get(acceptor.getParent()));
 
-                /* extract cross linked substituent */
-                simple.accumulate("Bridge", extractBridge(sub));
-
-                simple.put("ParentNodeID", getIndex(parent.getParent()));
-                simples.put(simple);
-            }
+            ret.put(edge);
         }
-
-        parentObj.put("Repeat", repeat);
-        parentObj.put("Parent", simples);
-        parentObj.put("Fragment", extractFragment(_mono, _fragments));
-
-        return parentObj;
-    }
-
-    private JSONObject extractFragment (Node _node, ArrayList<GlycanUndefinedUnit> _fragments) {
-        JSONObject ret = new JSONObject();
-
-        GlycanUndefinedUnit unit = null;
-        for (GlycanUndefinedUnit undef : _fragments) {
-            if (undef.getNodes().contains(_node)) unit = undef;
-        }
-
-        if (unit == null) return ret;
-
-        if (!unit.isComposition()) {
-            for (Linkage linkage : unit.getConnection().getGlycosidicLinkages()) {
-                ret = extractLinkage(linkage);
-            }
-        }
-
-        JSONArray parents = new JSONArray();
-        for (Node parent : unit.getParents()) {
-            parents.put(getIndex(parent));
-        }
-        ret.put("ParentNodeID", parents);
-        ret.put("AnchorID", _fragments.indexOf(unit));
 
         return ret;
     }
 
-    private JSONObject extractBridge (Substituent _sub) {
+    private JSONObject extractBridge (Node _node, boolean _isRepeat) {
         JSONObject unit = new JSONObject();
+        BidiMap flip = makeFlipMap();
 
-        if (_sub == null) return unit;
-        if (_sub.getSubstituent() == null) return unit;
+        for (Edge parentEdge : _node.getParentEdges()) {
+            Substituent sub = (Substituent) parentEdge.getSubstituent();
+            if (sub == null) continue;
+            if (!(sub.getSubstituent() instanceof  CrossLinkedTemplate)) continue;
+            if (sub instanceof GlycanRepeatModification && !_isRepeat) continue;
 
-        unit.accumulate("Notation", _sub.getSubstituent());
+            unit.accumulate("Notation", sub.getNameWithIUPAC());
 
-        /* extract position one */
-        unit.accumulate("PositionOne", extractLinkage(_sub.getFirstPosition()));
+            // define node
+            //JSONObject node = new JSONObject();
+            unit.accumulate("Acceptor", "m" + flip.get(_node.getParentNode()));
+            unit.accumulate("Donor", "m" + flip.get(_node));
+            //unit.accumulate("Node", node);
 
-        /* extract position two */
-        unit.accumulate("PositionTwo", extractLinkage(_sub.getSecondPosition()));
+            // define linkage position
+            JSONObject pos = new JSONObject();
+            if (this.haveSubstituentDirection(sub)) {
+                pos.accumulate("Donor", sub.getFirstPosition().getChildLinkages().get(0));
+                pos.accumulate("Acceptor", sub.getSecondPosition().getChildLinkages().get(0));
+                unit.accumulate("Pos", pos);
+            }
+
+            // define probability annotation
+            //JSONObject prob = new JSONObject();
+            //unit.accumulate("Probabiity", prob);
+
+            // define linkage type  \
+            if (sub.getFirstPosition() != null && sub.getSecondPosition() != null) {
+                JSONObject linType = new JSONObject();
+                linType.accumulate("Acceptor", sub.getFirstPosition().getParentLinkageType());
+                linType.accumulate("Donor", sub.getSecondPosition().getChildLinkageType());
+                unit.accumulate("LinkageType", linType);
+            }
+        }
 
         return unit;
-    }
-
-    private Integer getIndex(Node _node) {
-        Integer ret = -1;
-        for (Integer ind : nodeIndex.keySet()) {
-            if (nodeIndex.get(ind).equals(_node)) {
-                ret = ind;
-            }
-        }
-        return ret;
     }
 
     private TreeMap<Integer, Node> makeTreeMap(GlyContainer _glyco) throws GlycanException {
@@ -293,12 +329,14 @@ public class GCJSONExporter {
         return ret;
     }
 
-    private ArrayList<BaseTypeDictionary> extractTrivialName(LinkedList<String> _stereo) {
-        ArrayList<BaseTypeDictionary> ret = new ArrayList<>();
+    private ArrayList<String> extractTrivialName(LinkedList<String> _stereo) {
+        ArrayList<String> ret = new ArrayList<>();
         for (String unit : _stereo) {
             unit = (unit.indexOf("-") != -1) ? unit.substring(unit.indexOf("-") + 1, unit.length()) : unit;
             BaseTypeDictionary baseType = BaseTypeDictionary.forName(unit);
-            ret.add(baseType);
+
+            String name = baseType.getCoreName();
+            ret.add(name);
         }
 
         return ret;
@@ -308,6 +346,58 @@ public class GCJSONExporter {
         IUPACNotationConverter iupacConv = new IUPACNotationConverter();
         iupacConv.makeTrivialName(_node);
 
-        return iupacConv.getThreeLetterCode();
+        String ret = iupacConv.getThreeLetterCode() + iupacConv.getSubConv().getCoreSubstituentNotaiton();
+
+        return ret;
+    }
+
+    private ArrayList<String> extractConfiguration (LinkedList<String> _stereo) {
+        ArrayList<String> ret = new ArrayList<>();
+        for (String unit : _stereo) {
+            unit = (unit.indexOf("-") != -1) ? unit.substring(unit.indexOf("-") + 1, unit.length()) : unit;
+            BaseTypeDictionary baseType = BaseTypeDictionary.forName(unit);
+
+            String name = baseType.getConfiguration();
+            ret.add(name);
+        }
+
+        return ret;
+    }
+
+    private String makeRingSymbol (Node _node) {
+        Monosaccharide mono = (Monosaccharide) _node;
+        int ringStart = mono.getRingStart();
+        int ringEnd = mono.getRingEnd();
+
+        if (ringStart == -1 && ringEnd == -1) return "";
+        if (ringStart == 1) {
+            if (ringEnd == 4) return "f";
+            if (ringEnd == 5) return "p";
+        }
+        if (ringStart == 2) {
+            if (ringEnd == 5) return "f";
+            if (ringEnd == 6) return "p";
+        }
+
+        return "";
+    }
+
+    private boolean haveSubstituentDirection (Node _node) {
+        if (!(_node instanceof Substituent)) return false;
+
+        Substituent sub = (Substituent) _node;
+
+        if (sub.getFirstPosition() == null || sub.getSecondPosition() == null) return false;
+        if (!sub.getFirstPosition().getChildLinkages().isEmpty() &&
+                !sub.getSecondPosition().getChildLinkages().isEmpty()) return true;
+
+        return false;
+    }
+
+    private BidiMap makeFlipMap () {
+        BidiMap bidi = new DualHashBidiMap(this.nodeIndex);
+        BidiMap flip = bidi.inverseBidiMap();
+
+        return flip;
     }
 }
