@@ -14,7 +14,6 @@ import org.glycoinfo.GlycanFormatconverter.util.analyzer.ThreeLetterCodeAnalyzer
 public class IUPACNotationParser {
 
 	public Node parseMonosaccharide (String _iupacNotation) throws GlycanException, GlyCoImporterException{
-		System.out.println(_iupacNotation);
 		/* remove */
 		String temp = this.trim(_iupacNotation);
 		
