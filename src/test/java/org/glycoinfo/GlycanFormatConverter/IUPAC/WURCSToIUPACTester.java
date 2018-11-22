@@ -111,12 +111,6 @@ public class WURCSToIUPACTester {
 
 		while((line = a_bfFile.readLine()) != null) {
 			line.trim();
-			
-			if (!line.contains("~"))
-				continue;
-			
-			System.out.println(line);
-			
 			if(line.indexOf("WURCS") != -1) {
 				if(line.indexOf(" ") != -1) line = line.replace(" ", "\t"); 
 				String[] IDandWURCS = line.split("\t");

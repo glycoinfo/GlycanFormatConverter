@@ -21,10 +21,7 @@ public class WURCSToWURCS_pickup {
 
 	@Test
 	public void WURCSToWURCS () throws Exception {
-		String numbers = //"";
-		
-		"G01640EG', 'G04507OD', 'G06223SK', 'G09054KE', 'G16389YP', 'G16486BZ', 'G19919MT', 'G26342FD', 'G28242QN', 'G31701TC', 'G33101LK', 'G33613EQ', 'G34292EV', 'G36935DW', 'G42932XD', 'G46115QU', 'G51391VS', 'G54845HY', 'G55848NG', 'G58201SO', 'G59458JG', 'G60093CK', 'G61809OW', 'G62976UL', 'G63984BE', 'G69204GU', 'G71158IH', 'G73569DZ', 'G76853TC', 'G79126NG', 'G80592WH', 'G81758FA', 'G87394MA', 'G90886DD', 'G94725RJ', 'G95106EK', 'G95132XB', 'G97511AV";
-		
+		String numbers = "";
 		//"G21162RS";
 		//"G06488MS', 'G80460DD', 'G98391BL', 'G43387DW', 'G84207CL";
 		//"G09400JY', 'G69216DQ', 'G96571NU";
@@ -34,17 +31,16 @@ public class WURCSToWURCS_pickup {
 
 		File file = new File("/Users/e15d5605/Dataset/sampleWURCSforConvertTest");
 
-		//File efile = new File("src/test/resources/Unmatched");
-		//if (efile.isFile()) {
-		//	numbers = openErrorFile(efile.getAbsolutePath());
-		//}
+		File efile = new File("src/test/resources/Unmatched");
+		if (efile.isFile()) {
+			numbers = openErrorFile(efile.getAbsolutePath());
+		}
 
 		if (file.isFile()) {
 			HashMap<String, String> wurcsMap = openString(file.getAbsolutePath());
 
 			StringBuilder result = new StringBuilder();
 			WURCSImporter wi = new WURCSImporter();
-			StringBuilder ret = new StringBuilder();
 			int count = 0;	
 			
 			for (String number : numbers.split("', '")) {
@@ -54,8 +50,6 @@ public class WURCSToWURCS_pickup {
 				String wurcs = wurcsMap.get(number);
 
 				try {
-					ret.append(number + "\t" + wurcs + "\n");
-					
 					/* WURCS to IUPAC */	
 					wi.start(wurcs);
 
@@ -90,8 +84,6 @@ public class WURCSToWURCS_pickup {
 
 			/* write WURCS */
 			writeFile(result.toString(), "", fileName);
-			
-			System.out.println(ret);
 		} else {
 			throw new Exception("This file could not found.");
 		}

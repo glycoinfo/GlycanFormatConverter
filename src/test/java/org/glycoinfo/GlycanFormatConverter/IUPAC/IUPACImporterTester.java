@@ -39,7 +39,7 @@ public class IUPACImporterTester {
 		//samples.add("α-D-Neup5Ac-(2→8:1-9)-α-D-Neup5Ac-(2→");
 		//samples.add("α-L-Rhap-(2-Suc-3:1→4)-β-D-Glcp-(1→");
 
-		samples.add("α-D-Manp-(1→4)[α-D-Manp-(1→3)[α-D-Manp-(1→6)]-α-D-Manp-(1→6)]-β-D-Manp-(1→4)-β-D-GlcpNAc-(1→4)-?-D-GlcNAc-(?→");
+		//samples.add("α-D-Manp-(1→3)[α-D-Manp-(1→3)[α-D-Manp-(1→6)]-α-D-Manp-(1→6)]-β-D-Manp-(1→4)-β-D-GlcpNAc-(1→4)-?-D-GlcNAc-(?→");
 		//samples.add("α-D-Neup5Ac-(2→6)-β-D-Galp-(1→4)-β-D-GlcpNAc-(1→2)-α-D-Manp-(1→3)[α-D-Manp-(1→3)-α-D-Manp-(1→6)]-β-D-Manp-(1→4)-β-D-GlcpNAc-(1→4)[α-L-Fucp-(1→6)]-β-D-GlcpNAc-(1→");
 		//samples.add("[α-D-Glcp-(1→4)-α-D-Glcp-(1→6)]-4)-α-D-Glcp-(1→4)-α-D-Glcp-(1→4)-α-D-Glcp-(1→4)-α-D-Glcp-(1→4)-α-D-Glcp-(1→4)-α-D-Glcp-(1→4)-α-D-Glcp-(1→");
 
@@ -62,7 +62,7 @@ public class IUPACImporterTester {
 		//samples.add("α-L-Glcp-(1→2)[?-Gro-ol-(1-P→3)][[4)-β-D-Glcp-(1→4)]-β-D-Galp-(1→4)-α-D-Glcp-(1→3)-α-L-Rhap-(1→]n");
 		//samples.add("[4)-α-D-Glcp-(1→]n[α-D-Glcp-(1→6)]-α-D-Glcp-(1→");
 		//samples.add("α-D-Manp-(1→3)[α-D-Manp-(1→6)]-β-D-Manp-(1→4)-β-D-GlcpNAc-(1→4)-?-D-GlcNAc-(?→");
-		//samples.add("?-D-Neup5Gc-(2→?)-?-D-Galp-(1→?)-?-D-GlcpNAc-(1→?)-?-D-Manp-(1→?)[?-D-Neup5Ac-(2→?)-?-D-Galp-(1→?)-?-D-GlcpNAc-(1→?)-?-D-Manp-(1→?)]-?-D-Manp-(1→?)-?-D-GlcpNAc-(1→?)-?-D-GlcpNAc-(1→");
+		samples.add("?-D-Neup5Gc-(2→?)-?-D-Galp-(1→?)-?-D-GlcpNAc-(1→?)-?-D-Manp-(1→?)[?-D-Neup5Ac-(2→?)-?-D-Galp-(1→?)-?-D-GlcpNAc-(1→?)-?-D-Manp-(1→?)]-?-D-Manp-(1→?)-?-D-GlcpNAc-(1→?)-?-D-GlcpNAc-(1→");
 		
 		StringBuilder results = new StringBuilder();
 		

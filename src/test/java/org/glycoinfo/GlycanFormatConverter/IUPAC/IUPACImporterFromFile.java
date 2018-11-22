@@ -25,10 +25,8 @@ public class IUPACImporterFromFile {
 	public void IUPACImporterTester () throws Exception {
 		
 		//String string_list = "/Users/e15d5605/Dataset/test";
-		//String string_list = "/Users/e15d5605/Dataset/20180202_IUPACSample_from_WURCS";
-        //String string_list = "src/test/resources/20180917_IUPACSample_from_WURCS";
-        String string_list = "src/test/resources/sampleIUPAC";
-
+		String string_list = "/Users/e15d5605/Dataset/20180202_IUPACSample_from_WURCS";
+		
 		 if(string_list == null || string_list.equals("")) throw new Exception();
 		 
 		 File file = new File(string_list);
@@ -38,9 +36,9 @@ public class IUPACImporterFromFile {
 			 LinkedHashMap<String, String> iupacIndex = openString(string_list);
 
 			 StringBuilder results = new StringBuilder();
-             StringBuilder error = new StringBuilder();
+
 			 for(String key : iupacIndex.keySet()) {
-			  	 input = iupacIndex.get(key);
+				 input = iupacIndex.get(key);
 
 				 try {
 					 /* Import IUPAC */
@@ -49,12 +47,11 @@ public class IUPACImporterFromFile {
 					 ExporterEntrance ee = new ExporterEntrance(glyCo);
 
 					 /* to WURCS */
-					 results.append(ee.toWURCS() + "\n");
+					 results.append(key + "\t" + ee.toWURCS() + "\n");
+
 				 } catch (Exception e) {
-					 results.append("\n");
-				     //results.append(key + "\t" + "% " + e.getMessage() + "\n");
-					 error.append(key + "\t" + input + "\t" + e.getMessage() + "\n");
-					 e.printStackTrace();
+					 results.append(key + "\t" + "% " + e.getMessage() + "\n");
+					 //e.printStackTrace();
 				 }
 			 }
 
@@ -64,9 +61,9 @@ public class IUPACImporterFromFile {
 			 String fileName = sdf.format(date) + "_WURCSSample_from_IUPAC";
 
 			 /* write WURCS */
-			 writeFile(results.toString(), "", fileName);
-
-			 System.out.println(error);
+			 writeFile(results.toString(), "", fileName);	
+			 
+			 //System.out.println(results);
 		 }
 	}
 	

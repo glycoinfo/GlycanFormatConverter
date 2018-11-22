@@ -43,14 +43,19 @@ public class KCF2WURCS {
                     ExporterEntrance ee = new ExporterEntrance(gc);
                     String wurcs = ee.toWURCS();
 
-                    ret.append(key + "\t" + wurcs + "\n");
+                    ret.append(key + "\t" + wurcs);
 
+                    System.out.println(wurcs);
+                    
                     done++;
                 } catch (Exception e) {
-                    ret.append(key + "\t" + "%" + e.getMessage() + "\n");
+                    ret.append(key + "\t" + "%");
                     errorList.append(kcfDictionary.get(key) + "\n");
+                    System.out.println(key + " " + e.getMessage());
                     //e.printStackTrace();
                 }
+
+                ret.append("\n");
             }
 
             /* define file name */
@@ -65,9 +70,9 @@ public class KCF2WURCS {
 
             /* write error */
             //writeFile(errorList.toString(), errorName);
-    
-            System.out.println(ret);
+
             System.out.println(done + "/" + kcfDictionary.size());
+            //System.out.println(ret);
         }
     }
 

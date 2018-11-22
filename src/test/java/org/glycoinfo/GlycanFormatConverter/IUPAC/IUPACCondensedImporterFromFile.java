@@ -3,7 +3,6 @@ package org.glycoinfo.GlycanFormatConverter.IUPAC;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACCondensedImporter;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporter;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExtendedImporter;
-import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,29 +38,19 @@ public class IUPACCondensedImporterFromFile {
                     IUPACCondensedImporter ii = new IUPACCondensedImporter();
 
                     /* GlyContainerToIUPAC */
-                    //IUPACExporter ie = new IUPACExporter();
+                    IUPACExporter ie = new IUPACExporter();
+
                     ii.start(iupacIndex.get(key));
 
-                    ExporterEntrance ee = new ExporterEntrance(ii.getGlyContainer());
+                    ie.start(ii.getGlyContainer());
 
-                    String wurcs = ee.toWURCS();
-
-                    if (wurcs.equals("")) {
-                        results.append(key + "\n");
-                    } else {
-                        results.append(wurcs + "\n");
+                    if (!iupacIndex.get(key).equals(ie.getExtendedWithGreek())) {
+                        results.append(input + "\n");
+                        results.append(ie.getExtendedWithGreek() + "\n\n");
                     }
-
-                    //ie.start(ii.getGlyContainer());
-
-                    //if (!iupacIndex.get(key).equals(ie.getExtendedWithGreek())) {
-                    //    results.append(input + "\n");
-                    //    results.append(ie.getExtendedWithGreek() + "\n\n");
-                    //}
                 } catch (Exception e) {
                     errors.append(key + "\t" + input + "\n");
                     System.out.println(e.getMessage());
-                    results.append(key + "\n");
                     e.printStackTrace();
                 }
             }
@@ -101,10 +90,7 @@ public class IUPACCondensedImporterFromFile {
         wret.clear();
 
         while((line = a_bfFile.readLine()) != null) {
-            line = line.replaceAll("[\\xc2\\xa0]", "");
-            line = line.replaceAll(" ", "");
             line.trim();
-
             if(line.startsWith("%")) continue;
             if(line.indexOf(" ") != -1) line = line.replace(" ", "\t");
             String[] IDandWURCS = line.split("\t");

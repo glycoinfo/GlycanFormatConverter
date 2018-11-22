@@ -21,11 +21,8 @@ public class JSONConverter {
 
 	@Test
 	public void WURCSToJSON () throws Exception { 
-
-	    String d = "src/test/resources/sampleWURCSforConvertTest";
-        //String d = "/Users/e15d5605/Dataset/sampleWURCSforConvertTest";
-
-        File file = new File(d);
+		
+		File file = new File("/Users/e15d5605/Dataset/sampleWURCSforConvertTest");
 
 		if (file.isFile()) {
 			HashMap<String, String> wurcsMap = openString(file.getAbsolutePath());
@@ -64,7 +61,7 @@ public class JSONConverter {
 				} catch (Exception e) {
 					error.append(number + "\t" + input + "\n");
 					//System.out.println(e.getMessage());
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 	
@@ -124,8 +121,6 @@ public class JSONConverter {
 
         while((line = a_bfFile.readLine()) != null) {
             line.trim();
-            if (line.startsWith("%")) continue;
-
             if(line.indexOf("WURCS") != -1) {
                 if(line.indexOf(" ") != -1) line = line.replace(" ", "\t");
                 String[] IDandWURCS = line.split("\t");
