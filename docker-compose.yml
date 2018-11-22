@@ -1,0 +1,11 @@
+version: '2'
+service:
+	converter:
+		build: .
+		restart: always
+		networks:
+			- api
+
+networks:
+	api:
+		external: true
