@@ -1,0 +1,24 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Idea
+.idea
+*.iml
+*.iws
+*.ipr
+
+# Eclipse
+.project
+.classpath
+.settings
+
+# Maven
+target
+
+.DS_Store
+
+test
+*.prefs

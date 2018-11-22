@@ -9,6 +9,7 @@ import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStyleDescriptor;
 import org.glycoinfo.GlycanFormatconverter.io.WURCS.WURCSImporter;
 import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
+import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSGraph;
 import org.junit.Test;
 
 public class WURCSToWURCS_single {
@@ -18,7 +19,7 @@ public class WURCSToWURCS_single {
 
 		ArrayList<String> sets = new ArrayList<>();
 	
-		sets.add("WURCS=2.0/2,2,2/[a1112h-1b_1-5][C2112xh_1d-5_6*N]/1-2/a2-b1d_a3-b1u");
+		//sets.add("WURCS=2.0/2,2,2/[a1112h-1b_1-5][C2112xh_1d-5_6*N]/1-2/a2-b1d_a3-b1u");
 		//sets.add("WURCS=2.0/1,1,0/[a26h-1b_1-4]/1/");
 		//sets.add("WURCS=2.0/6,8,9/[u2122h_2*NCC/3=O][u2122h_2*NSO/3=O/3=O][u2112h][u2122A][u21EEA][u212h]/1-2-3-3-4-4-5-6/a?|b?|c?|d?|e?|f?|g?|h?}*OSO/3=O/3=O_a?|b?|c?|d?|e?|f?|g?|h?}*OSO/3=O/3=O_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?");
 		//sets.add("WURCS=2.0/4,4,3/[h2h][u2112h_2*NCC/3=O][a2112h-1x_1-5_2*NCC/3=O][a2112h-1x_1-5]/1-2-3-4/b?-c1_c?-d1_a?-b?*OPO*/3O/3=O");
@@ -119,12 +120,21 @@ public class WURCSToWURCS_single {
 		//sets.add("WURCS=2.0/1,7,7/[a2122h-1a_1-5_2*OC_3*OC_6*N]/1-1-1-1-1-1-1/a1-g4_a4-b1_b4-c1_c4-d1_d4-e1_e4-f1_f4-g1");
 		//sets.add("WURCS=2.0/3,9,0+/[uxxxxh_2*NCC/3=O][axxxxh-1x_1-5_?*][axxxxh-1x_1-5]/1-1-1-1-2-3-3-3-3/");
 		
+		//sets.add("WURCS=2.0/1,1,1/[hxh]/1/a1-a3*OPO*/3O/3=O~n");
+		//sets.add("WURCS=2.0/1,1,1/[hxh]/1/a1-a3*OPO*/3O/3=O~n");
+		//sets.add("WURCS=2.0/1,1,1/[a1221h-1a_1-5]/1/a1-a3~n");
+		//sets.add("WURCS=2.0/1,1,1/[Aad21122h-2a_2-6_5*NCC/3=O_7*OCC/3=O]/1/a2-a9~n");
+		//sets.add("WURCS=2.0/3,12,16/[a212h-1b_1-5][a2112h-1b_1-5][a211h-1a_1-4]/1-2-2-2-2-2-3-3-2-2-2-2/a4-b1_b3-c1_b6-l1_c3-d1_c6-i1_d3-e1_d6-f1_f6-g1_g3-h1_i3-j1_j3-k1_a1-a4~n_a1-e3~n_b1-b3~n_c1-c3~n_d1-d3~n");
+        //sets.add("WURCS=2.0/4,6,6/[a2211m-1a_1-5][a2122A-1b_1-5][a2122h-1b_1-5_3n1-4n2*1OC^RO*2/3CO/6=O/3C][a2112h-1b_1-5]/1-1-1-2-3-4/a2-b1_b3-c1_c2-d1_c3-f1_d4-e1_a1-f4~n");
+        //sets.add("WURCS=2.0/1,1,0/[A2Ch_1-4_3*C_3*C]/1/");
+		sets.add("WURCS=2.0/2,2,1/[a2112h-1x_1-5_2*NCC/3=O][a21FFA-1a_1-?_2*OSO/3=O/3=O]/1-2/a3-b1");
+		
 		StringBuilder result = new StringBuilder();
 
 		for (String input : sets) {
 			try {
 				WURCSFactory wf = new WURCSFactory(input);
-				
+					
 				/* WURCS to IUPAC */	
 				WURCSImporter wi = new WURCSImporter();
 				wi.start(input);
@@ -144,7 +154,7 @@ public class WURCSToWURCS_single {
 				String wurcs = ee.toWURCS();
 				result.append("C : " + wurcs + "\n");
 				result.append(input.equals(wurcs) + "\n");
-				result.append("\n");	
+				result.append("\n");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}			

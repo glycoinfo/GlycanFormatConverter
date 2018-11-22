@@ -49,7 +49,7 @@ public class WURCS2WURCSviaJSON {
 
                     /* GC to JSON */
                     String json = ee.toJSON();
-                    System.out.println(json);
+                    //System.out.println(json);
 
                     /* JSON to GC */
                     GCJSONImporter gcjImporter = new GCJSONImporter();
@@ -116,6 +116,7 @@ public class WURCS2WURCSviaJSON {
             if(line.indexOf("WURCS") != -1) {
                 if(line.indexOf(" ") != -1) line = line.replace(" ", "\t");
                 String[] IDandWURCS = line.split("\t");
+
                 if (IDandWURCS.length == 2) {
                     if (IDandWURCS[0].equals("")) {
                         wret.put(String.valueOf(count), IDandWURCS[1]);

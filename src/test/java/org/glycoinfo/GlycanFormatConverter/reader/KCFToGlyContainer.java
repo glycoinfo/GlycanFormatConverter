@@ -1,10 +1,13 @@
 package org.glycoinfo.GlycanFormatConverter.reader;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
+import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporter;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExtendedImporter;
 import org.glycoinfo.GlycanFormatconverter.io.KCF.KCFImporter;
+import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
+import org.glycoinfo.GlycanFormatconverter.util.ImporterEntrance;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,6 +40,10 @@ public class KCFToGlyContainer {
                     KCFImporter kcfI = new KCFImporter();
                     GlyContainer glyco = kcfI.start(kcfIndex.get(key));
 
+                    ExporterEntrance ee = new ExporterEntrance(glyco);
+
+                    System.out.println(ee.toWURCS());
+
                     IUPACExporter ie = new IUPACExporter();
                     ie.start(glyco);
 
@@ -50,6 +57,8 @@ public class KCFToGlyContainer {
 
                     String iupaci = ie.getExtendedWithGreek();
 
+                    Node root = glyco.getRootNodes().get(0);
+
                     if (kcfi.equals(iupaci)) {
                         System.out.println(kcfi + "\n");
                     } else {
@@ -58,7 +67,9 @@ public class KCFToGlyContainer {
                     }
 
                     System.out.println(results);
+
                 } catch (Exception e) {
+                    System.out.println(kcfIndex.get(key));
                     e.printStackTrace();
                 }
             }
