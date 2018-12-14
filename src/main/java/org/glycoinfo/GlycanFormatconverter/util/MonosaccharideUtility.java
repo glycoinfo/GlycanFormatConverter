@@ -398,21 +398,51 @@ public class MonosaccharideUtility {
 
     public Monosaccharide modifiedSubstituents (String _trivialName, Node _node) throws GlycanException {
         Monosaccharide mono = (Monosaccharide) _node;
-
         ModifiedMonosaccharideDescriptor modMonoDesc = ModifiedMonosaccharideDescriptor.forTrivialName(_trivialName);
 
         if (modMonoDesc != null) {
+            if (isHexosamine(modMonoDesc)) {
+                this.modifyNsubstituent(_node);
+            }
+
             for (String sub : modMonoDesc.getSubstituents().split("_")) {
                 removeSubstituents(sub, _node);
+            }
+            for (String mod : modMonoDesc.getModifications().split("_")) {
+                remomveModifications(mod, _node);
             }
 
             return mono;
         }
 
+        if (_trivialName.endsWith("A")) {
+            remomveModifications("6*A", _node);
+        }
+
         return mono;
     }
 
+    private void modifyNsubstituent (Node _node) {
+        Monosaccharide mono = (Monosaccharide) _node;
+        SubstituentUtility subUtil = new SubstituentUtility();
+
+        for (Edge edge : mono.getChildEdges()) {
+            if (edge.getSubstituent() == null) continue;
+            if (edge.getSubstituent() != null && edge.getChild() != null) continue;
+
+            Substituent sub = (Substituent) edge.getSubstituent();
+
+            if (subUtil.isNLinkedSubstituent(sub.getSubstituent()) && sub.getFirstPosition().getParentLinkages().contains(2)) {
+                sub.setTemplate(subUtil.convertNTypeToOType(sub.getSubstituent()));
+            }
+        }
+
+        return;
+    }
+
     private void removeSubstituents (String _notation, Node _node) throws GlycanException {
+        if (_notation.equals("")) return;
+
         String[] posNot = _notation.split("\\*");
         SubstituentTemplate subTemp = SubstituentTemplate.forIUPACNotationWithIgnore(posNot[1]);
         SubstituentUtility subUtil = new SubstituentUtility();
@@ -430,5 +460,35 @@ public class MonosaccharideUtility {
         }
 
         return;
+    }
+
+    private void remomveModifications (String _mod, Node _node) {
+        if (_mod.equals("")) return;
+
+        String[] posNot = _mod.split("\\*");
+        ModificationTemplate modTemp = ModificationTemplate.forCarbon(posNot[1].charAt(0));
+        if (modTemp.equals(ModificationTemplate.ALDONICACID) && posNot[0] != "1") {
+            modTemp = ModificationTemplate.URONICACID;
+        }
+        Monosaccharide mono = (Monosaccharide) _node;
+
+        for (GlyCoModification gMod : mono.getModifications()) {
+            if (gMod.getModificationTemplate().equals(modTemp)) mono.removeModification(gMod);
+        }
+
+        return;
+    }
+
+    private boolean isHexosamine (ModifiedMonosaccharideDescriptor _modMonoDesc) {
+        return (_modMonoDesc.equals(ModifiedMonosaccharideDescriptor.ALLN) ||
+                _modMonoDesc.equals(ModifiedMonosaccharideDescriptor.ALTN) ||
+                _modMonoDesc.equals(ModifiedMonosaccharideDescriptor.GALN) ||
+                _modMonoDesc.equals(ModifiedMonosaccharideDescriptor.GLCN) ||
+                _modMonoDesc.equals(ModifiedMonosaccharideDescriptor.IDON) ||
+                _modMonoDesc.equals(ModifiedMonosaccharideDescriptor.MANN) ||
+                _modMonoDesc.equals(ModifiedMonosaccharideDescriptor.HEXN) ||
+                _modMonoDesc.equals(ModifiedMonosaccharideDescriptor.TALN) ||
+                _modMonoDesc.equals(ModifiedMonosaccharideDescriptor.GULN)
+        );
     }
 }
