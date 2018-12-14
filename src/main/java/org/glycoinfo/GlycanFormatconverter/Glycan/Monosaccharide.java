@@ -119,7 +119,9 @@ public class Monosaccharide extends Node {
 	}
 	
 	public ArrayList<GlyCoModification> getModifications() {
-		return this.modifications;
+		ArrayList<GlyCoModification> ret = new ArrayList<>();
+		ret.addAll(this.modifications);
+		return ret;
 	}
 	
 	//public ArrayList<Substituent> getSubstituent() {
