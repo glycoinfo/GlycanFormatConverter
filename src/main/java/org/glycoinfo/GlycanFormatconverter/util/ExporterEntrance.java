@@ -66,7 +66,7 @@ public class ExporterEntrance {
     public String toJSON () throws GlycanException, ConverterExchangeException {
         GCJSONExporter gcjsonExpo = new GCJSONExporter();
 
-        return gcjsonExpo.start(glyCo, false);
+        return gcjsonExpo.start(glyCo.copy(), false);
     }
 
     public String toJSONforVisualize () throws ConverterExchangeException, GlycanException {

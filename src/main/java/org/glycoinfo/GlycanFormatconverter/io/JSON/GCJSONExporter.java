@@ -34,7 +34,7 @@ public class GCJSONExporter {
         for (Integer key : nodeIndex.keySet()) {
             Monosaccharide mono = (Monosaccharide) nodeIndex.get(key);
 
-            /* parse monosaccharide */
+            // parse monosaccharide
             JSONObject monosaccharide = new JSONObject();
             monosaccharide.accumulate("AnomState", mono.getAnomer().getAnomericState());
             monosaccharide.accumulate("AnomPosition", mono.getAnomericPosition());
@@ -43,30 +43,20 @@ public class GCJSONExporter {
             monosaccharide.accumulate("SuperClass", mono.getSuperClass());
             monosaccharide.accumulate("RingSize", makeRingSymbol(mono));
 
-            /* define trivial notation */
+            // define trivial notation
             if (_isVisualize) {
                 String trivialName = makeTrivialNotation(mono);
                 monosaccharide.accumulate("Notation", trivialName);
                 monoUtil.modifiedSubstituents(trivialName, mono);
             }
 
-            /* extract modifications */
-            JSONArray modifications = new JSONArray();
-            for (GlyCoModification gMod : mono.getModifications()) {
-                if (mono.getSuperClass().getSize() == gMod.getPositionOne() &&
-                        gMod.getModificationTemplate().equals(ModificationTemplate.HYDROXYL)) continue;
-                JSONObject modUnit = new JSONObject();
-                modUnit.accumulate("Notation", gMod.getModificationTemplate());
-                modUnit.accumulate("PositionOne", gMod.getPositionOne());
-                modUnit.accumulate("PositionTwo", gMod.getPositionTwo());
-                modifications.put(modUnit);
-            }
-            monosaccharide.put("Modifications", modifications);
+            // extract modifications
+            monosaccharide.put("Modifications", this.extractModifications(mono));
 
-            /* extract substituent */
+            // extract substituent
             monosaccharide.put("Substituents", extractSubstituents(mono));
 
-            // Extract edges */
+            // Extract edges
             for (Object obj : extractEdge(mono)) {
                 edge.accumulate("e" + edge.length(), obj);
             }
@@ -99,6 +89,15 @@ public class GCJSONExporter {
 
         // Extract monosaccharide fragments
         jsonObject.accumulate("Fragments", extractFragment(_glyco));
+
+        // Assign aglycone
+        jsonObject.put("Aglycone", this.extractAglycone(_glyco.getAglycone()));
+
+        // Add original WURCS string
+        jsonObject.put("WURCS", "");
+
+        // Add accession number
+        jsonObject.put("AN", "");
 
         return jsonObject.toString();
     }
@@ -179,13 +178,23 @@ public class GCJSONExporter {
             if (sub.getSubstituent() instanceof CrossLinkedTemplate && childEdge.getChild() != null) continue;
 
             JSONObject unit = new JSONObject();
-            unit.accumulate("Notation", sub.getSubstituent());
+            //Extract position
+            unit = extractLinkage(sub.getFirstPosition(), false);
+            //unit.put("Position", extractLinkage(sub.getFirstPosition(), false));
 
-            /* extract position one */
-            unit.accumulate("PositionOne", extractLinkage(sub.getFirstPosition(), false));
+            unit.accumulate("Notation", sub.getSubstituent().getIUPACnotation());
 
-            /* extract position two */
-            unit.accumulate("PositionTwo", extractLinkage(sub.getSecondPosition(), false));
+            //Add state
+            if (sub.getSecondPosition() != null && !sub.getSecondPosition().getParentLinkages().isEmpty()) {
+                unit.accumulate("Status", "simple");
+            }
+            if (sub.getSecondPosition() == null) {
+                if (sub.getFirstPosition().getParentLinkages().size() > 1) {
+                    unit.accumulate("Status", "fuzzy");
+                } else {
+                    unit.accumulate("Status", "simple");
+                }
+            }
 
             ret.put(unit);
         }
@@ -346,7 +355,9 @@ public class GCJSONExporter {
         IUPACNotationConverter iupacConv = new IUPACNotationConverter();
         iupacConv.makeTrivialName(_node);
 
-        String ret = iupacConv.getThreeLetterCode() + iupacConv.getSubConv().getCoreSubstituentNotaiton();
+        String ret = iupacConv.getCoreCode();
+
+        //iupacConv.getThreeLetterCode() + iupacConv.getSubConv().getCoreSubstituentNotaiton();
 
         return ret;
     }
@@ -399,5 +410,58 @@ public class GCJSONExporter {
         BidiMap flip = bidi.inverseBidiMap();
 
         return flip;
+    }
+
+    private JSONArray extractModifications (Node _node) {
+        Monosaccharide mono = (Monosaccharide) _node;
+        JSONArray ret = new JSONArray();
+        boolean isUnsaturate = false;
+        JSONArray pos = null;
+
+        for (GlyCoModification gMod : mono.getModifications()) {
+            if (mono.getSuperClass().getSize() == gMod.getPositionOne() &&
+                    gMod.getModificationTemplate().equals(ModificationTemplate.HYDROXYL)) continue;
+            JSONObject modUnit = new JSONObject();
+
+            if (isUnsaturation(gMod)) {
+                if (isUnsaturate) {
+                    pos.put(gMod.getPositionOne());
+                    isUnsaturate = false;
+                } else {
+                    pos = new JSONArray();
+                    pos.put(gMod.getPositionOne());
+                    isUnsaturate = true;
+                    continue;
+                }
+            } else {
+                pos = new JSONArray();
+                pos.put(gMod.getPositionOne());
+            }
+
+            if (pos != null) modUnit.put("Position", pos);
+            modUnit.accumulate("Notation", gMod.getModificationTemplate().getIUPACnotation());
+            ret.put(modUnit);
+        }
+
+        return ret;
+    }
+
+    private String extractAglycone (Node _node) {
+        if (_node == null) return "";
+        if (_node instanceof Aglycone) return "";
+
+        Aglycone agly = (Aglycone) _node;
+        return agly.getName();
+    }
+
+    private boolean isUnsaturation (GlyCoModification _gMod) {
+        if (_gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_EL) ||
+                _gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_EU) ||
+                _gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_FL) ||
+                _gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_FU) ||
+                _gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_ZL) ||
+                _gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_ZU)) return true;
+
+        return false;
     }
 }
