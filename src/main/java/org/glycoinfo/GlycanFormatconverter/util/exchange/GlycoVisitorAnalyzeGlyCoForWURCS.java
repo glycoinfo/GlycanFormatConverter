@@ -119,14 +119,14 @@ public class GlycoVisitorAnalyzeGlyCoForWURCS implements ContainerVisitor {
 	
 	@Override
 	public void clear() {
-		this.linkages = new ArrayList<Edge>();
-		this.linkageToRepeat = new HashMap<Edge, Substituent>();
+		this.linkages = new ArrayList<>();
+		this.linkageToRepeat = new HashMap<>();
 		
-		this.nodes = new ArrayList<Node>();
-		this.subGraph = new ArrayList<Node>();
+		this.nodes = new ArrayList<>();
+		this.subGraph = new ArrayList<>();
 		
-		this.repeats = new ArrayList<Substituent>();
-		this.fragments = new ArrayList<GlycanUndefinedUnit>();
+		this.repeats = new ArrayList<>();
+		this.fragments = new ArrayList<>();
 	}
 
 

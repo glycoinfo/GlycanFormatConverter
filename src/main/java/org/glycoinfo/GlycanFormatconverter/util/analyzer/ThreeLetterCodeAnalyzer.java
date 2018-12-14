@@ -18,6 +18,12 @@ public class ThreeLetterCodeAnalyzer {
 	private SuperClass superclass;
 	private String coreNotation;
 
+	public ThreeLetterCodeAnalyzer () {
+		this.substituents = new ArrayList<>();
+		this.modifications = new ArrayList<>();
+		this.stereos = new LinkedList<>();
+	}
+
 	public ArrayList<String> getSubstituents () {
 		return this.substituents;
 	}
@@ -42,8 +48,6 @@ public class ThreeLetterCodeAnalyzer {
 	}
 
 	public void analyzeTrivialName (String _trivialName, LinkedList<String> _templates) throws GlyCoImporterException {
-		init();
-
 		//group 1 : deoxy notation
 		//group 2 : three letter code
 		//group 3 : super class
@@ -129,11 +133,4 @@ public class ThreeLetterCodeAnalyzer {
 			modifications.add(parts[0] + parts[1]);
 		}
 	}
-	
-	private void init() {
-		this.substituents = new ArrayList<>();
-		this.modifications = new ArrayList<>();
-		this.stereos = new LinkedList<>();
-	}
-	
 }

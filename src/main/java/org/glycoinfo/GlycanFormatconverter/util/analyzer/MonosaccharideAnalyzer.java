@@ -17,17 +17,31 @@ public class MonosaccharideAnalyzer {
 	
 	private Monosaccharide mono;
 	
-	private boolean isAldose = true;
+	private boolean isAldose;
 	
-	private int anomericPos = 0;
-	private char anomericSymbol = 'x';
-	private int numOfAtom = 0;
-	private char configuration = 'X';
-	private String skeletonCode = "";
+	private int anomericPos;
+	private char anomericSymbol;
+	private int numOfAtom;
+	private char configuration;
+	private String skeletonCode;
 	
-	private LinkedList<Integer> anomericPositions = new LinkedList<Integer>();
-	private TreeMap<Integer, Character> posToChar = new TreeMap<Integer, Character>();
-	private LinkedList<String> unknownPosMap = new LinkedList<String>();
+	private LinkedList<Integer> anomericPositions;
+	private TreeMap<Integer, Character> posToChar;
+	private LinkedList<String> unknownPosMap;
+
+	public MonosaccharideAnalyzer() {
+		this.mono = null;
+		this.anomericPos = 0;
+		this.numOfAtom = 0;
+		this.anomericSymbol = 'x';
+		this.configuration = 'X';
+		this.skeletonCode = "";
+		this.isAldose = true;
+
+		this.posToChar = new TreeMap<>();
+		this.unknownPosMap = new LinkedList<>();
+		this.anomericPositions = new LinkedList<>();
+	}
 
 	public int getAnomericPosition() {
 		return this.anomericPos;
@@ -58,7 +72,6 @@ public class MonosaccharideAnalyzer {
 	}
 	
 	public void analyze (Node _node) throws WURCSExchangeException, GlycanException {
-		this.clear();
 		this.mono = (Monosaccharide) _node;
 		this.anomericPos = mono.getRingStart();
 		this.anomericSymbol = mono.getAnomer().getAnomericState();
@@ -322,17 +335,5 @@ public class MonosaccharideAnalyzer {
 				_baseDict.equals(BaseTypeDictionary.HEP) ||
 				_baseDict.equals(BaseTypeDictionary.OCT) ||
 				_baseDict.equals(BaseTypeDictionary.NON));
-	}
-
-	private void clear() {
-		this.mono = null;
-		this.anomericPos = 0;
-		this.anomericSymbol = 'x';
-		this.configuration = 'X';
-		this.skeletonCode = "";
-		this.isAldose = true;
-		
-		this.unknownPosMap = new LinkedList<String>();
-		this.anomericPositions = new LinkedList<Integer>();
 	}
 }

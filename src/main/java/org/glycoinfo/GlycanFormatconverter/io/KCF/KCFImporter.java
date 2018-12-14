@@ -21,13 +21,17 @@ import java.util.HashMap;
  */
 public class KCFImporter {
 
-    private KCFUtility kcfUtil = new KCFUtility();
+    private KCFUtility kcfUtil;
     private HashMap<String, Node> nodeIndex;
     private GlyContainer glyco;
 
-    public GlyContainer start (String _kcf) throws GlyCoImporterException, GlycanException, ConverterExchangeException {
-        init();
+    public KCFImporter () {
+        kcfUtil = new KCFUtility();
+        nodeIndex = new HashMap<>();
+        glyco = new GlyContainer();
+    }
 
+    public GlyContainer start (String _kcf) throws GlyCoImporterException, GlycanException, ConverterExchangeException {
         String countKey = "";
         boolean isRepeat = false;
         ArrayList<String> repeatNode = new ArrayList<String>();
@@ -483,10 +487,5 @@ public class KCFImporter {
         }
 
         return ret;
-    }
-
-    private void init () {
-        nodeIndex = new HashMap<>();
-        glyco = new GlyContainer();
     }
 }

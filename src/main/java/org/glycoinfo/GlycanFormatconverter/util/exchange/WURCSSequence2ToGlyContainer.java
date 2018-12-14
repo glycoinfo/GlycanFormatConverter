@@ -39,10 +39,16 @@ import org.glycoinfo.WURCSFramework.wurcs.sequence2.WURCSSequence2;
 
 public class WURCSSequence2ToGlyContainer {
 	
-	private HashMap<GRES, Node> gres2node = new HashMap<GRES, Node>();
+	private HashMap<GRES, Node> gres2node;
 	private GlyContainer glycan;
 	private GlycanUndefinedUnit und;
-	
+
+	public WURCSSequence2ToGlyContainer () {
+		glycan = new GlyContainer();
+		gres2node = new HashMap<>();
+		und = null;
+	}
+
 	public GlyContainer getGlycan() {
 		return glycan;
 	}
