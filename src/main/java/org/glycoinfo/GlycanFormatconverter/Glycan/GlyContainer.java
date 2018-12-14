@@ -8,7 +8,8 @@ public class GlyContainer implements GlycanGraph {
 
 	private ArrayList<Node> nodes = new ArrayList<Node>();
 	private ArrayList<GlycanUndefinedUnit> antennae = new ArrayList<GlycanUndefinedUnit>();
-	
+	private Node aglycone;
+
 	public ArrayList<Node> getRootNodes() throws GlycanException {
 		ArrayList<Node> ret = new ArrayList<Node>();
 		Node root;
@@ -242,11 +243,23 @@ public class GlyContainer implements GlycanGraph {
 		return (getAllNodes().size() == getUndefinedUnit().size());
 	}
 
+	public void setAglycone (Node _aglycone) {
+		this.aglycone = _aglycone;
+	}
+
+	public Node getAglycone () {
+		return this.aglycone;
+	}
+
 	public GlyContainer copy () throws GlycanException {
 		GlyContainer copy = new GlyContainer();
 
 		HashMap<Node, Node> copyIndex = new HashMap<>();
-		
+
+		if (this.getAglycone() != null) {
+			copy.setAglycone(this.getAglycone().copy());
+		}
+
 		if (getNodes().size() == 1 && getNodes().get(0).getParentEdges().isEmpty()) {
 			Node current = getNodes().get(0);
 			Node copyCurrent = current.copy();
