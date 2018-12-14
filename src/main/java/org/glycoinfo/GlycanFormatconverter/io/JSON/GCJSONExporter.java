@@ -10,9 +10,7 @@ import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by e15d5605 on 2017/09/19.
@@ -84,6 +82,9 @@ public class GCJSONExporter {
         //
         jsonObject.put("Bridge", bridges);
 
+        // Extract composition
+        jsonObject.put("Composition", this.extractComposition(_glyco, monosaccharides));
+
         //extract repeating notation
         jsonObject.put("Repeat", repeat);
 
@@ -136,6 +137,8 @@ public class GCJSONExporter {
         BidiMap flip = makeFlipMap();
 
         for (GlycanUndefinedUnit und : _glyCo.getUndefinedUnit()) {
+            if (und.isComposition()) continue;
+
             JSONObject unit = new JSONObject();
             Node root = und.getRootNodes().get(0);
 
@@ -441,6 +444,36 @@ public class GCJSONExporter {
             if (pos != null) modUnit.put("Position", pos);
             modUnit.accumulate("Notation", gMod.getModificationTemplate().getIUPACnotation());
             ret.put(modUnit);
+        }
+
+        return ret;
+    }
+
+    private JSONObject extractComposition (GlyContainer _glyCo, JSONObject _monoObj) throws GlycanException {
+        JSONObject ret = new JSONObject();
+
+        if (!_glyCo.isComposition()) return ret;
+
+        LinkedHashMap<String, ArrayList<String>> count = new LinkedHashMap<>();
+
+        for (Integer key : nodeIndex.keySet()) {
+            String jsonKey = "m" + String.valueOf(key);
+            String json = _monoObj.get(jsonKey).toString();
+
+            if (!count.containsKey(json.toString())) {
+                ArrayList<String> tmp = new ArrayList<>();
+                tmp.add(jsonKey);
+                count.put(json.toString(), tmp);
+            } else {
+                count.get(json.toString()).add(jsonKey);
+            }
+        }
+
+        for (String key : count.keySet()) {
+            JSONObject unit = new JSONObject();
+            unit.put("Monosaccharide", count.get(key).get(0));
+            unit.put("Count", count.get(key).size());
+            ret.accumulate("c" + ret.length(), unit);
         }
 
         return ret;
