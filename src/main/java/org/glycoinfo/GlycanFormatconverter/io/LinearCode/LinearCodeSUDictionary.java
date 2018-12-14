@@ -1,5 +1,7 @@
 package org.glycoinfo.GlycanFormatconverter.io.LinearCode;
 
+import org.eurocarbdb.MolecularFramework.sugar.Sugar;
+
 /**
  * Created by e15d5605 on 2017/08/28.
  */
@@ -26,7 +28,10 @@ public enum LinearCodeSUDictionary {
     ALL     ("All", "", "ALl", "O", 18),
     API     ("Api", "", "Api", "P", 19),
     FRU     ("Fru", "", "Fru", "E", 20),
-	NEUGC   ("Neu", "5Gc", "Neu5Gc", "NJ", 21); //D-Neu5Gcp
+	NEUGC   ("Neu", "5Gc", "Neu5Gc", "NJ", 21),//D-Neu5Gcp
+    HEX     ("Hex", "", "", "Z", 97),
+    HEXNAC  ("Hex", "2NAc", "HexNAc", "ZN", 98);
+//    SUGAR   ("Sugar", "", "Sugar", "*", 99);
 //    MANNAC  ("Man", "2NAc", "ManNAc", "MN", 99),
 //    IDONAC  ("Ido", "2NAc", "IdoNAc", "IN", 99),
 //    FUCNAC  ("Fuc", "2NAc", "FucNAc", "FN", 99),

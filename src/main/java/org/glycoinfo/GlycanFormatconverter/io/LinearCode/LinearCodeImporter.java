@@ -23,6 +23,10 @@ public class LinearCodeImporter {
         ArrayList<String> notations = new ArrayList<String>();
         String coreNotation = "";
 
+        //Parse aglycone
+        Node aglycone = new Aglycone(extractAglycon(_linearCode));
+        ret.setAglycone(aglycone);
+
         _linearCode = modifyFragments(_linearCode);
 
         /* extract unknown linkage fragments */
@@ -33,7 +37,18 @@ public class LinearCodeImporter {
 
             /* append fragments */
             for (String unit : subFragment.split(",")) {
-                unit = unit + "??=%|";
+                if (unit.matches(".*[A-Z]")) {
+                    unit = unit + "??=%|";
+                }
+                if (unit.matches(".*[ab]\\?")) {
+                    unit = unit + "=%|";
+                }
+                if (unit.matches(".*[ab]")) {
+                    unit = unit + "?=%|";
+                }
+                if (unit.matches(".+[ab?]\\d")) {
+                    unit = unit + "=%|";
+                }
                 notations.add(unit);
             }
             Collections.reverse(notations);
@@ -55,11 +70,17 @@ public class LinearCodeImporter {
         for (String fragment : notations) {
             ArrayList<LinearCodeStacker> nodelist = new ArrayList<>();
             for (String unit : resolveNotation(fragment)) {
+                if (unit.equals("*")) continue;
+                //Add anomeric state
+                //if (!unit.matches(".*[A-Z][ab?][\\d?]")) {
+                //    unit = unit + "??";
+                //}
+
                 LinearCodeStacker lcStacker = new LinearCodeStacker(unit);
                 LinearCodeNodeParser nodeParser = new LinearCodeNodeParser();
                 lc2node.put(lcStacker, nodeParser.start(lcStacker));
 
-                /* define family */
+                //define family
                 family = parseChildren(lcStacker, family);
                 nodelist.add(lcStacker);
             }
@@ -183,7 +204,7 @@ public class LinearCodeImporter {
         return (_notation.endsWith(")"));
     }
 
-    private boolean haveChild (String _notation) { return (_notation.matches("^(\\{[n\\d]+)?([\\d%]+)?[A-Z].+")); }
+    private boolean haveChild (String _notation) { return (_notation.matches("^(\\{[n\\d]+)?([\\d%]+)?[A-Z].*")); }
 
     private boolean isStartOfBranch (String _notation) {
         return (_notation.startsWith(")"));
@@ -246,5 +267,19 @@ public class LinearCodeImporter {
         }
 
         return ret;
+    }
+
+    private String extractAglycon (String _linearCode) {
+        if (_linearCode.indexOf(":") != -1) {
+            return _linearCode.substring(_linearCode.indexOf(":") + 1);
+        }
+        if (_linearCode.indexOf(";") != -1) {
+            return _linearCode.substring(_linearCode.indexOf(";") + 1);
+        }
+        if (_linearCode.indexOf("#") != -1) {
+            return _linearCode.substring(_linearCode.indexOf("#") + 1);
+        }
+
+        return "";
     }
 }

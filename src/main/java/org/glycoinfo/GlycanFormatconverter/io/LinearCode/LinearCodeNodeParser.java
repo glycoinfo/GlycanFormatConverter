@@ -42,8 +42,11 @@ public class LinearCodeNodeParser {
             /* define anomeric position */
             MonosaccharideIndex monoIndex = MonosaccharideIndex.forTrivialName(lcDict.getIupacThreeLetter());
             //if (_lcStacker.getAnomericStatus() == null) mono.setAnomericPosition(Monosaccharide.UNKNOWN_RING);
-            //else 
-            mono.setAnomericPosition(monoIndex.getAnomerciPosition());
+            //else
+            if (monoIndex != null) mono.setAnomericPosition(monoIndex.getAnomerciPosition());
+            //if (lcDict.equals(LinearCodeSUDictionary.SUGAR)) {
+            //    mono.setAnomericPosition(Monosaccharide.UNKNOWN_RING);
+            //}
 
             /* extract native modifications and substituents */
             if (lcDict.getNativeSubstituents().contains("Ac") || lcDict.getNativeSubstituents().contains("Gc"))

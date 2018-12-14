@@ -41,7 +41,7 @@ public class LinearCodeStacker {
          * group 1 : anomeric status
          * group 2 : parent side linkage
          */
-        Matcher linMat = Pattern.compile("((?![A-Z])[ab?]{1})([\\d?/]+)?").matcher(_linearCodeSU);
+        Matcher linMat = Pattern.compile("((?![A-Z])[ab?])([\\d?/]+)?").matcher(_linearCodeSU);
         if (linMat.find()) {
             anomericStatus = linMat.group(1);
             parentLinkage = linMat.group(2);

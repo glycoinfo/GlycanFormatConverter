@@ -31,11 +31,16 @@ public class LinearCodeReader {
 
 		//if (directory == null || directory.equals("")) throw new Exception("File could not found!");
 
-		File file = new File("/Users/e15d5605/Dataset/Atlas_LC_sample2");
+		String dir =
+//				"20181211_error_LC_sample";
+				"/Users/e15d5605/Dataset/LCToWURCS/20181210_Atlas_LC_samples";
+
+		File file = new File(dir);
 
 		if (file.isFile()) {
 			LinkedHashMap<String, String> lncIndex = openString(file.getAbsolutePath());
 			StringBuilder results = new StringBuilder();
+			StringBuilder error = new StringBuilder();
 
 			for (String key : lncIndex.keySet()) {
 				try {
@@ -48,9 +53,10 @@ public class LinearCodeReader {
 					//results.append(key + "\t" + ee.toIUPAC(IUPACStyleDescriptor.GREEK) + "\n");
 
 					/* for WURCS */
-					results.append(key + "\t" + ee.toWURCS() + "\n");
+					System.out.println(key + " " + ee.toWURCS());
+					results.append(ee.toWURCS() + "\n");
 				} catch (Exception e) {
-					results.append(key + "\t%" + e.getMessage() + "\n");
+					error.append(key + "\t" + lncIndex.get(key) + "\n");
 					e.printStackTrace();
 				}
 			}
@@ -63,8 +69,11 @@ public class LinearCodeReader {
 			/* write WURCS */
 			writeFile(results.toString(), "", fileName);	
 
+			String errorFile = sdf.format(date) + "_error_LC_sample";
+			writeFile(error.toString(), "", errorFile);
 
-			System.out.println(results);
+//			System.out.println(results);
+//			System.out.println(error);
 		}
 	}
 
@@ -95,24 +104,30 @@ public class LinearCodeReader {
 	public LinkedHashMap<String, String> readKCF(BufferedReader _bf) throws IOException {
 		String line = "";
 		LinkedHashMap<String, String> ret = new LinkedHashMap<String, String>();
+		int count = 0;
 
 		while ((line = _bf.readLine()) != null) {
 			line = line.trim();
-			String key = "";
+			String key;
 
-			if (line.equals("")) continue;
-			if (line.startsWith("%")) continue;
+			System.out.println(count + " " + line);
 
-			if (line.indexOf("\t") != -1) {
-				String[] items = line.split("\t");
-				key = items[0];
-				line = items[1];
-			}
+			//if (line.equals("")) continue;
+			//if (line.startsWith("%")) continue;
 
-			if (key.equals("null") || line.equals("unknown")) {
-				//System.out.println(key + " " + line);
-				continue;
-			}
+			//if (line.indexOf("\t") != -1) {
+			//	String[] items = line.split("\t");
+			//	key = items[0];
+			//	line = items[1];
+			//}
+
+			//if (key.equals("null") || line.equals("unknown")) {
+			//	continue;
+			//}
+			//if (key.equals("")) {
+				key = String.valueOf(count);
+				count++;
+			//}
 
 			ret.put(key, line);
 		}
