@@ -116,8 +116,10 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -128,8 +130,10 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.1</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -140,6 +144,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<!-- explicitly define maven-deploy-plugin after other to force exec 
 					order -->
@@ -171,12 +176,12 @@
 		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
-			<version>3.2</version>
+			<version>20040616</version>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20170516</version>
+			<version>20180813</version>
 		</dependency>
 <!--		<dependency>
 			<groupId>org.glycoinfo</groupId>
@@ -188,13 +193,13 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.21</version>
+			<version>1.8.0-beta2</version>
 		</dependency>
 		<!-- http://mvnrepository.com/artifact/junit/junit -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.4</version>
+			<version>4.13-beta-1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
