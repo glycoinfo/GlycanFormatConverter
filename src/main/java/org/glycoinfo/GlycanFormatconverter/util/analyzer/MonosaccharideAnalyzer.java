@@ -79,10 +79,13 @@ public class MonosaccharideAnalyzer {
 		if (this.anomericPos == Monosaccharide.OPEN_CHAIN) {
 			this.anomericSymbol= 'o';
 		}
+		//if (this.anomericPos == Monosaccharide.UNKNOWN_RING && this.anomericSymbol == '?') {
+		//	this.anomericSymbol = 'o';
+		//}
 		if (this.anomericSymbol == 'o') {
 			this.anomericPos = Monosaccharide.OPEN_CHAIN;
 		}
-		
+
 		this.numOfAtom = mono.getSuperClass().getSize();
 		this.posToChar.put(1, 'h');
 		this.posToChar.put(this.numOfAtom, 'h');
@@ -95,7 +98,6 @@ public class MonosaccharideAnalyzer {
 			}
 			this.ModificationToCarbonDescriptor(mod);
 		}
-		
 
 		/* Analyze ketose */
 		if (!this.anomericPositions.isEmpty() && this.anomericPositions.getFirst() != 1) {
@@ -187,7 +189,7 @@ public class MonosaccharideAnalyzer {
 		int pos = _glyCoMod.getPositionOne();
 		boolean isTerminal = (pos == 1 || pos == this.numOfAtom);
 		char carbonDescriptor = this.ModificationTempalteToCarbonDescriptor(_glyCoMod.getModificationTemplate());
-		
+
 		if (carbonDescriptor == 'd' && isTerminal) {
 			carbonDescriptor ='m';
 		}
@@ -204,7 +206,7 @@ public class MonosaccharideAnalyzer {
 			this.unknownPosMap.add("*");
 		}
 		
-		if (carbonDescriptor == 'h' && pos != 1) {
+		if (carbonDescriptor == 'h' && !isTerminal) {//pos != 1) {
 			throw new WURCSExchangeException("Modification \"aldi\" is must set to first carbon.");
 		}
 		if (carbonDescriptor == 'A' && !isTerminal) {
