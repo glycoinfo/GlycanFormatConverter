@@ -39,7 +39,7 @@ public class BackboneToNode {
 
 		/* extract stereo */
         ret.setStereos(extractStereo(skeletonCode));
-        
+
 		/* extract ring position */
         for(WURCSEdge we : _backbone.getChildEdges()) {
             Modification mod = we.getModification();
@@ -312,6 +312,16 @@ public class BackboneToNode {
         first.setParent(_node);
         _node.addChildEdge(first);
         _substituent.addParentEdge(first);
+
+        //Define linkage position for substituent
+        Linkage linkage = new Linkage();
+        for (Integer pos : ((Substituent) _substituent).getFirstPosition().getChildLinkages()) {
+            linkage.addChildLinkage(pos);
+        }
+        for (Integer pos : ((Substituent) _substituent).getFirstPosition().getParentLinkages()) {
+            linkage.addParentLinkage(pos);
+        }
+        first.addGlycosidicLinkage(linkage);
 
         return (Monosaccharide) _node;
     }

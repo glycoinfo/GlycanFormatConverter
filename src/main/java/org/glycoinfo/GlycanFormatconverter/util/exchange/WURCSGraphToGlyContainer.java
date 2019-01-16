@@ -23,9 +23,9 @@ public class WURCSGraphToGlyContainer {
 	private Backbone root;
 
 	public WURCSGraphToGlyContainer () {
-		this.backbone2node = new HashMap<WURCSComponent, Node>();
+		this.backbone2node = new HashMap<>();
 		this.glyCo = new GlyContainer();
-		this.antennae = new ArrayList<Backbone>();
+		this.antennae = new ArrayList<>();
 		this.und = null;
 		this.root = null;
 	}
