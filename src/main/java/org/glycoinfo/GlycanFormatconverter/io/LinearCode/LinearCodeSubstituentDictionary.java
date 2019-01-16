@@ -16,6 +16,7 @@ public enum LinearCodeSubstituentDictionary {
     PHOSPHOCHOLINE          ("PC", "PCho"),
     PYRUVATE                ("PYR", "Py"),
     SULFATE                 ("S", "S"),
+    N_SULFATE               ("NS", "NS"),
     SULFIDE                 ("SH", "SH"), //thio
     CILIATIN                ("EP", ""),
     FLUORO                  ("FL", "F"),
