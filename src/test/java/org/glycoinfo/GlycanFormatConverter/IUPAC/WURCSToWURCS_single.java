@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
+import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExtendedImporter;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStyleDescriptor;
 import org.glycoinfo.GlycanFormatconverter.io.WURCS.WURCSImporter;
@@ -18,7 +19,7 @@ public class WURCSToWURCS_single {
 
 		ArrayList<String> sets = new ArrayList<>();
 	
-		sets.add("WURCS=2.0/2,2,2/[a1112h-1b_1-5][C2112xh_1d-5_6*N]/1-2/a2-b1d_a3-b1u");
+		//sets.add("WURCS=2.0/2,2,2/[a1112h-1b_1-5][C2112xh_1d-5_6*N]/1-2/a2-b1d_a3-b1u");
 		//sets.add("WURCS=2.0/1,1,0/[a26h-1b_1-4]/1/");
 		//sets.add("WURCS=2.0/6,8,9/[u2122h_2*NCC/3=O][u2122h_2*NSO/3=O/3=O][u2112h][u2122A][u21EEA][u212h]/1-2-3-3-4-4-5-6/a?|b?|c?|d?|e?|f?|g?|h?}*OSO/3=O/3=O_a?|b?|c?|d?|e?|f?|g?|h?}*OSO/3=O/3=O_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?_a?|b?|c?|d?|e?|f?|g?|h?}-{a?|b?|c?|d?|e?|f?|g?|h?");
 		//sets.add("WURCS=2.0/4,4,3/[h2h][u2112h_2*NCC/3=O][a2112h-1x_1-5_2*NCC/3=O][a2112h-1x_1-5]/1-2-3-4/b?-c1_c?-d1_a?-b?*OPO*/3O/3=O");
@@ -28,6 +29,7 @@ public class WURCSToWURCS_single {
 		//sets.add("WURCS=2.0/2,4,4/[A22dd2d1dm_3-6_2*C][A11dd1d2dm_3-6_2*C]/1-2-1-2/a1-b8_a8-d1_b1-c8_c1-d8");
 		//sets.add("WURCS=2.0/4,4,3/[h2h][u2112h_2*NCC/3=O][a2112h-1b_1-5_2*NCC/3=O][a2112h-1b_1-5]/1-2-3-4/a1-b3*OPO*/3O/3=O_b4-c1_c3-d1");
 		//sets.add("WURCS=2.0/4,4,3/[h2h][u2112h_2*NCC/3=O][a2112h-1x_1-5_2*NCC/3=O][a2112h-1x_1-5]/1-2-3-4/b?-c1_c?-d1_a?-b?*OPO*/3O/3=O");
+		//sets.add("WURCS=2.0/4,4,3/[hxh][h2122h_2*NCC/3=O][a2112h-1b_1-5][a2122A-1b_1-5_3*OSO/3=O/3=O]/1-2-3-4/a3n2-b1n1*1NCCOP^XO*2/6O/6=O_b4-c1_c3-d1");
 		//sets.add("WURCS=2.0/2,4,4/[A22dd2d1dm_3-6_2*C][A11dd1d2dm_3-6_2*C]/1-2-1-2/a1-b8_a8-d1_b1-c8_c1-d8");
 		//sets.add("WURCS=2.0/3,11,0+/[uxxxxh_2*NCC/3=O][axxxxh-1x_1-5_?*][axxxxh-1x_1-5]/1-1-1-1-1-2-2-3-3-3-3/");
 		//sets.add("WURCS=2.0/4,6,6/[a2211m-1a_1-5][a2122A-1b_1-5][a2122h-1b_1-5_4n2-6n1*1OC^RO*2/3CO/6=O/3C][a2112h-1b_1-5]/1-1-2-3-4-1/a3-b1_b2-c1_b3-e1_c4-d1_e3-f1_a1-f2~n");
@@ -118,31 +120,23 @@ public class WURCSToWURCS_single {
 		//sets.add("WURCS=2.0/5,5,5/[a2211m-1b_1-5][a2112h-1b_1-5][a2211m-1a_1-5][o2h][a2122h-1b_1-5]/1-2-3-4-5/a4-b1_b2-c1_b3-d2*OPO*/3O/3=O_b4-e1_a1-e4~n");
 		//sets.add("WURCS=2.0/1,7,7/[a2122h-1a_1-5_2*OC_3*OC_6*N]/1-1-1-1-1-1-1/a1-g4_a4-b1_b4-c1_c4-d1_d4-e1_e4-f1_f4-g1");
 		//sets.add("WURCS=2.0/3,9,0+/[uxxxxh_2*NCC/3=O][axxxxh-1x_1-5_?*][axxxxh-1x_1-5]/1-1-1-1-2-3-3-3-3/");
-		
+		sets.add("WURCS=2.0/6,12,11/[a2122h-1x_1-5_2*NCC/3=O][a1221m-1a_1-5][a2122h-1b_1-5_2*NCC/3=O][a1122h-1b_1-5][a1122h-1a_1-5][a2112h-1b_1-5]/1-2-3-4-5-1-6-1-6-5-1-6/a4-c1_c4-d1_a?-b1_d?-e1_d?-j1_e?-f1_e?-h1_f?-g1_h?-i1_j?-k1_k?-l1");
+		sets.add("WURCS=2.0/4,5,4/[u2122h_2*NCC/3=O][a2112h-1b_1-5][a2122h-1b_1-5_2*NCC/3=O][a1221m-1a_1-5]/1-2-3-2-4/a4-b1_b3-c1_c4-d1_d2-e1");
+
 		StringBuilder result = new StringBuilder();
 
 		for (String input : sets) {
 			try {
-				WURCSFactory wf = new WURCSFactory(input);
-				
-				/* WURCS to IUPAC */	
+				/* WURCS to IUPAC */
 				WURCSImporter wi = new WURCSImporter();
 				wi.start(input);
 
 				ExporterEntrance ee = new ExporterEntrance(wi.getGlyContainer());
-				
-				String iupac = ee.toIUPAC(IUPACStyleDescriptor.GREEK);
 
-				/* IUPAC to WURCS */
-				IUPACExtendedImporter iei = new IUPACExtendedImporter();
-				
-				ee = new ExporterEntrance(iei.start(iupac));
-
-				/**/
-				result.append(iupac + "\n");
-				result.append("O : " + input + "\n");
+				//result.append(iupac + "\n");
+				result.append(input + "\n");
 				String wurcs = ee.toWURCS();
-				result.append("C : " + wurcs + "\n");
+				result.append(wurcs + "\n");
 				result.append(input.equals(wurcs) + "\n");
 				result.append("\n");	
 			} catch (Exception e) {

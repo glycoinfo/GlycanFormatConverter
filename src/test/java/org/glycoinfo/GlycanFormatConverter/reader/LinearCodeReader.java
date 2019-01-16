@@ -32,7 +32,6 @@ public class LinearCodeReader {
 		//if (directory == null || directory.equals("")) throw new Exception("File could not found!");
 
 		String dir =
-//				"20181211_error_LC_sample";
 				"/Users/e15d5605/Dataset/LCToWURCS/20181210_Atlas_LC_samples";
 
 		File file = new File(dir);

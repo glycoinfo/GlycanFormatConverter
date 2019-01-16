@@ -25,7 +25,8 @@ public class IUPACImporterFromFile {
 	public void IUPACImporterTester () throws Exception {
 		
 		//String string_list = "/Users/e15d5605/Dataset/test";
-		String string_list = "/Users/e15d5605/Dataset/20180202_IUPACSample_from_WURCS";
+		String string_list = "src/test/resources/sampleIUPAC";
+                //"/Users/e15d5605/Dataset/20180202_IUPACSample_from_WURCS";
 		
 		 if(string_list == null || string_list.equals("")) throw new Exception();
 		 
@@ -47,11 +48,13 @@ public class IUPACImporterFromFile {
 					 ExporterEntrance ee = new ExporterEntrance(glyCo);
 
 					 /* to WURCS */
-					 results.append(key + "\t" + ee.toWURCS() + "\n");
+					 //results.append(key + "\t" + ee.toWURCS() + "\n");
+                     results.append(ee.toWURCS() + "\n");
 
 				 } catch (Exception e) {
-					 results.append(key + "\t" + "% " + e.getMessage() + "\n");
-					 //e.printStackTrace();
+					 //results.append(key + "\t" + "% " + e.getMessage() + "\n");
+                     results.append(e.getMessage() + "\n");
+//					 e.printStackTrace();
 				 }
 			 }
 
@@ -113,9 +116,9 @@ public class IUPACImporterFromFile {
             if(line.startsWith("%")) continue;
             if(line.indexOf(" ") != -1) line = line.replace(" ", "\t");
             String[] IDandWURCS = line.split("\t");
-            if (IDandWURCS.length == 2) {
+            //if (IDandWURCS.length == 2) {
                 wret.put(IDandWURCS[0].trim(), IDandWURCS[1]);
-            }
+            //}
         }
         a_bfFile.close();
 
