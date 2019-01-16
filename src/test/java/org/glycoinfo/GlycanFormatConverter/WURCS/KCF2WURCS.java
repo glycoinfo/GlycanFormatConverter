@@ -22,7 +22,7 @@ public class KCF2WURCS {
     public static void main(String[] args) throws Exception {
         String input =
                //"src/test/resources/20171212_GlyTouCan_KCFsamples";
-               "src/test/resources/20171212_errorKCF";
+               "src/test/resources/KCFSample";
 
         File file = new File(input);
 

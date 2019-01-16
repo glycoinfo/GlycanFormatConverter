@@ -19,7 +19,7 @@ public class KCFToGlyContainer {
 
     public static void main(String[] args) throws Exception {
         String directory =
-                "src/test/resources/20171212_errorKCF";
+                "src/test/resources/KCFSample";
                 //"src/test/resources/sampleKCF";
 
         if (directory == null || directory.equals("")) throw new Exception("File could not found!");

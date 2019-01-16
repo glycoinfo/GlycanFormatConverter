@@ -15,7 +15,7 @@ import java.util.LinkedHashMap;
 public class ToJSON {
 
     public static void main (String[] args) throws Exception {
-        String string_list = "src/test/resources/LC";
+        String string_list = "src/test/resources/LCSample";
 
         if(string_list == null || string_list.equals("")) throw new Exception();
 
