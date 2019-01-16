@@ -43,7 +43,7 @@ public class IUPACExtendedImporter {
 			IUPACStacker stacker = new IUPACStacker();
 			
 			/* check monosaccharide composition */
-			Matcher matComp = Pattern.compile("^\\{.+\\}(\\d+)+$").matcher(subst);
+			Matcher matComp = Pattern.compile("^\\{.+}(\\d+)+$").matcher(subst);
 			if (matComp.find()) {
 				String count = matComp.group(1);
 				subst = subst.replaceFirst("\\{", "");
