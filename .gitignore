@@ -1,0 +1,12 @@
+.classpath
+.project
+.settings
+bin
+target
+env.sh
+logs
+pom.xml.versionsBackup
+api.log
+.flattened-pom.xml
+.idea
+*.iml
