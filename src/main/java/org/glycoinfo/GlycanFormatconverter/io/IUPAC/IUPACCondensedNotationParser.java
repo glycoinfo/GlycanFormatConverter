@@ -218,8 +218,9 @@ public class IUPACCondensedNotationParser {
     private String extractLinkage (String _notation) {
         String ret = "";
         boolean isLinkage = false;
+        boolean isAnomeric = false;
 
-        if (_notation.endsWith("-") && !_notation.matches(".*[ab?]-")) {
+        if (_notation.endsWith("-") && !_notation.matches(".*[ab?][\\d?]-")) {
             return "-";
         }
 
@@ -230,11 +231,12 @@ public class IUPACCondensedNotationParser {
 
             if (i == _notation.length() -1) break;
 
-            if ((item == 'a' || item == 'b' || item == '?')) {
+            if ((item == 'a' || item == 'b' || item == '?') && !isAnomeric) {
                 char pos = _notation.charAt(i+1);
-                if (String.valueOf(pos).matches("[\\d?-]")) {
-                    ret += item;
+                if (String.valueOf(pos).matches("[\\d?-]") && !isAnomeric) {
+                    isAnomeric = true;
                     isLinkage = true;
+                    ret += item;
                 }
             }
         }
