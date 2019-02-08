@@ -17,15 +17,15 @@ public class SubstituentAnalyzer {
 
 	private ArrayList<String> a_aSubs;
 	private ResidueContainer a_oRC;
-	
+
 	/**
-	 * Extract modification from current residue
+	 * * Extract modification from current residue
 	 * These modification are defined as "modification" in JsonObject
-	 * @param a_objGRES
-	 * @param a_objSB
-	 * @param enum_WURCSStereo
+	 * @param a_oRC
+	 * @param a_oGRES
+	 * @param a_oMS
 	 * @return
-	 * @throws ConverterExchangeException 
+	 * @throws ConverterExchangeException
 	 */
 	public ArrayList<String> getSubstituents(ResidueContainer a_oRC, GRES a_oGRES, MS a_oMS) 
 			throws ConverterExchangeException {
