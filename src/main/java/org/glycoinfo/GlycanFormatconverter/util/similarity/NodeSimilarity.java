@@ -15,10 +15,8 @@ import org.glycoinfo.GlycanFormatconverter.util.comparater.EdgeComparator;
 
 public class NodeSimilarity {
 
-	/**
+	/*
 	 * sort recursively all nodes by linkage position from root node.
-	 * @param _root
-	 * @return
 	 */
 	public ArrayList<Node> sortAllNode (Node _root) {
 		ArrayList<Node> ret = new ArrayList<>();
@@ -39,10 +37,8 @@ public class NodeSimilarity {
 		return _notations;
 	}
 
-	/**
+	/*
 	 * sort edges by linkage position from current node.
-	 * @param _node
-	 * @return
 	 */
 	public ArrayList<Edge> sortChildSideEdges (Node _node) {
 		ArrayList<Edge> picked = new ArrayList<Edge>();
@@ -54,12 +50,10 @@ public class NodeSimilarity {
 		return sortPosition(picked);
 	}
 	
-	/**
+	/*
 	 * sort edges of parent linkage position.
 	 * If edges are contains cyclic and repeating structure.
 	 * simple->repeating->cyclic
-	 * @param _edges
-	 * @return
 	 */
 	public ArrayList<Edge> sortParentSideEdges (ArrayList<Edge> _edges) {
 		ArrayList<Edge> ret = new ArrayList<Edge>();
@@ -82,10 +76,8 @@ public class NodeSimilarity {
 		return ret;
 	}
 	
-	/***
+	/*
 	 * Check main.
-	 * @param _node
-	 * @return
 	 */
 	public boolean isMainChaineBranch(Node _node) {
 		if (_node.getParentEdges().isEmpty()) return false;
@@ -147,7 +139,7 @@ public class NodeSimilarity {
 		return ret;
 	}
 	
-	/** sort priority edges with repeat */
+	/* sort priority edges with repeat */
 	private ArrayList<Edge> sortEdge (Node _node) {
 		ArrayList<Edge> ret = new ArrayList<Edge>();
 		
