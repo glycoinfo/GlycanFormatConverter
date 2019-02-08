@@ -17,7 +17,9 @@ public class NodeSimilarity {
 
 	/**
 	 * sort recursively all nodes by linkage position from root node.
-	 * */
+	 * @param _root
+	 * @return
+	 */
 	public ArrayList<Node> sortAllNode (Node _root) {
 		ArrayList<Node> ret = new ArrayList<>();
 
@@ -39,7 +41,9 @@ public class NodeSimilarity {
 
 	/**
 	 * sort edges by linkage position from current node.
-	 * */
+	 * @param _node
+	 * @return
+	 */
 	public ArrayList<Edge> sortChildSideEdges (Node _node) {
 		ArrayList<Edge> picked = new ArrayList<Edge>();
 		for (Edge edge : _node.getChildEdges()) {
@@ -54,7 +58,9 @@ public class NodeSimilarity {
 	 * sort edges of parent linkage position.
 	 * If edges are contains cyclic and repeating structure.
 	 * simple->repeating->cyclic
-	 * */
+	 * @param _edges
+	 * @return
+	 */
 	public ArrayList<Edge> sortParentSideEdges (ArrayList<Edge> _edges) {
 		ArrayList<Edge> ret = new ArrayList<Edge>();
 		

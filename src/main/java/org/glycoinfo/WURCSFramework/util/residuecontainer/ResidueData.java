@@ -3,7 +3,7 @@ package org.glycoinfo.WURCSFramework.util.residuecontainer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-/**
+/*
  * ResidueData is keeping basic information of monosaccharide.
  * a2122h-1b_1-5_2*NCC/3=O is define below data
  * lst_DLconfiguration : D <- define from configuration of SkeletonCode
@@ -18,6 +18,7 @@ import java.util.LinkedList;
  * this list must not include other modificaiton or substituent.
  * @author st
  */
+
 public class ResidueData {
 	
 	private LinkedList<String> a_aDLConfigurations;
