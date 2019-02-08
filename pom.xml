@@ -132,6 +132,7 @@
 				</executions>
 			</plugin>
 
+			<!--
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.0.1</version>
@@ -145,9 +146,9 @@
 					</execution>
 				</executions>
 			</plugin>
-
+			-->
 			<plugin>
-				<!-- explicitly define maven-deploy-plugin after other to force exec 
+				<!-- explicitly define maven-deploy-plugin after other to force exec
 					order -->
 				<artifactId>maven-deploy-plugin</artifactId>
 				<executions>
@@ -179,7 +180,7 @@
 			<artifactId>json</artifactId>
 			<version>20180813</version>
 		</dependency>
-		<!-- <dependency> <groupId>org.glycoinfo</groupId> <artifactId>subsumption</artifactId> 
+		<!-- <dependency> <groupId>org.glycoinfo</groupId> <artifactId>subsumption</artifactId>
 			<version>0.2.0-SNAPSHOT</version> </dependency> -->
 		<!-- http://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
 		<dependency>
