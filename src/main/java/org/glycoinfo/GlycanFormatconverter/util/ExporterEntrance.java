@@ -6,7 +6,7 @@ import org.glycoinfo.GlycanFormatconverter.io.GlyCoExporterException;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.*;
 import org.glycoinfo.GlycanFormatconverter.io.JSON.GCJSONExporter;
 import org.glycoinfo.GlycanFormatconverter.io.LinearCode.LinearCodeExporter;
-import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
+import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerToWURCSGraph;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;

@@ -1,7 +1,4 @@
-package org.glycoinfo.GlycanFormatconverter.util.exchange;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
+package org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
@@ -10,6 +7,9 @@ import org.glycoinfo.WURCSFramework.wurcs.graph.DirectionDescriptor;
 import org.glycoinfo.WURCSFramework.wurcs.graph.LinkagePosition;
 import org.glycoinfo.WURCSFramework.wurcs.graph.Modification;
 import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSEdge;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class EdgeToWURCSEdge {
 

@@ -1,4 +1,4 @@
-package org.glycoinfo.GlycanFormatconverter.util.exchange;
+package org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
 import java.util.ArrayList;
 
@@ -12,7 +12,7 @@ import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
 import org.glycoinfo.WURCSFramework.wurcs.graph.LinkagePosition;
 import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSEdge;
 
-public class FragmentsToWURCSEdge extends EdgeToWURCSEdge {
+public class FragmentsToWURCSEdge extends GlyContainerToWURCSGraph.EdgeToWURCSEdge {
 
 	private ArrayList<Monosaccharide> parents = new ArrayList<Monosaccharide>();
 	

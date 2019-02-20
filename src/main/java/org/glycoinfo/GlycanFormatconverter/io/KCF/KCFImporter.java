@@ -4,13 +4,10 @@ import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
-import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationParser;
 import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
-import org.glycoinfo.GlycanFormatconverter.util.exchange.KCFNotationToIUPACNotation;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;

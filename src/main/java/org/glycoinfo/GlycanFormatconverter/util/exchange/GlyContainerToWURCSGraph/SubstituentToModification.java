@@ -1,4 +1,4 @@
-package org.glycoinfo.GlycanFormatconverter.util.exchange;
+package org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
 import java.util.ArrayList;
 import java.util.Collections;

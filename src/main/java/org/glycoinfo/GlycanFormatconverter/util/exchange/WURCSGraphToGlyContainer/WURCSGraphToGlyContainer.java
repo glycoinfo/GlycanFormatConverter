@@ -1,4 +1,4 @@
-package org.glycoinfo.GlycanFormatconverter.util.exchange;
+package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ public class WURCSGraphToGlyContainer {
 		root = sortedNodes.getFirst();
 		
 		/* convert node */
-		BackboneToNode b2n = new BackboneToNode();
+		WURCSGraphToGlyContainer.BackboneToNode b2n = new WURCSGraphToGlyContainer.BackboneToNode();
 		for (Backbone bb : sortedNodes) {
 			backbone2node.put(bb, b2n.start(bb));
 			extractAntennae(bb);

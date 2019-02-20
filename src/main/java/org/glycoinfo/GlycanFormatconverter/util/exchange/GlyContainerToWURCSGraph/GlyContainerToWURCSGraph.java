@@ -1,4 +1,4 @@
-package org.glycoinfo.GlycanFormatconverter.util.exchange;
+package org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class GlyContainerToWURCSGraph {
 
 		/* convert linkage */
 		for (Edge edge : graphAnalyzer.getLinkages()) {
-			EdgeToWURCSEdge edgeAnalyzer = new EdgeToWURCSEdge();
+			GlyContainerToWURCSGraph.EdgeToWURCSEdge edgeAnalyzer = new GlyContainerToWURCSGraph.EdgeToWURCSEdge();
 			edgeAnalyzer.start(edge);
 
 			Modification mod = edgeAnalyzer.getModification();
@@ -68,7 +68,7 @@ public class GlyContainerToWURCSGraph {
 
 		/* for ambiguous structure */
 		for (GlycanUndefinedUnit und : graphAnalyzer.getFragments()) {
-			FragmentsToWURCSEdge frag2Edge = new FragmentsToWURCSEdge();
+			GlyContainerToWURCSGraph.FragmentsToWURCSEdge frag2Edge = new GlyContainerToWURCSGraph.FragmentsToWURCSEdge();
 			frag2Edge.start(und);
 
 			Modification mod = frag2Edge.getModification();

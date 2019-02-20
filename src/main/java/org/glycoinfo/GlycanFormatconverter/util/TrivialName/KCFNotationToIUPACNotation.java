@@ -1,4 +1,4 @@
-package org.glycoinfo.GlycanFormatconverter.util.exchange;
+package org.glycoinfo.GlycanFormatconverter.util.TrivialName;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;

@@ -2,7 +2,7 @@ package org.glycoinfo.GlycanFormatconverter.io.WURCS;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
+import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer.WURCSGraphToGlyContainer;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
 import org.glycoinfo.WURCSFramework.util.graph.WURCSGraphNormalizer;
