@@ -7,7 +7,7 @@ import java.util.LinkedList;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
-import org.glycoinfo.GlycanFormatconverter.util.analyzer.GlyContainerEdgeAnalyzer;
+import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerEdgeAnalyzer;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSVisitorCollectSequence;
@@ -43,7 +43,7 @@ public class WURCSGraphToGlyContainer {
 		root = sortedNodes.getFirst();
 		
 		/* convert node */
-		WURCSGraphToGlyContainer.BackboneToNode b2n = new WURCSGraphToGlyContainer.BackboneToNode();
+		BackboneToNode b2n = new BackboneToNode();
 		for (Backbone bb : sortedNodes) {
 			backbone2node.put(bb, b2n.start(bb));
 			extractAntennae(bb);

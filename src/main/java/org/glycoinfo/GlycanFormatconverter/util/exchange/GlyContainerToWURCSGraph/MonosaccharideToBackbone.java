@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.util.analyzer.MonosaccharideAnalyzer;
 import org.glycoinfo.WURCSFramework.util.array.mass.AtomicPropatiesOld;
 import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
 import org.glycoinfo.WURCSFramework.wurcs.graph.Backbone;

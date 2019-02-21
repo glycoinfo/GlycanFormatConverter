@@ -1,12 +1,8 @@
 package org.glycoinfo.GlycanFormatConverter.WURCS;
 
-import org.glycoinfo.GlycanFormatConverter.reader.KCFToGlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStyleDescriptor;
 import org.glycoinfo.GlycanFormatconverter.io.KCF.KCFImporter;
 import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
-import org.glycoinfo.GlycanFormatconverter.util.ImporterEntrance;
-import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
 import java.io.*;
 import java.text.SimpleDateFormat;

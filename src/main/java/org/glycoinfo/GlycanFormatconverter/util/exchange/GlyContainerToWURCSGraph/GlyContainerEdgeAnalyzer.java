@@ -1,4 +1,4 @@
-package org.glycoinfo.GlycanFormatconverter.util.analyzer;
+package org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.WURCSFramework.wurcs.graph.Backbone;

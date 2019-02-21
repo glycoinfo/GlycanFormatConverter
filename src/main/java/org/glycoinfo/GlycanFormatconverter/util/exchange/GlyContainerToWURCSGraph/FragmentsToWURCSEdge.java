@@ -12,7 +12,7 @@ import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
 import org.glycoinfo.WURCSFramework.wurcs.graph.LinkagePosition;
 import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSEdge;
 
-public class FragmentsToWURCSEdge extends GlyContainerToWURCSGraph.EdgeToWURCSEdge {
+public class FragmentsToWURCSEdge extends EdgeToWURCSEdge {
 
 	private ArrayList<Monosaccharide> parents = new ArrayList<Monosaccharide>();
 	

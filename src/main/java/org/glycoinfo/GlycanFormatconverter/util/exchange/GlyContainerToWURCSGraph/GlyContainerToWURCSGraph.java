@@ -41,7 +41,7 @@ public class GlyContainerToWURCSGraph {
 
 		/* convert linkage */
 		for (Edge edge : graphAnalyzer.getLinkages()) {
-			GlyContainerToWURCSGraph.EdgeToWURCSEdge edgeAnalyzer = new GlyContainerToWURCSGraph.EdgeToWURCSEdge();
+			EdgeToWURCSEdge edgeAnalyzer = new EdgeToWURCSEdge();
 			edgeAnalyzer.start(edge);
 
 			Modification mod = edgeAnalyzer.getModification();
@@ -68,7 +68,7 @@ public class GlyContainerToWURCSGraph {
 
 		/* for ambiguous structure */
 		for (GlycanUndefinedUnit und : graphAnalyzer.getFragments()) {
-			GlyContainerToWURCSGraph.FragmentsToWURCSEdge frag2Edge = new GlyContainerToWURCSGraph.FragmentsToWURCSEdge();
+			FragmentsToWURCSEdge frag2Edge = new FragmentsToWURCSEdge();
 			frag2Edge.start(und);
 
 			Modification mod = frag2Edge.getModification();

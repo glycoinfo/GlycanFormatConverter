@@ -8,7 +8,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Linkage;
 import org.glycoinfo.GlycanFormatconverter.Glycan.LinkageType;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
-import org.glycoinfo.WURCSFramework.util.exchange.SubstituentTypeToMAP;
+import org.glycoinfo.GlycanFormatconverter.util.exchange.SugarToWURCSGraph.SubstituentTypeToMAP;
 import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
 
 public class SubstituentToModification {

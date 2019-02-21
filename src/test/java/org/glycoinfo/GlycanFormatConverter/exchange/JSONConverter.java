@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
-import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
+import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer.WURCSGraphToGlyContainer;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
 import org.junit.Test;
 

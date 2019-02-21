@@ -1,7 +1,7 @@
 package org.glycoinfo.GlycanFormatConverter.exchange;
 
 import org.glycoinfo.GlycanFormatconverter.io.LinearCode.LinearCodeExporter;
-import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
+import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer.WURCSGraphToGlyContainer;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
 
 import java.io.BufferedReader;

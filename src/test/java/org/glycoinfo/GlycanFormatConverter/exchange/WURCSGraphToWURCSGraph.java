@@ -3,8 +3,8 @@ package org.glycoinfo.GlycanFormatConverter.exchange;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporter;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExtendedImporter;
-import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
-import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
+import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerToWURCSGraph;
+import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer.WURCSGraphToGlyContainer;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
 

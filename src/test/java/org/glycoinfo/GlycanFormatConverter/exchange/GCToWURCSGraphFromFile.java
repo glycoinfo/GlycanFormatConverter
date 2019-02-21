@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporter;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExtendedImporter;
-import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
+import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerToWURCSGraph;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSSequence2ToGlyContainer;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
 

@@ -1,4 +1,4 @@
-package org.glycoinfo.GlycanFormatconverter.util.analyzer;
+package org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
 import java.util.LinkedList;
 import java.util.TreeMap;

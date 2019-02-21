@@ -165,11 +165,11 @@
 	</build>
 
 	<dependencies>
-		<dependency>
+		<!--<dependency>
 			<groupId>org.glycoinfo.WURCSFramework</groupId>
 			<artifactId>GlycoCTToWURCS</artifactId>
 			<version>0.0.3-SNAPSHOT</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
@@ -195,7 +195,17 @@
 			<version>4.13-beta-1</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+		<dependency>
+			<groupId>org.eurocarbdb</groupId>
+			<artifactId>MolecularFramework</artifactId>
+			<version>0.1-b36-SNAPSHOT</version>
+		</dependency>
+        <dependency>
+            <groupId>org.glycoinfo</groupId>
+            <artifactId>wurcsframework</artifactId>
+            <version>0.0.81-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 	<pluginRepositories>
 		<pluginRepository>
