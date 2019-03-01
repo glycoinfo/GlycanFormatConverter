@@ -1,14 +1,12 @@
 package org.glycoinfo.GlycanFormatConverter.GlycoCT;
 
+import org.glycoinfo.GlycanFormatconverter.io.GlycoCT.GlycoCTListReader;
 import org.glycoinfo.GlycanFormatconverter.io.GlycoCT.WURCSExporterGlycoCTList;
+import org.glycoinfo.WURCSFramework.util.WURCSFileWriter;
 import org.junit.Test;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by e15d5605 on 2019/02/20.
@@ -18,110 +16,64 @@ public class readGCT_file {
     //@Test
     //public void GlycoCTToWURCS () throws Exception {
     public static void main (String[] args) throws Exception {
-        String directory = "src/test/resources/GlycoCTSample";
 
-        if(directory == null || directory.equals("")) throw new Exception();
+        ArrayList<String> dirs = new ArrayList<>();
 
-        File file = new File(directory);
+        dirs.add("src/test/resources/GlycoCTSample");
 
-        if(file.isFile()) {
+        //dirs.add("/Users/e15d5605/Dataset/GlycoCT/Glycoepitope_GlycoCTList_20150224.txt");
+        //dirs.add("/Users/e15d5605/Dataset/GlycoCT/glycomedb_structures-02_06_2015-02_57_convert.txt");
+        //dirs.add("/Users/e15d5605/Dataset/GlycoCT/glytoucanAccGlycoCTcsvToText_20150717.txt");
+        //dirs.add("/Users/e15d5605/Dataset/GlycoCT/20160616_UnicarbKB_Id-glycoct.txt");
 
-            WURCSExporterGlycoCTList wegctList = new WURCSExporterGlycoCTList();
+        for (String path : dirs) {
+            LinkedList<String> names = new LinkedList<>();
 
+            // For usage
+            //if ( args[i].equals("-help") ) {
+            //    usage();
+            //    System.exit(0);
+            //}
+            // For collect monosaccharides (ResidueCodes)
+            //boolean t_bResidueCodeCollection = false;
+            //if ( args[i].equals("-MS") )
+            //    t_bResidueCodeCollection = true;
+
+            //Check file path
+            File file = new File(path);
+            if (!file.exists()) {
+                System.err.println("The file not exists: " + path);
+            }
+            names.addLast(path);
+
+            // Make result dir
+            String resultDir = file.getAbsolutePath() + "_result";
+
+            // Read GlycoCT list
+            System.err.println("Read GlycoCT list from: " + path);
+            TreeMap<String, String> gctMap = null;
             try {
-                TreeMap<String, String> gctMAP = openString(directory);
-
-                //Import GlycoCT
-                wegctList.start(gctMAP);
-
+                if (file.isFile())
+                    gctMap = GlycoCTListReader.readFromFile(path);
+                if (file.isDirectory())
+                    gctMap = GlycoCTListReader.readFromDir(path);
             } catch (Exception e) {
+                System.err.println("The file can not read: " + path);
                 e.printStackTrace();
             }
 
-            TreeMap<String, String> wurcsList = wegctList.getMapIDToWURCS();
+            System.out.println(gctMap);
 
-            for (String key : wurcsList.keySet()) {
-                System.out.println(key + " " + wurcsList.get(key));
+
+            // Convert
+            WURCSExporterGlycoCTList t_oExport = new WURCSExporterGlycoCTList();
+            t_oExport.start(gctMap);
+
+            // Print result
+            //WURCSFileWriter.printWURCSList(t_oExport.getMapIDToWURCS(), resultDir, "_moved_WURCSList.txt");
+            for (String key : t_oExport.getMapIDToWURCS().keySet()) {
+                System.out.println(key + " " + t_oExport.getMapIDToWURCS().get(key));
             }
-
-            /* define file name */
-            //Date date = new Date();
-            //SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-            //String fileName = sdf.format(date) + "_WURCSSample_from_IUPAC";
-
-			 /* write WURCS */
-            //writeFile(results.toString(), "", fileName);
         }
-    }
-
-    private void writeFile (String _result, String _error, String _fileName) throws IOException {
-        /* file open */
-        File file = new File(_fileName);
-        FileWriter fw = new FileWriter(file);
-        BufferedWriter bw = new BufferedWriter(fw);
-
-        /* write file */
-        PrintWriter pw = new PrintWriter(bw);
-        pw.println(_result);
-        pw.println(_error);
-
-        pw.close();
-
-        return;
-    }
-
-    /**
-     *
-     * @param a_strFile
-     * @return
-     * @throws Exception
-     */
-    public static TreeMap<String, String> openString (String a_strFile) throws Exception {
-        try {
-            return readGCT(new BufferedReader(new FileReader(a_strFile)));
-        }catch (IOException e) {
-            throw new Exception();
-        }
-    }
-
-    /**
-     *
-     * @param a_bfFile
-     * @return
-     * @throws IOException
-     */
-    public static TreeMap<String, String> readGCT (BufferedReader a_bfFile) throws IOException {
-        String line;
-        TreeMap<String, String> ret = new TreeMap<>();
-        ret.clear();
-
-        boolean isRES = false;
-        String gct = "";
-        int count = 1;
-
-        while((line = a_bfFile.readLine()) != null) {
-            line.trim();
-            if(line.startsWith("%")) continue;
-            if(line.indexOf(" ") != -1) line = line.replace(" ", "\t");
-
-            if (line.equals("RES")) {
-                if (isRES) {
-                    ret.put(String.valueOf(count), gct);
-                    count++;
-
-                    gct = "";
-                } else {
-                    isRES = true;
-                }
-            }
-
-            gct += line + "\n";
-        }
-
-        ret.put(String.valueOf(count), gct);
-
-        a_bfFile.close();
-
-        return ret;
     }
 }
