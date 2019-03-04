@@ -10,6 +10,17 @@ public class GlyContainer implements GlycanGraph {
 	private ArrayList<GlycanUndefinedUnit> antennae = new ArrayList<GlycanUndefinedUnit>();
 	private Node aglycone;
 
+	private ArrayList<GlycanUndefinedUnit> undefinedSubstituent = new ArrayList<GlycanUndefinedUnit>(); // 2018/09/25 Masaaki added
+	private int nUndefinedLinkage = 0; // 2018/09/24 Masaaki added
+
+	public void setNumberOfUndefinedLinkages(int _nUndefinedLinkages) {
+		this.nUndefinedLinkage = _nUndefinedLinkages;
+	}
+
+	public int getNumberOfUndefinedLinkages() {
+		return this.nUndefinedLinkage;
+	}
+
 	public ArrayList<Node> getRootNodes() throws GlycanException {
 		ArrayList<Node> ret = new ArrayList<Node>();
 		Node root;
@@ -235,6 +246,49 @@ public class GlyContainer implements GlycanGraph {
 		}
 		if(!this.antennae.contains(_und)) {
 			return this.antennae.add(_und);
+		}
+		return false;
+	}
+
+	/**
+	 * @author Masaaki Matsubara
+	 * @return
+	 */
+	public ArrayList<GlycanUndefinedUnit> getUndefinedUnitsForSubstituent() {
+		return this.undefinedSubstituent;
+	}
+
+	/**
+	 *
+	 * @author Masaaki Matsubara
+	 * @param _und
+	 * @param _parent
+	 * @return
+	 * @throws GlycanException
+	 */
+	public boolean addGlycanUndefinedUnitForSubstituent(GlycanUndefinedUnit _und, Node _parent) throws GlycanException {
+		if(!this.containsNode(_parent)) {
+			throw new GlycanException ("Parent is not part of the glycan");
+		}
+		if(!this.antennae.contains(_und)) {
+			throw new GlycanException ("Undefined unit is not part of the glycan");
+		}
+		return _und.addParentNode(_parent);
+	}
+
+	/**
+	 *
+	 * @author Masaaki Matsubara
+	 * @param _und
+	 * @return
+	 * @throws GlycanException
+	 */
+	public boolean addGlycanUndefinedUnitForSubstituent(GlycanUndefinedUnit _und) throws GlycanException {
+		if(_und == null) {
+			throw new GlycanException ("Null is not validate for undefined unit");
+		}
+		if(!this.undefinedSubstituent.contains(_und)) {
+			return this.undefinedSubstituent.add(_und);
 		}
 		return false;
 	}

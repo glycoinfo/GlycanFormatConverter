@@ -7,6 +7,7 @@ public enum CrossLinkedTemplate implements SubstituentInterface {
 	S_PYRUVATE			("*1OC^SO*2/3CO/6=O/3C", "(s)-pyruvate", "(S)Py"),
 	R_PYRUVATE			("*1OC^RO*2/3CO/6=O/3C", "(r)-pyruvate", "(R)Py"),
 	X_PYRUVATE			("*OC^XO*/3CO/6=O/3C", "pyruvate", "Py"),
+	X_PYRUVATE_deoxy	("*1OC^X*2/3CO/5=O/3C", "pyruvate", "Py"), // 2018/09/13 added by Masaaki Matsubara
 	AMINO				("*N*", "amino", "N"),
 	ETHANOLAMINE		("*NCC*", "ethanolamine", ""),
 	IMINO				("*=N*", "imino", ""),

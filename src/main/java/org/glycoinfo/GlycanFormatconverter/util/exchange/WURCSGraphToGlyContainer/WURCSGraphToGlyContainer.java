@@ -1,15 +1,14 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerEdgeAnalyzer;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparator;
+import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparatorSimple;
 import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSVisitorCollectSequence;
 import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSVisitorException;
 import org.glycoinfo.WURCSFramework.wurcs.graph.*;
@@ -19,6 +18,8 @@ public class WURCSGraphToGlyContainer {
 	private HashMap<WURCSComponent, Node> backbone2node;
 	private GlyContainer glyCo;
 	private ArrayList<Backbone> antennae;
+	private ArrayList<ModificationAlternative> undefinedLinkages; // 09/24/2018 Masaaki added
+	private ArrayList<ModificationAlternative> undefinedSubstituents; // 09/25/2018 Masaaki added
 	private GlycanUndefinedUnit und;
 	private Backbone root;
 
@@ -26,6 +27,8 @@ public class WURCSGraphToGlyContainer {
 		this.backbone2node = new HashMap<>();
 		this.glyCo = new GlyContainer();
 		this.antennae = new ArrayList<>();
+		this.undefinedLinkages = new ArrayList<>(); // 09/24/2018 Masaaki added
+		this.undefinedSubstituents = new ArrayList<>(); // 09/25/2018 Masaaki added
 		this.und = null;
 		this.root = null;
 	}
@@ -53,6 +56,11 @@ public class WURCSGraphToGlyContainer {
 		if (isCompositions(_graph)) {
 			for (Backbone bb : _graph.getBackbones()) {
 				compositionToUndefinedUnit(bb);
+			}
+			/* 2018/09/24 Masaaki: Set number of undefined linkages */
+			this.glyCo.setNumberOfUndefinedLinkages(undefinedLinkages.size());
+			for (ModificationAlternative modAlt : this.undefinedSubstituents) {
+				compositionToUndefinedUnitForSubstituent(modAlt);
 			}
 		} else {
 			if (glyCo.getNodes().isEmpty()) glyCo.addNode(backbone2node.get(root));
@@ -206,8 +214,9 @@ public class WURCSGraphToGlyContainer {
 		start = backbone2node.get(_mod.getParentEdges().getFirst().getBackbone());
 
 		if (!current.equals(end) /*&& !start.equals(end)*/) return;
-		
-		/*if (_backbone.getParentEdges().isEmpty() && current.equals(end)) {
+
+		if ( !this.isStandardRepeatEdgeOrder((ModificationRepeat)_mod) ) { // 09/21/2018 Masaaki added
+//		if (_backbone.getParentEdges().isEmpty() && current.equals(end)) {
 			LinkedList<LinkagePosition> linkTemp = donor;
 			donor = acceptor;
 			acceptor = linkTemp;
@@ -215,7 +224,7 @@ public class WURCSGraphToGlyContainer {
 			Node temp = end;
 			end = start;
 			start = temp;
-		}*/
+		}
 
 		Edge parentEdge = WURCSEdgeToEdge(donor, acceptor);
 
@@ -226,6 +235,97 @@ public class WURCSGraphToGlyContainer {
 		}
 
 		glyCo.addNode(end, parentEdge, start);
+	}
+
+	/**
+	 * Return true if the order of WURCSEdges on the given ModificationRepeat is standard (Last is end, First is start).
+	 * @author Masaaki Matsubara
+	 * @param _rep ModificationRepeat having start and end WURCSEdges
+	 * @return true if the order is standard (no need to make it reverse)
+	 * @throws GlycanException When the given ModificationRepeat has number of edges except for two.
+	 */
+	private boolean isStandardRepeatEdgeOrder(ModificationRepeat _rep) throws GlycanException {
+		if ( _rep.getParentEdges().size() != 2 )
+			throw new GlycanException("Illegal repeat connections.");
+
+		WURCSEdge t_edgeFirst = _rep.getParentEdges().getFirst();
+		WURCSEdge t_edgeLast  = _rep.getParentEdges().getLast();
+
+		Backbone t_bbFirst = t_edgeFirst.getBackbone();
+		Backbone t_bbLast  = t_edgeLast.getBackbone();
+		// Check tree structure
+		if ( !t_bbFirst.equals(t_bbLast) ) {
+			boolean t_bFirstIsParent = this.checkParentToChild(t_bbFirst, t_bbLast);
+			boolean t_bLastIsParent  = this.checkParentToChild(t_bbLast, t_bbFirst);
+			if ( t_bFirstIsParent != t_bLastIsParent )
+				return t_bFirstIsParent;
+		}
+
+		// Check anomeric position
+		Boolean t_bFirstIsAnom = this.isAnomericEdge(t_edgeFirst);
+		Boolean t_bLastIsAnom  = this.isAnomericEdge(t_edgeLast);
+		if ( t_bFirstIsAnom != t_bLastIsAnom ) {
+			// true (annomer edge) > null (no annomer edge) > false (not annomer edge)
+			if ( t_bFirstIsAnom != null && t_bFirstIsAnom )
+				return true;
+			if ( t_bLastIsAnom != null && t_bLastIsAnom )
+				return false;
+			if ( t_bFirstIsAnom == null )
+				return true;
+			if ( t_bLastIsAnom == null )
+				return false;
+		}
+
+		// Compare WURCSEdges
+		WURCSEdgeComparatorSimple t_comp = new WURCSEdgeComparatorSimple();
+		int t_iComp = t_comp.compare(t_edgeFirst, t_edgeLast);
+		if ( t_iComp != 0 )
+			return ( t_iComp < 0 );
+
+		return true;
+	}
+
+	/**
+	 * Check the first given Backbone has the second given Backbone as a child.
+	 * The relationship is searched recursively.
+	 * @author Masaaki Matsubara
+	 * @param _bb1 Backbone to be checked as parent
+	 * @param _bb2 Backbone to be checked as child
+	 * @return true if _bb1 is parent of _bb2
+	 */
+	private boolean checkParentToChild(Backbone _bb1, Backbone _bb2) {
+		LinkedList<Backbone> t_lChildrenQueue = new LinkedList<>();
+		// Search children of first backbone recursively
+		t_lChildrenQueue.add(_bb1);
+		while (!t_lChildrenQueue.isEmpty()) {
+			Backbone t_bb = t_lChildrenQueue.removeFirst();
+			for ( WURCSEdge t_edgeChild : t_bb.getChildEdges() ) {
+				Modification t_mod = t_edgeChild.getModification();
+				if ( t_mod instanceof RepeatInterface )
+					continue;
+				for ( WURCSEdge t_edgeChildChild : t_mod.getChildEdges() ) {
+					Backbone t_bbChild = t_edgeChildChild.getBackbone();
+					// Return true if second backbone is matched to first one's child
+					if ( _bb2.equals(t_bbChild) )
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Return true if the given WURCSEdge is assumed to anomeric linkage.
+	 * @author Masaaki Matsubara
+	 * @param a_oEdge WURCSEdge to be judged whether annomeric linkage or not
+	 * @return true if the given WURCSEdge is assumed to anomeric linkage (null if no anomer position)
+	 */
+	private Boolean isAnomericEdge(WURCSEdge _oEdge) {
+		if ( _oEdge.getLinkages().size() > 1 ) return false;
+		int t_iAnomPos = _oEdge.getBackbone().getAnomericPosition();
+		if ( t_iAnomPos == 0 || t_iAnomPos == -1 ) return null;
+		if ( _oEdge.getLinkages().getFirst().getBackbonePosition() != t_iAnomPos ) return false;
+		return true;
 	}
 
 	private void extractCyclicUnit(Backbone _backbone, WURCSEdge _cEdge, Modification _mod) throws GlycanException {
@@ -279,6 +379,38 @@ public class WURCSGraphToGlyContainer {
 		if (end != null && !end.equals(start)) {
 			glyCo.addNode(end, cyclicEdge, start);
 		}
+	}
+
+	/**
+	 * Create and add a GlycanUndefinedUnit for substituent.
+	 * @author Masaaki Matsubara
+	 * @param _modAlt
+	 * @throws GlycanException
+	 */
+	private void compositionToUndefinedUnitForSubstituent (ModificationAlternative _modAlt) throws GlycanException {
+		// Populate Substituent
+		Substituent sub = MAPToSubstituent(_modAlt);
+		sub.setFirstPosition(new Linkage());
+		sub.setSecondPosition(new Linkage());
+		SubstituentUtility subUtil = new SubstituentUtility();
+		sub = subUtil.modifyLinkageType(sub);
+
+		// Add undefined linkage to substituent
+		sub.getFirstPosition().addParentLinkage(-1);
+		sub.getFirstPosition().addChildLinkage(1);
+		if ( sub.getSubstituent() instanceof CrossLinkedTemplate ) {
+			sub.getSecondPosition().addParentLinkage(-1);
+			sub.getSecondPosition().addChildLinkage(1);
+		}
+
+		// Add Substituent to an Edge
+		Edge edge = new Edge();
+		edge.setSubstituent(sub);
+		sub.addParentEdge(edge);
+
+		GlycanUndefinedUnit t_und = new GlycanUndefinedUnit();
+		t_und.setConnection(edge);
+		glyCo.addGlycanUndefinedUnitForSubstituent(t_und);
 	}
 
 	private void compositionToUndefinedUnit (Backbone _backbone) throws GlycanException {
@@ -415,6 +547,11 @@ public class WURCSGraphToGlyContainer {
 
 			if (!(cEdge.getNextComponent() instanceof ModificationAlternative)) continue;
 
+			/* 2018/09/25 Masaaki added */
+			this.extractUndefinedLinkages((ModificationAlternative)cEdge.getNextComponent());
+			this.extractUndefinedSubstituents((ModificationAlternative)cEdge.getNextComponent());
+			/**/
+
 			for (WURCSEdge cpEdge : cEdge.getNextComponent().getParentEdges()) {
 				if (!cpEdge.getBackbone().isRoot()) continue;
 				if (isCrossLinkedSubstituent(cpEdge.getModification())) continue;
@@ -429,6 +566,58 @@ public class WURCSGraphToGlyContainer {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Extract undefined linkages like following:
+	 * <p> a?|b?|c?}-{a?|b?|c? </p>
+	 * This must have the same linkages between lead in and out linkages and no substituent.
+	 * The linkages must be connected to all of the monosaccharides in the glycan.
+	 * @author Masaaki Matsubara
+	 * @param t_modAlt
+	 * @throws GlycanException undefined linkage with substituent cannnot be handled.
+	 */
+	private void extractUndefinedLinkages(ModificationAlternative t_modAlt) throws GlycanException {
+		if ( this.undefinedLinkages.contains(t_modAlt) )
+			return;
+		if ( t_modAlt.getLeadInEdges().size() != t_modAlt.getLeadOutEdges().size())
+			return;
+		/* Compare lead in and lead out linkages on the ModificationAlternative  */
+		LinkedList<WURCSEdge> t_lInEdges  = t_modAlt.getLeadInEdges();
+		LinkedList<WURCSEdge> t_lOutEdges = t_modAlt.getLeadOutEdges();
+		WURCSEdgeComparator t_compEdges = new WURCSEdgeComparator();
+		Collections.sort(t_lInEdges,  t_compEdges);
+		Collections.sort(t_lOutEdges, t_compEdges);
+		int nEdges = t_lInEdges.size();
+		for ( int i=0; i<nEdges; i++) {
+			WURCSEdge t_edgeIn  = t_lInEdges.get(i);
+			WURCSEdge t_edgeOut = t_lOutEdges.get(i);
+			int t_iComp = t_compEdges.compare(t_edgeIn, t_edgeOut);
+			if ( t_iComp != 0 )
+				return;
+		}
+		if ( !t_modAlt.canOmitMAP() )
+			throw new GlycanException("Undefined linkage with substituent cannot be handled.");
+		this.undefinedLinkages.add(t_modAlt);
+	}
+
+	/**
+	 * Extract undefined linkages like following:
+	 * <p> a?|b?|c?}*OCC/3=O </p>
+	 * This must have lead in linkages, substituent and no lead out linkages.
+	 * The linkages must be connected to all of the monosaccharides in the glycan.
+	 * @author Masaaki Matsubara
+	 * @param t_modAlt
+	 * @throws GlycanException
+	 */
+	private void extractUndefinedSubstituents(ModificationAlternative t_modAlt) throws GlycanException {
+		if ( this.undefinedSubstituents.contains(t_modAlt) )
+			return;
+		if ( t_modAlt.getLeadInEdges().isEmpty() || !t_modAlt.getLeadOutEdges().isEmpty() )
+			return;
+		if ( t_modAlt.getMAPCode().isEmpty() )
+			return;
+		this.undefinedSubstituents.add(t_modAlt);
 	}
 
 	private boolean isCyclicNode (Backbone _backbone) {

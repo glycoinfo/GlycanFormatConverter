@@ -64,7 +64,10 @@ public class BackboneToNode {
                 ret = appendSubstituent(ret, ModificationToSubstituent(mod));
             }
             if (mod.getParentEdges().size() == 1 && mod.getMAPCode().equals("*")) {
-                ModificationTemplate modT = ModificationTemplate.forCarbon(mod.getMAPCode().charAt(0));
+                // 2018/09/07 Masaaki
+                // A MAP "*" means a deoxy, not unknown substituent.
+//                ModificationTemplate modT = ModificationTemplate.forCarbon(mod.getMAPCode().charAt(0));
+                ModificationTemplate modT = ModificationTemplate.DEOXY;
                 GlyCoModification gmod = new GlyCoModification(modT, 0);
                 mods.add(gmod);
             }
@@ -84,7 +87,10 @@ public class BackboneToNode {
             }
                         
             if (mod.getParentEdges().size() > 2) {
-            	throw new GlycanException(mod.getMAPCode() + " have more than two anchors.");
+                // 2018/10/02 Masaaki
+                // Multiple linkages on alternative modifications are allowed
+                if ( ! (mod instanceof ModificationAlternative) )
+                    throw new GlycanException(mod.getMAPCode() + " have more than two anchors.");
             }
         }
         
@@ -132,6 +138,17 @@ public class BackboneToNode {
 
         return ret;
     }
+
+    private ArrayList<Integer> extractBranchingPoints(String _sc) {
+        ArrayList<Integer> ret = new ArrayList<>();
+        for (int i = 0; i < _sc.length(); i++) {
+            char carbon = _sc.charAt(i);
+            if ( carbon == '5' || carbon == '6' || carbon == '7' || carbon == '8' || carbon == 'X' )
+                ret.add(i+1);
+        }
+        return ret;
+    }
+
 
     /*private Monosaccharide extractModification (Monosaccharide _mono, String _skeletonCode) throws GlycanException {
         for (int i = 0; i < _skeletonCode.length(); i++) {
@@ -195,11 +212,15 @@ public class BackboneToNode {
                 for(LinkagePosition lp : we.getLinkages()) {
                     first.addParentLinkage(lp.getBackbonePosition());
                     first.addChildLinkage(lp.getModificationPosition());
+                    first.setProbabilityUpper(lp.getProbabilityUpper()); // 2018/09/18 Masaaki added
+                    first.setProbabilityLower(lp.getProbabilityLower()); // 2018/09/18 Masaaki added
                 }
             }else {
                 for(LinkagePosition lp : we.getLinkages()) {
                     second.addParentLinkage(lp.getBackbonePosition());
                     second.addChildLinkage(lp.getModificationPosition());
+                    second.setProbabilityUpper(lp.getProbabilityUpper()); // 2018/09/18 Masaaki added
+                    second.setProbabilityLower(lp.getProbabilityLower()); // 2018/09/18 Masaaki added
                 }
             }
         }
