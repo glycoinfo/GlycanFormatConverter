@@ -5,16 +5,11 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.GlyCoModificationComparater;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
-import org.glycoinfo.WURCSFramework.util.array.WURCSImporter;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
-import org.glycoinfo.WURCSFramework.util.subsumption.MSStateDeterminationUtility;
-import org.glycoinfo.WURCSFramework.util.subsumption.WURCSSubsumptionConverter;
-import org.glycoinfo.WURCSFramework.wurcs.array.MS;
 import org.glycoinfo.WURCSFramework.wurcs.graph.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 
 /**
  * Created by e15d5605 on 2017/07/19.
@@ -25,76 +20,33 @@ public class BackboneToNode {
         Monosaccharide ret = new Monosaccharide();
         String skeletonCode = _backbone.getSkeletonCode();
 
-		/* set superclass */
+		// set superclass
         ret.setSuperClass(SuperClass.forSize(_backbone.getLength()));
 
-		/* extract anomeric state */
+		// extract anomeric state
         char anomericstate = _backbone.getAnomericSymbol();
         AnomericStateDescriptor enumAnom = AnomericStateDescriptor.forAnomericState(checkAnomericState(skeletonCode, anomericstate));
         ret.setAnomer(enumAnom);
 
-		/* extract anomeric position */
+		// extract anomeric position
         int anomericposition = checkAnomericPosition(_backbone);
         ret.setAnomericPosition(anomericposition);
 
-		/* extract stereo */
-        ret.setStereos(extractStereo(skeletonCode));
+		// extract stereo
+        //TODO : 一部の構造に対する解析が甘いため、より詳細な解析を行う関数が必要
+        SkeletonCodeToStereo sc2s = new SkeletonCodeToStereo();
+        ret.setStereos(sc2s.start(_backbone));
 
-		/* extract ring position */
-        for(WURCSEdge we : _backbone.getChildEdges()) {
-            Modification mod = we.getModification();
-            if(!mod.isRing()) continue;
-            for(LinkagePosition lp : we.getLinkages()) {
-                if(_backbone.getAnomericPosition() == lp.getBackbonePosition()) ret.setRingStart(lp.getBackbonePosition());
-                else ret.setRingEnd(lp.getBackbonePosition());
-            }
-        }
+		// extract ring position
+        this.extractRingPosition(_backbone, ret);
 
-		/* extract modification */
-        ArrayList<GlyCoModification> mods = extractModification(ret, skeletonCode);
+		// extract modification
+        ArrayList<GlyCoModification> mods = extractModification(ret, _backbone);
 
-		/* extract substituent */
-        ArrayList<Modification> tempMods = new ArrayList<>();
-        for(WURCSEdge we : _backbone.getChildEdges()) {
-            Modification mod = we.getModification();
-            if (mod.isRing() || mod.isGlycosidic() || mod instanceof ModificationRepeat) continue;
- 
-            /* extract sinple substituent */
-            if (mod.getParentEdges().size() == 1 && !mod.getMAPCode().equals("*")) {
-                ret = appendSubstituent(ret, ModificationToSubstituent(mod));
-            }
-            if (mod.getParentEdges().size() == 1 && mod.getMAPCode().equals("*")) {
-                // 2018/09/07 Masaaki
-                // A MAP "*" means a deoxy, not unknown substituent.
-//                ModificationTemplate modT = ModificationTemplate.forCarbon(mod.getMAPCode().charAt(0));
-                ModificationTemplate modT = ModificationTemplate.DEOXY;
-                GlyCoModification gmod = new GlyCoModification(modT, 0);
-                mods.add(gmod);
-            }
+        // extract substituent
+        this.extractSubstituent(_backbone, ret);
 
-            /* extract cross linked substituent */
-            if (mod.getParentEdges().size() == 2 && !mod.getMAPCode().equals("") && !mod.getMAPCode().equals("*")) {
-                if (tempMods.contains(mod)) continue;
-                ret = appendSubstituent(ret, ModificationToCrossLinkedSubstituent(mod));
-                tempMods.add(mod);
-            }
-
-            /* extract anhydroxyl group */
-            if (mod.getParentEdges().size() == 2 && mod.getMAPCode().equals("")) {
-                if (tempMods.contains(mod)) continue;
-                ret = appendSubstituent(ret, ModificationToCrossLinkedSubstituent(mod));
-                tempMods.add(mod);
-            }
-                        
-            if (mod.getParentEdges().size() > 2) {
-                // 2018/10/02 Masaaki
-                // Multiple linkages on alternative modifications are allowed
-                if ( ! (mod instanceof ModificationAlternative) )
-                    throw new GlycanException(mod.getMAPCode() + " have more than two anchors.");
-            }
-        }
-        
-        /* sort modifications */
+        // sort modifications by position
         Collections.sort(mods, new GlyCoModificationComparater());
 
         ret.setModification(mods);
@@ -102,11 +54,12 @@ public class BackboneToNode {
         return ret;
     }
 
-    private ArrayList<GlyCoModification> extractModification (Monosaccharide _mono, String _sc) throws GlycanException {
+    private ArrayList<GlyCoModification> extractModification (Monosaccharide _mono, Backbone _backbone) throws GlycanException {
         ArrayList<GlyCoModification> ret = new ArrayList<>();
+        String skeletonCode = _backbone.getSkeletonCode();
 
-        for (int i = 0; i < _sc.length(); i++) {
-            char carbon = _sc.charAt(i);
+        for (int i = 0; i < skeletonCode.length(); i++) {
+            char carbon = skeletonCode.charAt(i);
             ModificationTemplate modT = ModificationTemplate.forCarbon(carbon);
 
             if (i != 0) {
@@ -136,48 +89,59 @@ public class BackboneToNode {
             }
         }
 
-        return ret;
-    }
+        // extract deoxy from Modification
+        for(WURCSEdge we : _backbone.getChildEdges()) {
+            Modification mod = we.getModification();
+            if (mod.isRing() || mod.isGlycosidic() || mod instanceof ModificationRepeat) continue;
+            if (mod.getParentEdges().size() != 1 || !mod.getMAPCode().equals("*")) continue;
 
-    private ArrayList<Integer> extractBranchingPoints(String _sc) {
-        ArrayList<Integer> ret = new ArrayList<>();
-        for (int i = 0; i < _sc.length(); i++) {
-            char carbon = _sc.charAt(i);
-            if ( carbon == '5' || carbon == '6' || carbon == '7' || carbon == '8' || carbon == 'X' )
-                ret.add(i+1);
+            // 2018/09/07 Masaaki
+            // A MAP "*" means a deoxy, not unknown substituent.
+//                ModificationTemplate modT = ModificationTemplate.forCarbon(mod.getMAPCode().charAt(0));
+            ModificationTemplate modT = ModificationTemplate.DEOXY;
+            GlyCoModification gmod = new GlyCoModification(modT, 0);
+            ret.add(gmod);
         }
+
         return ret;
     }
 
+    private Monosaccharide extractSubstituent (Backbone _backbone, Monosaccharide _mono) throws GlycanException, ConverterExchangeException {
+        ArrayList<Modification> tempMods = new ArrayList<>();
+        for(WURCSEdge we : _backbone.getChildEdges()) {
+            Modification mod = we.getModification();
+            if (isRingPosition(mod, _mono) || mod.isGlycosidic() || mod instanceof ModificationRepeat) continue;
+            if (mod.getMAPCode().equals("*")) continue;
 
-    /*private Monosaccharide extractModification (Monosaccharide _mono, String _skeletonCode) throws GlycanException {
-        for (int i = 0; i < _skeletonCode.length(); i++) {
-            char carbon = _skeletonCode.charAt(i);
-            ModificationTemplate modT = ModificationTemplate.forCarbon(carbon);
-            GlyCoModification mod;
-
-            if (i > 0) {
-                if (carbon == 'o') modT = ModificationTemplate.KETONE;
-                if (carbon == 'O' || carbon == 'a') modT = ModificationTemplate.KETONE_U;
-            }
-            if (i == (_mono.getSuperClass().getSize() - 1) && carbon == 'A') {
-                modT = ModificationTemplate.URONICACID;
+            // extract simple substituent
+            if (mod.getParentEdges().size() == 1) {
+                _mono = appendSubstituent(_mono, ModificationToSubstituent(mod));
             }
 
-            if (modT != null) {
-                mod = new GlyCoModification(modT, i + 1);
-                _mono.addModification(mod);
+            // extract cross-linked substituent
+            if (mod.getParentEdges().size() == 2 && !mod.getMAPCode().equals("")) {
+                if (tempMods.contains(mod)) continue;
+                _mono = appendSubstituent(_mono, ModificationToCrossLinkedSubstituent(mod));
+                tempMods.add(mod);
+            }
 
-                if (i != 1 && i + 1 != _mono.getSuperClass().getSize() &&
-                        (modT.equals(ModificationTemplate.KETONE) || modT.equals(ModificationTemplate.KETONE_U))) {
-                    mod = new GlyCoModification(modT, 1);
-                    _mono.addModification(mod);
-                }
+            // extract an-hydroxyl
+            if (mod.getParentEdges().size() == 2 && mod.getMAPCode().equals("")) {
+                if (tempMods.contains(mod)) continue;
+                _mono = appendSubstituent(_mono, ModificationToCrossLinkedSubstituent(mod));
+                tempMods.add(mod);
+            }
+
+            if (mod.getParentEdges().size() > 2) {
+                // 2018/10/02 Masaaki
+                // Multiple linkages on alternative modifications are allowed
+                if ( ! (mod instanceof ModificationAlternative) )
+                    throw new GlycanException(mod.getMAPCode() + " have more than two anchors.");
             }
         }
 
         return _mono;
-    }*/
+    }
 
     private Substituent ModificationToSubstituent(Modification _mod) throws ConverterExchangeException, GlycanException {
         SubstituentInterface subT = SubstituentTemplate.forMAP(_mod.getMAPCode());
@@ -229,102 +193,13 @@ public class BackboneToNode {
         return subUtil.modifyLinkageType(new Substituent(subT, first, second));
     }
 
-    private LinkedList<String> extractStereo(String _skeletonCode) throws WURCSFormatException, ConverterExchangeException {
-        MS ms = new WURCSImporter().extractMS(_skeletonCode);
-        MSStateDeterminationUtility msUtility = new MSStateDeterminationUtility();
-        WURCSSubsumptionConverter wsc = new WURCSSubsumptionConverter();
-        LinkedList<String> stereos = msUtility.extractStereo(ms);
-
-        /* retry define stereo */
-        if(stereos.isEmpty()) stereos = checkStereos(ms, wsc);
-
-        return stereos;
-    }
-
-    private LinkedList<String> checkStereos(MS _ms, WURCSSubsumptionConverter _wsc) throws ConverterExchangeException {
-        LinkedList<String> a_aStereo = new LinkedList<String>();
-        String a_sSkeletonCode = _ms.getSkeletonCode();
-        
-        if (a_sSkeletonCode.equals("<Q>")) {
-            a_aStereo.addLast("Sugar");
-        }
-        
-        /* check uncertain groups */
-        if (haveUncertainGroups(_ms)) return a_aStereo;
-
-        SuperClass enumSuperClass = SuperClass.forSize(_ms.getSkeletonCode().length());
-        MSStateDeterminationUtility msUtil = new MSStateDeterminationUtility();
-        
-        if(a_sSkeletonCode.contains("1") && a_sSkeletonCode.contains("2")) {
-            for(String s :
-                    msUtil.extractStereo(_wsc.convertConfigurationUnknownToAbsolutes(_ms).getFirst())) {
-                if(a_sSkeletonCode.endsWith("xh") && s.contains("gro")) {
-                    a_aStereo.addLast(checkDLconfiguration(s));
-                    continue;
-                }a_aStereo.addLast(s);
-            }
-        }
-
-        if(a_sSkeletonCode.contains("3") || a_sSkeletonCode.contains("4")) {
-            for (String ms : msUtil.extractStereo(_wsc.convertConfigurationRelativeToD(_ms))) {
-                if (ms.contains("gro")) {
-                    if (a_sSkeletonCode.endsWith("xh")) a_aStereo.addLast(checkDLconfiguration(ms));
-                    else a_aStereo.addLast(ms);
-                } else a_aStereo.addLast(checkDLconfiguration(ms));
-            }
-            //a_aStereo = _msUtility.extractStereo(_wsc.convertConfigurationRelativeToD(_ms));
-        }
-
-        if(a_aStereo.isEmpty()) {
-            if(enumSuperClass.equals(SuperClass.TET))
-                throw new ConverterExchangeException(_ms.getSkeletonCode() + " could not handled");
-            else if(enumSuperClass.equals(SuperClass.TRI)) {
-            	_ms = _wsc.convertCarbonylGroupToHydroxyl(_ms) != null ? 
-            			_wsc.convertCarbonylGroupToHydroxyl(_ms) : _ms;
-            	_ms =  _wsc.convertConfigurationUnknownToAbsolutes(_ms) != null ? 
-            			_wsc.convertConfigurationUnknownToAbsolutes(_ms).getFirst() : _ms;
-            	
-            	LinkedList<String> stereos = msUtil.extractStereo(_ms);
-            	if (stereos.isEmpty())
-            		throw new ConverterExchangeException(_ms.getSkeletonCode() + " could not handled");
-                a_aStereo.add(checkDLconfiguration(stereos.getFirst()));
-            }
-        }
-        
-        return a_aStereo;
-    }
-
-    private boolean haveUncertainGroups (MS _ms) {
-    	boolean ret = false;
-    	
-    	for (int i = 0; i < _ms.getSkeletonCode().length(); i++) {
-    		if (i == 0 || i == _ms.getSkeletonCode().length() - 1) continue;
-    		CarbonDescriptor cd = 
-    				CarbonDescriptor.forCharacter(_ms.getSkeletonCode().charAt(i), false);
-  
-    		if (cd.equals(CarbonDescriptor.SS3_STEREO_X)) {
-    			ret = true;
-    		} else {
-	    		ret = false;
-	    		break;
-    		}
-    	}
-    	
-    	return ret;
-    }
-    
+    //TODO : 修正が必要
     private char checkAnomericState (String _skeletonCode, char _anomericstate) {
         if (_anomericstate == 'o') {
             if (_skeletonCode.indexOf("o") == 0 || _skeletonCode.indexOf("O") == 1) return 'o';
             if (_skeletonCode.indexOf("u") == 0 || _skeletonCode.indexOf("U") == 1) return '?';
         }
         return _anomericstate;
-    }
-
-    private String checkDLconfiguration (String a_sStereo) {
-        if((a_sStereo.startsWith("l") || a_sStereo.startsWith("d")))
-            a_sStereo = a_sStereo.replaceFirst("[ld]", "");
-        return a_sStereo;
     }
 
     private Monosaccharide appendSubstituent (Node _node, Node _substituent) throws GlycanException {
@@ -356,5 +231,39 @@ public class BackboneToNode {
         }
 
         return anomericPosition;
+    }
+
+    private Monosaccharide extractRingPosition (Backbone _backbone, Monosaccharide _mono) throws GlycanException {
+        int anomericPos = _backbone.getAnomericPosition();
+        ArrayList<Integer> ring = new ArrayList<>();
+        int start = -1;
+
+        for (WURCSEdge cwe : _backbone.getChildEdges()) {
+            Modification mod = cwe.getModification();
+            if (!mod.isRing()) continue;
+            for (LinkagePosition lp : cwe.getLinkages()) {
+                if (anomericPos == lp.getBackbonePosition()) {
+                    start = lp.getBackbonePosition();
+                } else {
+                    ring.add(lp.getBackbonePosition());
+                }
+            }
+        }
+
+        if (ring.isEmpty()) {
+            _mono.setRing(start, -1);
+        } else {
+            Collections.sort(ring);
+            _mono.setRing(start, ring.get(0));
+        }
+
+        return _mono;
+    }
+
+    private boolean isRingPosition (Modification _mod, Monosaccharide _mono) {
+        if (_mod.getParentEdges().size() != 2) return false;
+        int start = _mod.getParentEdges().get(0).getLinkages().get(0).getBackbonePosition();
+        int end = _mod.getParentEdges().get(1).getLinkages().get(0).getBackbonePosition();
+        return (_mono.getRingStart() == start && _mono.getRingEnd() == end);
     }
 }
