@@ -105,7 +105,7 @@ public class Monosaccharide extends Node {
 			throw new GlycanException("Invalid end ring position");
 		}
 		if(_end < Monosaccharide.UNKNOWN_RING) {
-			throw new GlycanException("INvalid end ring position");
+			throw new GlycanException("Invalid end ring position");
 		}
 		this.ringEnd = _end;
 	}
