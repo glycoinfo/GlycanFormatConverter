@@ -7,12 +7,12 @@ public enum ModificationTemplate {
 	 * */
 	//ANHYDROXYL		("*o", "anhydro", "Anhydro"),
 	UNKNOWN 		('*', "", "?"),
-	UNSATURATION_EL ('e', "en", "en"),
-	UNSATURATION_FL ('f', "en", "en"),
-	UNSATURATION_ZL ('z', "en", "en"),
-	UNSATURATION_EU ('E', "en", "en"),
-	UNSATURATION_FU ('F', "en", "en"),
-	UNSATURATION_ZU ('Z', "en", "en"),
+	UNSATURATION_EL ('e', "en", "(E)en"),
+	UNSATURATION_FL ('f', "en", "(X)en"),
+	UNSATURATION_ZL ('z', "en", "(Z)en"),
+	UNSATURATION_EU ('E', "en", "(E)en"),
+	UNSATURATION_FU ('F', "en", "(X)en"),
+	UNSATURATION_ZU ('Z', "en", "(Z)en"),
 	DEOXY			('d', "d", "deoxy"),
 	METHYL			('m', "d", "d"),
 	ALDONICACID		('A', "a", "onic"),
@@ -21,7 +21,12 @@ public enum ModificationTemplate {
 	HYDROXYL		('h', "aldi", "ol"),
 	ALDEHYDE		('o', "", "aldehyde"),
 	ULOSONIC		('O', "keto", "ulo"),
-	KETONE			('o', "keto", "ulo");
+	KETONE			('o', "keto", "ulo"),
+	HLOSE_5 		('5', "h", "dehydro"),
+	HLOSE_6			('6', "h", "dehydro"),
+	HLOSE_7			('7', "h", "dehydro"),
+	HLOSE_8			('8', "h", "dehydro"),
+	HLOSE_X			('X', "h", "dehydro");
 	//ONIC			('A', "a", "onic");
 	
 	private char carbon;
