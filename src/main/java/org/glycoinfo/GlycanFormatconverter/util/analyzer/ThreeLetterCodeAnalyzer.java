@@ -130,6 +130,7 @@ public class ThreeLetterCodeAnalyzer {
 		if(_temp.equals("")) return;
 		for(String unit : _temp.split("_")) {
 			String[] parts = unit.split("\\*");
+			if (parts[1].equals("6")) continue;
 			modifications.add(parts[0] + parts[1]);
 		}
 	}
