@@ -2,6 +2,7 @@ package org.glycoinfo.GlycanFormatconverter.io.LinearCode;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
+import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -88,6 +89,10 @@ public class LinearCodeImporter {
             LinearCodeLinkageParser lcParser = new LinearCodeLinkageParser(lc2node, family);
             ret = lcParser.start(nodelist, ret);
         }
+
+        //
+        GlyContainerOptimizer gcOpt = new GlyContainerOptimizer();
+        gcOpt.start(ret);
 
         return ret;
     }

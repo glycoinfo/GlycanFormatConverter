@@ -11,6 +11,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
+import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 
 public class IUPACExtendedImporter {
@@ -22,7 +23,7 @@ public class IUPACExtendedImporter {
 		
 		List<String> notations = new ArrayList<String>();
 
-		/* separate glycan fragents */
+		// separate glycan fragents
 		if (_iupac.indexOf("$,") != -1) {
 			for (String unit : _iupac.split("\\$,")) {
 				if (unit.matches(".+=[\\d?]+")) unit += "$,";
@@ -31,7 +32,7 @@ public class IUPACExtendedImporter {
 			Collections.reverse(notations);
 		}
 
-		/* separate monosaccharide composition */
+		// separate monosaccharide composition
 		if (_iupac.matches(".*}\\d+")) {
 			notations = parseCompositionUnits(_iupac);
 		}
@@ -42,7 +43,7 @@ public class IUPACExtendedImporter {
 		for (String subst : notations) {
 			IUPACStacker stacker = new IUPACStacker();
 			
-			/* check monosaccharide composition */
+			// check monosaccharide composition
 			Matcher matComp = Pattern.compile("^\\{.+}(\\d+)+$").matcher(subst);
 			if (matComp.find()) {
 				String count = matComp.group(1);
@@ -53,7 +54,7 @@ public class IUPACExtendedImporter {
 			
 			stacker.setNotations(parseNotation(subst));
 			
-			/* generate moonsaccharide */
+			// generate moonsaccharide
 			for (String unit : stacker.getNotations()) {
 				if (stacker.isComposition()) {
 					for (int i = stacker.getNumOfNode(); i != 0; i--) {
@@ -68,16 +69,20 @@ public class IUPACExtendedImporter {
 				}
 			}
 
-			/* define family in each nodes */
+			// define family in each nodes
 			parseChildren(stacker, nodeIndex);
 
-			/* define linkages */
+			// define linkages
 			IUPACLinkageParser iupacLP = new IUPACLinkageParser(glyCo, nodeIndex, stacker);
 			iupacLP.start();
 
 			glyCo = iupacLP.getGlyCo();
 		}
-		
+
+		//
+		GlyContainerOptimizer gcOpt = new GlyContainerOptimizer();
+		gcOpt.start(glyCo);
+
 		return glyCo;
 	}
 

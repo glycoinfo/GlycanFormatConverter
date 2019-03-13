@@ -2,6 +2,7 @@ package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
+import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 
 import java.util.*;
 
@@ -59,6 +60,10 @@ public class IUPACCondensedImporter {
                     new IUPACCondensedLinkageParser(glyCo, nodeIndex, stacker);
             glyCo = iclp.start();
         }
+
+        //
+        GlyContainerOptimizer gcOpt = new GlyContainerOptimizer();
+        gcOpt.start(glyCo);
     }
 
     private ArrayList<String> parseNotation (String _iupac) {

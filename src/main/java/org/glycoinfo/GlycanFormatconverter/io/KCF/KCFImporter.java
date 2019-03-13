@@ -4,6 +4,7 @@ import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
+import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
@@ -37,7 +38,7 @@ public class KCFImporter {
 
         KCFNodeConverter kcfNodeConv = new KCFNodeConverter(kcfUtil);
 
-        /* define monosaccharide */
+        // define monosaccharide
         for (String unit : kcfUtil.getNodes()) {
             Node node = kcfNodeConv.start(unit);
 
@@ -46,12 +47,12 @@ public class KCFImporter {
             }
         }
 
-        /* define glycosidic linkage and substituents */
+        // define glycosidic linkage and substituents
         for (String unit : kcfUtil.getEdges()) {
             extractLinkage(unit);
         }
 
-        /* define repeating unit */
+        // define repeating unit
         for (String unit : kcfUtil.getNotationList()) {
             unit = unit.trim();
 
@@ -75,14 +76,18 @@ public class KCFImporter {
             }
         }
 
-        /* modify duplicate substituents */
+        // modify duplicate substituents
         MonosaccharideUtility monoUtil = new MonosaccharideUtility();
-        for (String unit : nodeIndex.keySet()) {
-            monoUtil.margeDuplicateSubstituents(nodeIndex.get(unit));
-        }
+        //for (String unit : nodeIndex.keySet()) {
+        //    monoUtil.margeDuplicateSubstituents(nodeIndex.get(unit));
+        //}
 
-        /* check anomeric status for root node*/
+        // check anomeric status for root node
         modifyRootStatus(glyco.getRootNodes().get(0));
+
+        //
+        GlyContainerOptimizer gcOpt = new GlyContainerOptimizer();
+        gcOpt.start(glyco);
 
         return glyco;
     }
@@ -422,7 +427,7 @@ public class KCFImporter {
         if (_cross != null) {
             repMod.setTemplate(((Substituent) _cross).getSubstituent());
             SubstituentUtility subUtil = new SubstituentUtility();
-            repMod = (GlycanRepeatModification) subUtil.modifyLinkageType(repMod);
+            //repMod = (GlycanRepeatModification) subUtil.modifyLinkageType(repMod);
         }
 
         repMod.setMinRepeatCount(-1);
