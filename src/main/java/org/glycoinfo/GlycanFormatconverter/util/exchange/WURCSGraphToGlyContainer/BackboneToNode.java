@@ -2,7 +2,6 @@ package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContain
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.GlyCoModificationComparater;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
@@ -41,15 +40,13 @@ public class BackboneToNode {
         this.extractRingPosition(_backbone, ret);
 
 		// extract modification
-        ArrayList<GlyCoModification> mods = extractModification(ret, _backbone);
+        //ArrayList<GlyCoModification> mods = extractModification(ret, _backbone);
+        ret.setModification(extractModification(ret, _backbone));
 
         // extract substituent
         this.extractSubstituent(_backbone, ret);
 
-        // sort modifications by position
-        Collections.sort(mods, new GlyCoModificationComparater());
-
-        ret.setModification(mods);
+        //ret.setModification(mods);
 
         return ret;
     }
@@ -103,6 +100,9 @@ public class BackboneToNode {
             ret.add(gmod);
         }
 
+        // sort modifications by position
+        Collections.sort(ret, new GlyCoModificationComparater());
+
         return ret;
     }
 
@@ -115,7 +115,7 @@ public class BackboneToNode {
 
             // extract simple substituent
             if (mod.getParentEdges().size() == 1) {
-                _mono = appendSubstituent(_mono, ModificationToSubstituent(mod));
+                _mono = appendSubstituent(_mono, ModificationToSubstituent(_backbone, mod));
             }
 
             // extract cross-linked substituent
@@ -143,12 +143,18 @@ public class BackboneToNode {
         return _mono;
     }
 
-    private Substituent ModificationToSubstituent(Modification _mod) throws ConverterExchangeException, GlycanException {
-        SubstituentInterface subT = SubstituentTemplate.forMAP(_mod.getMAPCode());
+  private Substituent ModificationToSubstituent(Backbone _backbone, Modification _mod) throws ConverterExchangeException, GlycanException {
+        MAPAnalyzer mapAnalyze = new MAPAnalyzer();
+        mapAnalyze.start(_mod.getMAPCode());
+
+        BaseSubstituentTemplate bsubT = mapAnalyze.getSingleTemplate();
+
         Linkage lin = new Linkage();
 
-        if (subT == null) throw new ConverterExchangeException(_mod.getMAPCode() + " could not found!");
-        if (subT.getIUPACnotation().equals("")) throw new ConverterExchangeException(_mod.getMAPCode() + " could not support!");
+        if (bsubT == null)
+            throw new ConverterExchangeException("This substituent could not support: " + _mod.getMAPCode());
+        if (bsubT.getIUPACnotation().equals(""))
+            throw new ConverterExchangeException("This substituent could not support: " + _mod.getMAPCode());
 
         for(WURCSEdge we : _mod.getParentEdges()) {
             for(LinkagePosition lp : we.getLinkages()) {
@@ -159,17 +165,36 @@ public class BackboneToNode {
             }
         }
 
-        SubstituentUtility subUtil = new SubstituentUtility();
-        return subUtil.modifyLinkageType(new Substituent(subT, lin));
+        Substituent ret = new Substituent(bsubT, lin);
+        ret.setHeadAtom(mapAnalyze.getHeadAtom());
+
+        // When linkage type is H_LOSE, assign character of 'C' to head-atom
+        if (lin.getParentLinkages().size() == 1) {
+            int pos = lin.getParentLinkages().get(0);
+            if (_backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_X_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_R_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_r_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_S_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_s_U)) {
+                ret.setHeadAtom("C");
+            }
+        }
+
+        return ret;
     }
 
     private Substituent ModificationToCrossLinkedSubstituent(Modification _mod) throws ConverterExchangeException, GlycanException {
+        MAPAnalyzer mapAnalyze = new MAPAnalyzer();
+        mapAnalyze.start(_mod.getMAPCode().equals("") ? "*o" : _mod.getMAPCode());
+
         SubstituentInterface subT = CrossLinkedTemplate.forMAP(_mod.getMAPCode().equals("") ? "*o" : _mod.getMAPCode());
         Linkage first = new Linkage();
         Linkage second = new Linkage();
 
-        if (subT == null) throw new ConverterExchangeException(_mod.getMAPCode() + " could not found!");
-        if (subT.getIUPACnotation().equals("")) throw new ConverterExchangeException(_mod.getMAPCode() + " could not support!");
+        if (subT == null)
+            throw new ConverterExchangeException("This substituent could not support: " + _mod.getMAPCode());
+        if (subT.getIUPACnotation().equals(""))
+            throw new ConverterExchangeException("This substituent could not support: " + _mod.getMAPCode());
 
         for(WURCSEdge we : _mod.getParentEdges()) {
             if((_mod.getParentEdges().size() - 1) != _mod.getParentEdges().indexOf(we)) {
@@ -189,8 +214,7 @@ public class BackboneToNode {
             }
         }
 
-        SubstituentUtility subUtil = new SubstituentUtility();
-        return subUtil.modifyLinkageType(new Substituent(subT, first, second));
+        return new Substituent(subT, first, second);
     }
 
     //TODO : 修正が必要
