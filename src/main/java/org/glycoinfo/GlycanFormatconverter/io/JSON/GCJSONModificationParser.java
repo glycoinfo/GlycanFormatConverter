@@ -46,7 +46,7 @@ public class GCJSONModificationParser {
         if (lin2 == null) lin2 = new Linkage();
 
         Substituent ret = new Substituent(subInter, lin1, lin2);
-        return subUtil.modifyLinkageType(ret);
+        return ret;//subUtil.modifyLinkageType(ret);
     }
 
     public Edge parseSubstituent (JSONObject _sub) throws GlycanException {
@@ -76,7 +76,7 @@ public class GCJSONModificationParser {
             }
         }
 
-        Substituent sub = subUtil.modifyLinkageType(new Substituent(subInter, positionOne, positionTwo));
+        Substituent sub = new Substituent(subInter, positionOne, positionTwo);//subUtil.modifyLinkageType(new Substituent(subInter, positionOne, positionTwo));
         subEdge.setSubstituent(sub);
         subEdge.addGlycosidicLinkage(positionOne);
         if (positionTwo != null) {

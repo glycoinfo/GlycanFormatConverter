@@ -88,7 +88,7 @@ public class GCJSONFragmentsParser {
             }
 
             Substituent root = new Substituent(parseSubstituentTemplate(subUnit.getString("Notation")), lin);
-            root = subUtil.modifyLinkageType(root);
+            //root = subUtil.modifyLinkageType(root);
 
             Edge edge = new Edge();
             edge.addGlycosidicLinkage(lin);

@@ -65,7 +65,7 @@ public class GCJSONRepeatParser {
         ret.setFirstPosition(lin1);
         ret.setSecondPosition(lin2);
 
-        return subUtil.modifyLinkageType(ret);
+        return ret;//subUtil.modifyLinkageType(ret);
     }
 
     public Substituent parseRepeat (JSONObject _rep) throws GlycanException {

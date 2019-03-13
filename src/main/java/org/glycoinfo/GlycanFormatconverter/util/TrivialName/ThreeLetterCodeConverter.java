@@ -4,20 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Linkage;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyCoModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.ModificationTemplate;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
-import org.glycoinfo.GlycanFormatconverter.Glycan.SubstituentInterface;
-import org.glycoinfo.GlycanFormatconverter.Glycan.SubstituentTemplate;
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameDictionary;
 
-public class ThreeLetterCodeConverter extends SubstituentUtility {
+public class ThreeLetterCodeConverter {
 
 	private String threeCodes = "";
 	private int size = -1;
@@ -38,10 +29,10 @@ public class ThreeLetterCodeConverter extends SubstituentUtility {
 	public void start(Node _node) throws GlycanException{
 		if (((Monosaccharide) _node).getStereos().isEmpty()) return;
 
-		/* extract trivial name list */
+		// extract trivial name list
 		String stereo = makeNotation(_node, false);
-				
-		/* check modification and substituent */
+
+		// check modification and substituent
 		TrivialNameDictionary trivial = null;
 		for(TrivialNameDictionary dict : TrivialNameDictionary.forStereos(stereo)) {
 			if(checkSubstituentAndModifications(_node, dict)) trivial = dict;
@@ -53,11 +44,11 @@ public class ThreeLetterCodeConverter extends SubstituentUtility {
 				if(checkSubstituentAndModifications(_node, dict)) trivial = dict;
 			}
 		}
-		
-		/* check configuration for di-deoxy hexose */
+
+		// check configuration for di-deoxy hexose
 		trivial = checkDideoxyHexose(_node, trivial);
 		
-		/* remove (or modified) substituents and modifications */
+		// remove (or modified) substituents and modifications
 		if(trivial != null) {
 			modifySubstituentAndModification(_node, trivial);
 			threeCodes = trivial.getThreeLetterCode();
@@ -109,14 +100,14 @@ public class ThreeLetterCodeConverter extends SubstituentUtility {
 		if (((Monosaccharide) _node).getSuperClass() != null) {
 			if (_dict.getSize() != ((Monosaccharide) _node).getSuperClass().getSize()) return false;			
 		}
-		
-		/** extract modifications */
+
+		// extract modifications
 		ArrayList<GlyCoModification> mods = extractModifications(_dict.getModificationNotation());
-		
-		/** extract substituents*/
+
+		// extract substituents
 		ArrayList<Substituent> subs = extractSubstituents(_dict.getSubstituentNotation());
 		
-		/** compare substituents */
+		// compare substituents
 		int subPoint = 0;
 		for(Edge childEdge : _node.getChildEdges()) {
 			if(childEdge.getSubstituent() == null) continue;
@@ -135,15 +126,15 @@ public class ThreeLetterCodeConverter extends SubstituentUtility {
 
 			for(Substituent tempSub : subs) {
 				if(!sub.getFirstPosition().getParentLinkages().contains(tempSub.getFirstPosition().getParentLinkages().get(0))) continue;
-				if(isNLinkedSubstituent(sub.getSubstituent()) && tempSub.getSubstituent().equals(SubstituentTemplate.AMINE)) {
+				if(SubstituentUtility.isNLinkedSubstituent(sub) && tempSub.getSubstituent().equals(BaseSubstituentTemplate.AMINE)) {
 					subPoint++;
 					continue;
 				}
 				if(tempSub.getSubstituent().equals(sub.getSubstituent())) subPoint++;
 			}
 		}
-		
-		/** compare modificaitons */
+
+		// compare modificaitons
 		int modPoint = 0;
 		for(GlyCoModification tempMod : mods) {
 			if(((Monosaccharide) _node).hasModification(tempMod, tempMod.getPositionOne())) modPoint++;
@@ -156,13 +147,13 @@ public class ThreeLetterCodeConverter extends SubstituentUtility {
 	private void modifySubstituentAndModification (Node _node, TrivialNameDictionary _dict) throws GlycanException{
 		Monosaccharide mono = ((Monosaccharide) _node);
 		
-		/** extract modifications */
+		// extract modifications
 		ArrayList<GlyCoModification> mods = extractModifications(_dict.getModificationNotation());
 		
-		/** extract substituents*/
+		// extract substituents
 		ArrayList<Substituent> subs = extractSubstituents(_dict.getSubstituentNotation());
 		
-		/** modify substituent */
+		// modify substituent
 		for(Edge childEdge : _node.getChildEdges()) {
 			if(childEdge.getSubstituent() == null) continue;
 			//ignore cross linked substituent 
@@ -176,8 +167,8 @@ public class ThreeLetterCodeConverter extends SubstituentUtility {
 			
 			for(Substituent tempSub : subs) {
 				if(!sub.getFirstPosition().getParentLinkages().contains(tempSub.getFirstPosition().getParentLinkages().get(0))) continue;
-				if(isNLinkedSubstituent(sub.getSubstituent())) {
-					sub.setTemplate(convertNTypeToOType(sub.getSubstituent()));
+				if(SubstituentUtility.isNLinkedSubstituent(sub)) {
+					SubstituentUtility.changePlaneTemplate(sub);
 					break;
 				}
 				if(tempSub.getSubstituent().equals(sub.getSubstituent())) {
@@ -187,7 +178,7 @@ public class ThreeLetterCodeConverter extends SubstituentUtility {
 			}
 		}
 		
-		/** remove modification */
+		// remove modification
 		for(GlyCoModification tempMod : mods) {
 			mono.removeModification(getModIndex(_node, tempMod));
 		}
@@ -215,15 +206,15 @@ public class ThreeLetterCodeConverter extends SubstituentUtility {
 			Linkage lin = new Linkage();
 			lin.setParentLinkages(pos);
 			
-			SubstituentInterface subT = SubstituentTemplate.forIUPACNotation(split_unit[1]);
-			if(subT != null) ret.add(new Substituent(subT, lin));
+			BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotation(makePlaneNotation(split_unit[1]));
+			if(bsubT != null) ret.add(new Substituent(bsubT, lin));
 		}
 		
 		return ret;
 	}
 	
 	private ArrayList<GlyCoModification> extractModifications (String _item) throws GlycanException {
-		ArrayList<GlyCoModification> ret = new ArrayList<GlyCoModification>();
+		ArrayList<GlyCoModification> ret = new ArrayList<>();
 		if(_item.equals("")) return ret;
 		
 		for(String unit : _item.split("_")) {
@@ -244,5 +235,12 @@ public class ThreeLetterCodeConverter extends SubstituentUtility {
 		if(_stereo.length() == 4) return _stereo.substring(0, 1);
 		else if(_stereo.indexOf("-") != -1) return _stereo.substring(0, _stereo.indexOf("-") + 1);
 		return "";
+	}
+
+	private String makePlaneNotation (String _notation) {
+		if (_notation.startsWith("O") || _notation.startsWith("C"))
+			return (_notation.substring(1, _notation.length()));
+
+		return _notation;
 	}
 }

@@ -126,7 +126,7 @@ public class KCFNodeConverter {
             _sub.setSecondPosition(new Linkage());
         }
 
-        return subUtil.modifyLinkageType(_sub);
+        return _sub;//subUtil.modifyLinkageType(_sub);
     }
 
     private boolean haveChild (String _notation) {

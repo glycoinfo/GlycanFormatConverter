@@ -172,7 +172,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 						bridge.getSecondPosition().addChildLinkage(Integer.parseInt(matLin.group(5)));
 					}
 
-					bridge = modifyLinkageType(bridge);
+					//bridge = modifyLinkageType(bridge);
 
 					parentEdge.setSubstituent(bridge);
 					bridge.addParentEdge(parentEdge);
@@ -250,7 +250,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 				repMod.setFirstPosition(new Linkage());
 				repMod.setSecondPosition(new Linkage());
 
-				repMod = (GlycanRepeatModification) modifyLinkageType(repMod);
+				//repMod = (GlycanRepeatModification) modifyLinkageType(repMod);
 
 				String[] repCount = count.split("-");
 				String min = "n";
@@ -287,7 +287,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 					if (matParent.group(3) != null) {
 						subface = CrossLinkedTemplate.forIUPACNotation(matParent.group(3));
 
-						Substituent bridge = modifyLinkageType(new Substituent(subface, new Linkage(), new Linkage()));
+						Substituent bridge = new Substituent(subface, new Linkage(), new Linkage());//modifyLinkageType(new Substituent(subface, new Linkage(), new Linkage()));
 						parentEdge.setSubstituent(bridge);
 						bridge.addParentEdge(parentEdge);
 					}
