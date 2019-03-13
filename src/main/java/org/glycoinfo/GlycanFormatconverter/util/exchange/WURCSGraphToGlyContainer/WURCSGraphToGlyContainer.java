@@ -3,6 +3,9 @@ package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContain
 import java.util.*;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
+import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
+import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerEdgeAnalyzer;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
@@ -39,20 +42,28 @@ public class WURCSGraphToGlyContainer {
 	
 	public void start (WURCSGraph _graph) throws WURCSException, GlycanException {
 
-		/* sort nodes */
+		// sort nodes
 		LinkedList<Backbone> sortedNodes = sortNodes(_graph);
 		
-		/* set root */
-		root = sortedNodes.getFirst();
+		// set root
+		Backbone root = sortedNodes.getFirst();
+		this.root = sortedNodes.getFirst();
 		
-		/* convert node */
+		// convert node
 		BackboneToNode b2n = new BackboneToNode();
 		for (Backbone bb : sortedNodes) {
 			backbone2node.put(bb, b2n.start(bb));
-			extractAntennae(bb);
+//			extractAntennae(bb);
 		}
 
-		/* extract compositions */
+		// extract glycan fragments root
+		GlycanFragmentsParser gfParser = new GlycanFragmentsParser(root);
+		gfParser.start(sortedNodes);
+		this.antennae = gfParser.getAntennae();
+		this.undefinedLinkages = gfParser.getUndefinedLinkages();
+		this.undefinedSubstituents = gfParser.getUndefinedSubstituents();
+
+		// extract compositions
 		if (isCompositions(_graph)) {
 			for (Backbone bb : _graph.getBackbones()) {
 				compositionToUndefinedUnit(bb);
@@ -65,41 +76,45 @@ public class WURCSGraphToGlyContainer {
 		} else {
 			if (glyCo.getNodes().isEmpty()) glyCo.addNode(backbone2node.get(root));
 
-			/* convert linkage */
+			// convert linkage
 			for (Backbone bb : sortedNodes) {
 				WURCSEdgeToLinkage(bb);
 			}
-			/**/
+			//
 			GlyContainerEdgeAnalyzer gcEdgeAnalyzer = new GlyContainerEdgeAnalyzer(glyCo);
 			gcEdgeAnalyzer.start(backbone2node, root);
-		}		
+		}
+
+		//Optimmize GlyContainer
+		GlyContainerOptimizer gop = new GlyContainerOptimizer();
+		glyCo = gop.start(glyCo);
 	}
 
 	private void WURCSEdgeToLinkage(Backbone _backbone) throws GlycanException, ConverterExchangeException {
 		if (und != null) und = null;
 
-		/* define parent linkage */
+		// define parent linkage
 		for (Backbone antennae : antennae) {
 			if (antennae.equals(_backbone)) backboneToUndefinedUnit(_backbone);
 		}
-		
+
 		for (WURCSEdge cEdge : _backbone.getChildEdges()) {
 			Modification mod = cEdge.getModification();
 
 			if (mod.isRing()) continue;
 			if (isSubstituentEdge(cEdge)) continue;
-			
-			/* define simple linkage */
+
+			// define simple linkage
 			if (!(mod instanceof ModificationRepeat)) {
 				extractSimpleLinkage(_backbone, cEdge, mod);
 			}
 
-			/* define repeating unit */
+			// define repeating unit
 			if (mod instanceof ModificationRepeat) {
 				extractRpeatingUnit(_backbone, mod);
 			}
-			
-			/* define cyclic unit */
+
+			// define cyclic unit
 			if (isCyclicNodeByEdge(cEdge)) {
 				extractCyclicUnit(_backbone, cEdge, mod);
 			}
@@ -111,22 +126,24 @@ public class WURCSGraphToGlyContainer {
 		Backbone cpBackbone = null;
 		LinkedList<LinkagePosition> donor = null;
 		LinkedList<LinkagePosition> acceptor = null;
-		Substituent sub = MAPToSubstituent(_mod);
 
-		/* extract child side child */
+		SubstituentUtility subUtil = new SubstituentUtility();
+		Substituent sub = subUtil.MAPToSubstituent(_mod);
+
+		// extract child side child
 		for (WURCSEdge cc : _c.getNextComponent().getChildEdges()) {
 			if (_backbone.equals(cc.getBackbone())) continue;
 			ccBackbone = cc.getBackbone();
 			acceptor = cc.getLinkages();
 		}
 
-		/* extract parent side child */
+		// extract parent side child
 		for (WURCSEdge cp : _c.getNextComponent().getParentEdges()) {
 			if (_backbone.equals(cp.getBackbone())) continue;
 			cpBackbone = cp.getBackbone();
 			donor = cp.getLinkages();
 		}
-		
+
 		if (ccBackbone == null && cpBackbone == null) return;
 
 		if (cpBackbone != null) {
@@ -140,7 +157,7 @@ public class WURCSGraphToGlyContainer {
 			if (haveChild(backbone2node.get(ccBackbone), backbone2node.get(_backbone), sub)) return;
 			donor = _c.getLinkages();
 		}
-		
+
 		if (isFlipFlop(_backbone, ccBackbone != null ? ccBackbone : cpBackbone != null ? cpBackbone : null)) {
 			Backbone tmp = _backbone;
 			LinkedList<LinkagePosition> temp = acceptor;
@@ -166,11 +183,11 @@ public class WURCSGraphToGlyContainer {
 			edge = WURCSEdgeToEdge(acceptor, donor);
 		}
 
+		//TODO: 修飾がH_LOSEであった場合に、LinkageTypeを最適化する必要がある
 		if (sub != null) {
 			sub.setFirstPosition(new Linkage());
 			sub.setSecondPosition(new Linkage());
-			SubstituentUtility subUtil = new SubstituentUtility();
-			sub = subUtil.modifyLinkageType(sub);
+			//sub = subUtil.modifyLinkageType(sub);
 		}
 
 		for (LinkagePosition lp : donor) {
@@ -186,7 +203,8 @@ public class WURCSGraphToGlyContainer {
 		}
 
 		edge.setSubstituent(sub);
-		
+
+		//TODO: Glycosyl bondのLinkageTypeを最適化する必要がある
 		if (ccBackbone != null && !isDefinedLinkage(_backbone, edge, ccBackbone)) { //&& !containNodes(_backbone, ccBackbone)) {
 			glyCo.addNode(backbone2node.get(_backbone), edge, backbone2node.get(ccBackbone));
 		}
@@ -203,14 +221,14 @@ public class WURCSGraphToGlyContainer {
 		Node end;
 		Node current = backbone2node.get(_backbone);
 
-		/* define repeating linkage position */
+		// define repeating linkage position
 		LinkedList<LinkagePosition> donor = _mod.getParentEdges().getLast().getLinkages();
 		LinkedList<LinkagePosition> acceptor = _mod.getParentEdges().getFirst().getLinkages();
-		
-		/* define start rep */
+
+		// define start rep
 		end = backbone2node.get(_mod.getParentEdges().getLast().getBackbone());
 
-		/* define end rep */
+		// define end rep
 		start = backbone2node.get(_mod.getParentEdges().getFirst().getBackbone());
 
 		if (!current.equals(end) /*&& !start.equals(end)*/) return;
@@ -317,7 +335,7 @@ public class WURCSGraphToGlyContainer {
 	/**
 	 * Return true if the given WURCSEdge is assumed to anomeric linkage.
 	 * @author Masaaki Matsubara
-	 * @param a_oEdge WURCSEdge to be judged whether annomeric linkage or not
+	 * @param _oEdge WURCSEdge to be judged whether annomeric linkage or not
 	 * @return true if the given WURCSEdge is assumed to anomeric linkage (null if no anomer position)
 	 */
 	private Boolean isAnomericEdge(WURCSEdge _oEdge) {
@@ -338,7 +356,7 @@ public class WURCSGraphToGlyContainer {
 		Edge cyclicEdge = new Edge();
 		Linkage lin = new Linkage();
 
-		/* extract end cyclic node */
+		// extract end cyclic node
 		for (WURCSEdge edge : _backbone.getChildEdges()) {
 			if (edge.getModification().isRing() || edge.getModification() instanceof ModificationRepeat) continue;
 			if (!edge.getModification().getMAPCode().equals("")) break;
@@ -389,11 +407,11 @@ public class WURCSGraphToGlyContainer {
 	 */
 	private void compositionToUndefinedUnitForSubstituent (ModificationAlternative _modAlt) throws GlycanException {
 		// Populate Substituent
-		Substituent sub = MAPToSubstituent(_modAlt);
+		SubstituentUtility subUtil = new SubstituentUtility();
+		Substituent sub = subUtil.MAPToSubstituent(_modAlt);
 		sub.setFirstPosition(new Linkage());
 		sub.setSecondPosition(new Linkage());
-		SubstituentUtility subUtil = new SubstituentUtility();
-		sub = subUtil.modifyLinkageType(sub);
+		//sub = subUtil.modifyLinkageType(sub);
 
 		// Add undefined linkage to substituent
 		sub.getFirstPosition().addParentLinkage(-1);
@@ -447,7 +465,7 @@ public class WURCSGraphToGlyContainer {
 				}
 
 				if (!cpEdge.getModification().getMAPCode().equals("")) {
-					current = new Substituent(MAPToInterface(cpEdge.getModification().getMAPCode()));
+					current = new Substituent(SubstituentUtility.MAPToInterface(cpEdge.getModification().getMAPCode()));
 					donor = cpEdge.getLinkages();
 					acceptor = donor;
 				}
@@ -492,7 +510,7 @@ public class WURCSGraphToGlyContainer {
 	}
 
 	private Substituent makeSubstituentWithRepeat (Modification _mod) throws GlycanException {
-		CrossLinkedTemplate crossTemp = (CrossLinkedTemplate) MAPToInterface(_mod.getMAPCode());
+		CrossLinkedTemplate crossTemp = (CrossLinkedTemplate) SubstituentUtility.MAPToInterface(_mod.getMAPCode());
 
 		GlycanRepeatModification ret = new GlycanRepeatModification(crossTemp);
 
@@ -502,28 +520,8 @@ public class WURCSGraphToGlyContainer {
 		ret.setMaxRepeatCount(repMod == null ? 0 : repMod.getMaxRepeatCount());
 
 		SubstituentUtility subUtil = new SubstituentUtility();
-		ret = (GlycanRepeatModification) subUtil.modifyLinkageType(ret);
+		//ret = (GlycanRepeatModification) subUtil.modifyLinkageType(ret);
 
-		return ret;
-	}
-
-	private Substituent MAPToSubstituent(Modification _mod) throws GlycanException {
-		if(_mod.getMAPCode().equals("")) return null;
-
-		return new Substituent(MAPToInterface(_mod.getMAPCode()));
-	}
-
-	private SubstituentInterface MAPToInterface (String _map) throws GlycanException {
-		if(_map.equals("")) return null;
-		SubstituentInterface ret = null;
-		if(SubstituentTemplate.forMAP(_map) != null) {
-			ret = SubstituentTemplate.forMAP(_map);
-		}
-		if(CrossLinkedTemplate.forMAP(_map) != null) {
-			ret = CrossLinkedTemplate.forMAP(_map);
-		}
-
-		if(ret == null) throw new GlycanException(_map +" could not found !");
 		return ret;
 	}
 
@@ -539,87 +537,6 @@ public class WURCSGraphToGlyContainer {
 		return ret;
 	}
 
-	private void extractAntennae (Backbone _backbone) throws GlycanException {
-		if (!_backbone.isRoot()) return;
-
-		/* Extract root of glycan fragments */
-		for (WURCSEdge cEdge : _backbone.getChildEdges()) {
-
-			if (!(cEdge.getNextComponent() instanceof ModificationAlternative)) continue;
-
-			/* 2018/09/25 Masaaki added */
-			this.extractUndefinedLinkages((ModificationAlternative)cEdge.getNextComponent());
-			this.extractUndefinedSubstituents((ModificationAlternative)cEdge.getNextComponent());
-			/**/
-
-			for (WURCSEdge cpEdge : cEdge.getNextComponent().getParentEdges()) {
-				if (!cpEdge.getBackbone().isRoot()) continue;
-				if (isCrossLinkedSubstituent(cpEdge.getModification())) continue;
-				if (root.equals(cpEdge.getBackbone())) {
-					if (!cpEdge.getModification().getMAPCode().equals("") && (cEdge.getNextComponent().getParentEdges().size()) > 1) {
-						antennae.add(cpEdge.getBackbone());
-					}
-				} else {
-					if (cEdge.getNextComponent().getParentEdges().size() - 2 > 0 && !antennae.contains(cpEdge.getBackbone())) {
-						antennae.add(cpEdge.getBackbone());
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Extract undefined linkages like following:
-	 * <p> a?|b?|c?}-{a?|b?|c? </p>
-	 * This must have the same linkages between lead in and out linkages and no substituent.
-	 * The linkages must be connected to all of the monosaccharides in the glycan.
-	 * @author Masaaki Matsubara
-	 * @param t_modAlt
-	 * @throws GlycanException undefined linkage with substituent cannnot be handled.
-	 */
-	private void extractUndefinedLinkages(ModificationAlternative t_modAlt) throws GlycanException {
-		if ( this.undefinedLinkages.contains(t_modAlt) )
-			return;
-		if ( t_modAlt.getLeadInEdges().size() != t_modAlt.getLeadOutEdges().size())
-			return;
-		/* Compare lead in and lead out linkages on the ModificationAlternative  */
-		LinkedList<WURCSEdge> t_lInEdges  = t_modAlt.getLeadInEdges();
-		LinkedList<WURCSEdge> t_lOutEdges = t_modAlt.getLeadOutEdges();
-		WURCSEdgeComparator t_compEdges = new WURCSEdgeComparator();
-		Collections.sort(t_lInEdges,  t_compEdges);
-		Collections.sort(t_lOutEdges, t_compEdges);
-		int nEdges = t_lInEdges.size();
-		for ( int i=0; i<nEdges; i++) {
-			WURCSEdge t_edgeIn  = t_lInEdges.get(i);
-			WURCSEdge t_edgeOut = t_lOutEdges.get(i);
-			int t_iComp = t_compEdges.compare(t_edgeIn, t_edgeOut);
-			if ( t_iComp != 0 )
-				return;
-		}
-		if ( !t_modAlt.canOmitMAP() )
-			throw new GlycanException("Undefined linkage with substituent cannot be handled.");
-		this.undefinedLinkages.add(t_modAlt);
-	}
-
-	/**
-	 * Extract undefined linkages like following:
-	 * <p> a?|b?|c?}*OCC/3=O </p>
-	 * This must have lead in linkages, substituent and no lead out linkages.
-	 * The linkages must be connected to all of the monosaccharides in the glycan.
-	 * @author Masaaki Matsubara
-	 * @param t_modAlt
-	 * @throws GlycanException
-	 */
-	private void extractUndefinedSubstituents(ModificationAlternative t_modAlt) throws GlycanException {
-		if ( this.undefinedSubstituents.contains(t_modAlt) )
-			return;
-		if ( t_modAlt.getLeadInEdges().isEmpty() || !t_modAlt.getLeadOutEdges().isEmpty() )
-			return;
-		if ( t_modAlt.getMAPCode().isEmpty() )
-			return;
-		this.undefinedSubstituents.add(t_modAlt);
-	}
-
 	private boolean isCyclicNode (Backbone _backbone) {
 		if (!root.equals(_backbone)) return false;
 
@@ -627,7 +544,7 @@ public class WURCSGraphToGlyContainer {
 		Backbone end = null;
 
 		//if (!_backbone.isRoot()) return isCyclic;
-		
+
 		for (WURCSEdge edge : _backbone.getChildEdges()) {
 			if (edge.getModification().isRing()) continue;
 			if (isSubstituentEdge(edge) || edge.getModification() instanceof ModificationRepeat) break;
@@ -639,7 +556,7 @@ public class WURCSGraphToGlyContainer {
 					end = cp.getBackbone();
 				}
 			}
-			
+
 			for (WURCSEdge cc : edge.getNextComponent().getChildEdges()) {
 				if (cc.getNextComponent() instanceof ModificationAlternative) continue;
 			}
@@ -657,13 +574,13 @@ public class WURCSGraphToGlyContainer {
 		isCyclic = (end != null);
 		return isCyclic;
 	}
-	
+
 	private boolean isCyclicNodeByEdge (WURCSEdge _edge) {
 		if (_edge.getModification() instanceof ModificationRepeat) return false;
 		if (isSubstituentEdge(_edge)) return false;
 		if (_edge.getModification().isRing()) return false;
 		if (_edge.getModification().isGlycosidic() && !_edge.getModification().getMAPCode().equals("")) return false;
-		
+
 		return (isCyclicNode(_edge.getBackbone()));
 	}
 
@@ -715,7 +632,7 @@ public class WURCSGraphToGlyContainer {
 
 	private boolean isCrossLinkedSubstituent (Modification _mod) throws GlycanException {
 		if (_mod.getMAPCode().equals("")) return false;
-		return (MAPToInterface(_mod.getMAPCode()) instanceof CrossLinkedTemplate);
+		return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof CrossLinkedTemplate);
 	}
 
 	private boolean isFlipFlop (Backbone _parent, Backbone _child) {
@@ -724,25 +641,25 @@ public class WURCSGraphToGlyContainer {
 		//return (!backbone2node.get(_child).getParentEdges().isEmpty() && backbone2node.get(_parent).getParentEdges().isEmpty());
 	}
 
-	private boolean isCompositions (WURCSGraph _graph) { 
+	private boolean isCompositions (WURCSGraph _graph) {
 		int count = 0;
-		
+
 		if (_graph.getBackbones().size() == 1) return false;
 		for (Backbone bb : _graph.getBackbones()) {
 			if (bb.isRoot()) count++;
 		}
-		
+
 		return (_graph.getBackbones().size() == count);
 	}
 
 	private boolean isDefinedLinkage (Backbone _acceptor, Edge _edge, Backbone _donor) {
 		Node donor = backbone2node.get(_donor);
 		Node acceptor = backbone2node.get(_acceptor);
-		
+
 		if (donor == null || acceptor == null) return false;
-		
+
 		boolean isDefined = false;
-		
+
 		int currentDonorPos = -1;
 		int currentAcceptorPos = -1;
 
@@ -751,13 +668,13 @@ public class WURCSGraphToGlyContainer {
 			currentDonorPos = lin.getChildLinkages().get(0);
 			currentAcceptorPos = lin.getParentLinkages().get(0);
 		}
-		
+
 		for (Edge edge : acceptor.getChildEdges()) {
 			if (edge.getChild() == null || edge.getParent() == null) continue;
 			if (edge.getChild().equals(donor) && edge.getParent().equals(acceptor)) {
 				for (Linkage lin : edge.getGlycosidicLinkages()) {
 					if (lin.getChildLinkages().size() > 1 || lin.getParentLinkages().size() > 1) continue;
-					if (lin.getChildLinkages().indexOf(currentDonorPos) != -1 && 
+					if (lin.getChildLinkages().indexOf(currentDonorPos) != -1 &&
 							lin.getParentLinkages().indexOf(currentAcceptorPos) != -1) {
 						isDefined = true;
 					}
@@ -767,7 +684,7 @@ public class WURCSGraphToGlyContainer {
 
 		return isDefined;
 	}
-	
+
 	/**
 	 * for debug
 	 * */

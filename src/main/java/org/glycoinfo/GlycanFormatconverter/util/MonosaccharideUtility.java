@@ -1,5 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.util;
 
+import com.sun.xml.internal.rngom.parse.host.Base;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.ModifiedMonosaccharideDescriptor;
@@ -43,7 +44,7 @@ public class MonosaccharideUtility {
     }
 
     public Monosaccharide appendSubstituents (Node _node,  ArrayList<String> _substituents) throws GlycanException, GlyCoImporterException {
-        /* make substituents for GlyContainer */
+        // make substituents for GlyContainer
         SubstituentIUPACNotationAnalyzer subAna = new SubstituentIUPACNotationAnalyzer();
         subAna.start((Monosaccharide) _node, _substituents);
 
@@ -59,70 +60,7 @@ public class MonosaccharideUtility {
             }
         }
 
-        margeDuplicateSubstituents(_node);
-
         return (Monosaccharide) _node;
-    }
-    
-    private HashMap<Integer, ArrayList<Edge>> extractDupeSubstituents (Node _node) {
-        HashMap<Integer, ArrayList<Edge>> subMap = new HashMap<>();
-        for (Edge childEdge : _node.getChildEdges()) {
-            if (childEdge.getSubstituent() == null) continue;
-            Substituent sub = (Substituent) childEdge.getSubstituent();
-
-            if (sub instanceof GlycanRepeatModification) continue;
-            if (sub.getSubstituent() instanceof CrossLinkedTemplate) continue;
-            if (sub.getFirstPosition().getParentLinkages().size() > 1) continue;
-            if (Double.compare(sub.getFirstPosition().getParentProbabilityLower(), 1.0D) != 0) continue;
-
-            int position = sub.getFirstPosition().getParentLinkages().get(0);
-
-            if (subMap.containsKey(position)) {
-                ArrayList<Edge> subs = subMap.get(position);
-                subs.add(childEdge);
-                subMap.put(position, subs);
-            } else {
-                ArrayList<Edge> subs = new ArrayList<>();
-                subs.add(childEdge);
-                subMap.put(position, subs);
-            }
-        }
-
-        return subMap;
-    }
-
-    public Node margeDuplicateSubstituents (Node _node) throws GlyCoImporterException, GlycanException {
-        HashMap<Integer, ArrayList<Edge>> subMap = extractDupeSubstituents(_node);
-        SubstituentUtility subUtil = new SubstituentUtility();
-
-        for (Integer key : subMap.keySet()) {
-            ArrayList<Edge> edges = subMap.get(key);
-            if (edges.size() < 2) continue;
-            if (edges.size() > 2)
-                throw new GlyCoImporterException("This node have multiple substituents for same position.");
-
-            Substituent sub1 = (Substituent) edges.get(0).getSubstituent();
-            Substituent sub2 = (Substituent) edges.get(1).getSubstituent();
-            
-            if (sub1.getSubstituent().equals(SubstituentTemplate.AMINE) &&
-                    subUtil.isOLinkedSubstituent(sub2.getSubstituent())) {
-
-                sub2.setTemplate(subUtil.convertOTypeToNType(sub2.getSubstituent()));
-                sub2.getFirstPosition().setParentLinkageType(LinkageType.UNVALIDATED);
-
-                _node.removeChildEdge(edges.get(0));
-            }
-            if (sub2.getSubstituent().equals(SubstituentTemplate.AMINE) &&
-                    subUtil.isOLinkedSubstituent(sub1.getSubstituent())) {
-
-                sub1.setTemplate(subUtil.convertOTypeToNType(sub1.getSubstituent()));
-                sub1.getFirstPosition().setParentLinkageType(LinkageType.UNVALIDATED);
-
-                _node.removeChildEdge(edges.get(1));
-            }
-        }
-
-        return _node;
     }
 
     public Monosaccharide makeRingSize (Monosaccharide _mono, String _ringSize, String _code, ArrayList<String> _modifications) throws GlycanException {
@@ -191,7 +129,7 @@ public class MonosaccharideUtility {
         HashMap<Integer, ModificationTemplate> hashMod = new HashMap<Integer, ModificationTemplate>();
         
         for( String unit : _modifications) {
-            /* parse single notation */
+            // parse single notation
             switch (unit) {
                 case "??" :
                     hashMod.put(0, ModificationTemplate.UNKNOWN);
@@ -219,8 +157,8 @@ public class MonosaccharideUtility {
                     break;
             }
 
-            /* parse notation with position */
-            Matcher matMod = Pattern.compile("(\\d+)+(\\w+)+").matcher(unit);
+            // parse notation with position
+            Matcher matMod = Pattern.compile("(\\d+)+(\\([XEZ]\\)\\w+|\\w+)+").matcher(unit);
             if (!matMod.find()) continue;
 
             int pos = Integer.parseInt(matMod.group(1).equals("?") ? "-1" : matMod.group(1));
@@ -231,12 +169,38 @@ public class MonosaccharideUtility {
                     notation = "U";
                     break;
 
-                case "en" :
-                    hashMod = chekcUnsaturateStatus(_mono, pos, hashMod);
+                case "(X)en" :
+                    if (hashMod.get(pos) != null && hashMod.get(pos).equals(ModificationTemplate.DEOXY)) {
+                        hashMod.put(pos, ModificationTemplate.UNSATURATION_FL);//chekcUnsaturateStatus(_mono, pos, hashMod);
+                    } else {
+                        hashMod.put(pos, ModificationTemplate.UNSATURATION_FU);
+                    }
+
+                    hashMod.put(pos+1, ModificationTemplate.UNSATURATION_FU);
+                    break;
+
+                case "(E)en" :
+                    if (hashMod.get(pos) != null && hashMod.get(pos).equals(ModificationTemplate.DEOXY)) {
+                        hashMod.put(pos, ModificationTemplate.UNSATURATION_EL);
+                    } else {
+                        hashMod.put(pos, ModificationTemplate.UNSATURATION_EU);
+                    }
+
+                    hashMod.put(pos+1, ModificationTemplate.UNSATURATION_EU);
+                    break;
+
+                case "(Z)en" :
+                    if (hashMod.get(pos) != null && hashMod.get(pos).equals(ModificationTemplate.DEOXY)) {
+                        hashMod.put(pos, ModificationTemplate.UNSATURATION_ZL);
+                    } else {
+                        hashMod.put(pos, ModificationTemplate.UNSATURATION_ZU);
+                    }
+
+                    hashMod.put(pos+1, ModificationTemplate.UNSATURATION_ZU);
                     break;
             }
-      
-            /* modify anomeric modification */
+
+            // modify anomeric modification
             ModificationTemplate modT = analyzeSingleMod(_mono, pos, notation);
 
             if (modT != null && !hashMod.containsKey(pos)) hashMod.put(pos, modT);
@@ -256,7 +220,7 @@ public class MonosaccharideUtility {
     }
 
     private ModificationTemplate analyzeSingleMod (Monosaccharide _mono, int _position, String _notation) {
-        /* modify anomeric modification */
+        // modify anomeric modification
         ModificationTemplate modT = ModificationTemplate.forCarbon(_notation.charAt(0));
         if (_notation.length() != 1 || modT == null) return null;
 
@@ -432,9 +396,9 @@ public class MonosaccharideUtility {
 
             Substituent sub = (Substituent) edge.getSubstituent();
 
-            if (subUtil.isNLinkedSubstituent(sub.getSubstituent()) && sub.getFirstPosition().getParentLinkages().contains(2)) {
-                sub.setTemplate(subUtil.convertNTypeToOType(sub.getSubstituent()));
-            }
+            //if (subUtil.isNLinkedSubstituent(sub) && sub.getFirstPosition().getParentLinkages().contains(2)) {
+            //    sub.setTemplate(subUtil.convertNTypeToOType(sub.getSubstituent()));
+            //}
         }
 
         return;
@@ -444,7 +408,7 @@ public class MonosaccharideUtility {
         if (_notation.equals("")) return;
 
         String[] posNot = _notation.split("\\*");
-        SubstituentTemplate subTemp = SubstituentTemplate.forIUPACNotationWithIgnore(posNot[1]);
+        BaseSubstituentTemplate subTemp = BaseSubstituentTemplate.forIUPACNotationWithIgnore(posNot[1]);
         SubstituentUtility subUtil = new SubstituentUtility();
 
         for (Edge edge : _node.getChildEdges()) {
@@ -452,11 +416,13 @@ public class MonosaccharideUtility {
             if (edge.getSubstituent() != null && edge.getChild() != null) continue;
 
             Substituent sub = (Substituent) edge.getSubstituent();
-            SubstituentTemplate convSub = subUtil.convertOTypeToNType(sub.getSubstituent());
+            //TODO: convert O-link to N-link
 
-            if (subTemp.equals(convSub) && sub.getFirstPosition().getParentLinkages().contains(Integer.parseInt(posNot[0]))) {
-                _node.removeChildEdge(edge);
-            }
+            //SubstituentTemplate convSub = subUtil.convertOTypeToNType(sub.getSubstituent());
+
+            //if (subTemp.equals(convSub) && sub.getFirstPosition().getParentLinkages().contains(Integer.parseInt(posNot[0]))) {
+            //    _node.removeChildEdge(edge);
+            //}
         }
 
         return;
