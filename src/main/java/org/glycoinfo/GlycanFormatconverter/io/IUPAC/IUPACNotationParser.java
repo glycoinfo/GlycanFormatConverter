@@ -20,7 +20,7 @@ public class IUPACNotationParser {
 		String linkagePos = "";
 		String anomericState = "";
 		Monosaccharide mono = new Monosaccharide();
-		ArrayList<String> subNotation = new ArrayList<String>();
+		ArrayList<String> subNotation = new ArrayList<>();
 		ArrayList<String> modifications = new ArrayList<String>();
 		LinkedList<String> configurations = new LinkedList<String>();
 		LinkedList<String> trivialName = new LinkedList<String>();
@@ -158,7 +158,7 @@ public class IUPACNotationParser {
 		/* extract ring size and substituents */
 		//group 1 : ring size
 		//group 2 : substituents
-		Matcher matTail = Pattern.compile("([pf?])?([\\d,\\w/:(%)\\-\\?]+)?").matcher(coreNotation);
+		Matcher matTail = Pattern.compile("([pf?])?([\\d,\\w/:(%)\\-?]+)?").matcher(coreNotation);
 		if (matTail.find() && (matTail.group(1) != null || matTail.group(2) != null)) {
 			boolean isRingSize = false;
 			
@@ -195,16 +195,16 @@ public class IUPACNotationParser {
 			}
 		}
 		
-		/* make modifications */
+		// make modifications
 		mono = monoUtil.appendModifications(mono, modifications);
 
-		/* append substituents */
+		// append substituents
 		mono = monoUtil.appendSubstituents(mono, subNotation);
 		
-		/* append configuration */
+		// append configuration
 		mono = monoUtil.modifyStereos(mono, configurations);
 		
-		/* check and modify configuration */
+		// check and modify configuration
 		mono = monoUtil.checkTruelyConfiguration(threeLetterCode, configurations, mono);
 
 		return mono;

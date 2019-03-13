@@ -1,9 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.util.analyzer;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.CrossLinkedTemplate;
-import org.glycoinfo.GlycanFormatconverter.Glycan.SubstituentTemplate;
 import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
-import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 

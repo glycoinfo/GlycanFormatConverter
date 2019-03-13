@@ -89,7 +89,7 @@ public class MonosaccharideAnalyzer {
 		this.numOfAtom = mono.getSuperClass().getSize();
 		this.posToChar.put(1, 'h');
 		this.posToChar.put(this.numOfAtom, 'h');
-		
+
 		LinkedList<GlyCoModification> mods = new LinkedList<GlyCoModification>();
 		for (GlyCoModification mod : this.mono.getModifications()) {
 			if (mod.hasPositionTwo()) {
@@ -99,12 +99,12 @@ public class MonosaccharideAnalyzer {
 			this.ModificationToCarbonDescriptor(mod);
 		}
 
-		/* Analyze ketose */
+		// Analyze ketose
 		if (!this.anomericPositions.isEmpty() && this.anomericPositions.getFirst() != 1) {
 			this.isAldose = false;
 		}
 		
-		/* Analyze head carbon */
+		// Analyze head carbon
 		if (this.isAldose) {
 			this.posToChar.put(1, 'o');
 			this.anomericPositions.addFirst(1);
@@ -116,7 +116,7 @@ public class MonosaccharideAnalyzer {
 			this.anomericSymbol = 'o';
 		}
 
-		/* Analyze anomeric position */
+		// Analyze anomeric position
 		if (this.anomericPos != Monosaccharide.OPEN_CHAIN && this.anomericPos != Monosaccharide.UNKNOWN_RING) {
 			if (!this.posToChar.containsKey(this.anomericPos)) {
 				throw new WURCSExchangeException("Illegal structure is found at ring start position.");
@@ -126,22 +126,22 @@ public class MonosaccharideAnalyzer {
 				this.posToChar.put(this.anomericPos, 'a');
 			}
 		}
-		
-		/* Analyzer core modifications contained double bond */
+
+		// Analyzer core modifications contained double bond
 		for (GlyCoModification glyCoMod : mods) {
 			if (!this.replaceCarbonDescirptorByUnsaturate(glyCoMod)) {
 				throw new WURCSExchangeException("There is an error in the modification \"en\" or \"enx\".");
 			}
 		}
-		
-		/* Count non terminal stereo */
+
+		// Count non terminal stereo
 		int brankPosition = 0;
 		for (int i = 2; i < this.numOfAtom; i++) {
 			if (this.posToChar.containsKey(i)) continue;
 			brankPosition++;
 		}
 
-		/* Encode stereo code */
+		// Encode stereo code
 		String stereo = this.convertBaseTypesToSkeletonCode(mono.getStereos());
 		/*if (stereo.contains("x")) {
 			stereo = trimModificationPositions(mono, stereo);
@@ -149,6 +149,7 @@ public class MonosaccharideAnalyzer {
 		if (!stereo.equals("") && stereo.length() != brankPosition) {
 			throw new WURCSExchangeException("There is the excess or shortage of the stereo information.");
 		}
+
 		int j = 0;
 		for (int i = 2; i < this.numOfAtom; i++) {
 			if (this.posToChar.containsKey(i)) continue;
@@ -157,7 +158,7 @@ public class MonosaccharideAnalyzer {
 			j++;
 		}
 
-		/* Set SkeletonCode */
+		// Set SkeletonCode
 		for (int i = 0; i < this.numOfAtom; i++) {
 			this.skeletonCode += this.posToChar.get(i + 1);
 		}
