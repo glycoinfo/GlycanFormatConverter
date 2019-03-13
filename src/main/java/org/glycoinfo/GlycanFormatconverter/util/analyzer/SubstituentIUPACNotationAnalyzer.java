@@ -106,14 +106,14 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 			
 			String positions = matSub.group(1);
 			String notation = matSub.group(2);
-			String[] probabilitys;
+			String[] probs;
 			int number = (matSub.group(3) != null) ? Integer.parseInt(matSub.group(3)) : 1;
 			
 			SubstituentInterface subT;
 
 			//Native substituent
 			if(positions == null) {
-				subT = SubstituentTemplate.forIUPACNotation(notation);
+				subT = BaseSubstituentTemplate.forIUPACNotation(makePlaneNotation(notation));
 
 				BaseStereoIndex bsi = null;
 				if (!_mono.getStereos().isEmpty()) {
@@ -126,10 +126,14 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 				}
 
 				Linkage firstLink = makeLinkage(positions, "1", 1.0D, 1.0D);
-				substituents.add(modifyLinkageType(new Substituent(subT, firstLink)));
+				Substituent sub = new Substituent(subT, firstLink);
+				sub.setHeadAtom(notation.replace(makePlaneNotation(notation), ""));
+
+				substituents.add(sub);
 				continue;
 			} 
-			
+
+			//TODO :辞書の更新が必要
 			for(String position : positions.split(":")) {
 				//Dual linkages
 				if((positions.indexOf(":") != -1 && position.contains(",")) || (position.contains(",") && number == 1)) {
@@ -144,31 +148,58 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 					Linkage firstLink = makeLinkage(firstPos[0], firstPos[1], extractProbability(firstProb[0]), extractProbability(firstProb[1]));
 					Linkage secondLink = makeLinkage(secondPos[0], secondPos[1], extractProbability(secondProb[0]), extractProbability(secondProb[1]));
 
-					substituents.add(modifyLinkageType(new Substituent(subT, firstLink, secondLink)));
-					
+					//Modify LinkageType and SubstituentTemplate
+					Substituent sub = new Substituent(subT, firstLink, secondLink);
+					sub.setHeadAtom(notation.replace(makePlaneNotation(notation), ""));
+
+					substituents.add(sub);
 					continue;
 				}
 
 				//fuzzy linkage positions
 				if(position.contains("/")) {
-					subT = SubstituentTemplate.forIUPACNotation(notation);
-					probabilitys = this.trimProbability(position);
-					Linkage firstLink = makeLinkage(extractPos(position)[0], "1", extractProbability(probabilitys[0]), extractProbability(probabilitys[1]));
-					substituents.add(modifyLinkageType(new Substituent(subT, firstLink)));
+					String plane = makePlaneNotation(notation);
+
+					subT = BaseSubstituentTemplate.forIUPACNotation(plane);
+
+					probs = this.trimProbability(position);
+					Linkage firstLink = makeLinkage(extractPos(position)[0], "1", extractProbability(probs[0]), extractProbability(probs[1]));
+
+					//Modify LinkageType and SubstituentTemplate
+					Substituent sub = new Substituent(subT, firstLink);
+					sub.setHeadAtom(notation.replaceFirst(plane, ""));
+
+					substituents.add(sub);
 					continue;
 				}
 
 				//Singele linkage
 				for(String multi : position.split(",")) {
-					subT = SubstituentTemplate.forIUPACNotation(notation);
-					probabilitys = trimProbability(multi);
-					Linkage firstLink = makeLinkage(matSub.group(1).equals("?") ? "-1" : extractPos(multi)[0], "1", extractProbability(probabilitys[0]), extractProbability(probabilitys[1]));
-					substituents.add(modifyLinkageType(new Substituent(subT, firstLink)));
-                }
+					String plane = makePlaneNotation(notation);
+
+					subT = BaseSubstituentTemplate.forIUPACNotation(plane);
+
+					probs = trimProbability(multi);
+					Linkage firstLink = makeLinkage(matSub.group(1).equals("?") ? "-1" : extractPos(multi)[0], "1", extractProbability(probs[0]), extractProbability(probs[1]));
+
+					Substituent sub = new Substituent(subT, firstLink);
+					sub.setHeadAtom(notation.replaceFirst(plane, ""));
+
+					substituents.add(sub);
+				}
 			}			
 		}
 	}
-	
+
+	private String makePlaneNotation (String _notation) {
+		if (_notation.equals("N")) return _notation;
+		if (_notation.startsWith("O") || _notation.startsWith("C")) {
+			return _notation.substring(1,_notation.length());
+		}
+
+		return _notation;
+	}
+
 	/**
 	 * _childPos 1 : first linkage
 	 * _childPos 2 : second linkage
@@ -189,48 +220,6 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 		for (String parentPos : _parentPos.split("/")) {
 			ret.addParentLinkage(Integer.parseInt(parentPos.equals("?") ? "-1" : parentPos));
-		}
-
-		return ret;
-	}
-
-	public  void margeSubstituents() throws GlycanException {
-		boolean isAmino = false;
-
-		for(int ind : new Integer[] {2,4,5,7}) {
-			ArrayList<Substituent> pick = this.pickSubstituents(ind);
-			if(pick.size() != 2) continue;
-			Substituent temp = null;
-			for (Substituent unit : pick) {
-				SubstituentTemplate subT = (SubstituentTemplate) unit.getSubstituent();
-				if (subT.equals(SubstituentTemplate.AMINE)) {
-					isAmino = true;
-					temp = unit;
-					continue;
-				}
-				if (isAmino) {
-					SubstituentInterface subInt = convertOTypeToNType(subT);
-					unit.setTemplate(subInt);
-					if (subInt instanceof SubstituentTemplate) {
-						unit.getFirstPosition().setParentLinkageType(LinkageType.UNVALIDATED);
-					}
-
-					substituents.remove(temp);
-					temp = null;
-					isAmino = false;
-				}
-			}
-		}
-	}
-
-	private ArrayList<Substituent> pickSubstituents (int _ind) {
-		ArrayList<Substituent> ret = new ArrayList<Substituent>();
-		for (Substituent sub : this.substituents) {
-			if (sub.getSecondPosition() != null || sub.getFirstPosition().getParentLinkages().size() > 1) continue;
-			if (sub.getFirstPosition().getParentProbabilityLower() != 100.0 || sub.getFirstPosition().getParentProbabilityUpper() != 100.0) continue;
-			if (_ind == sub.getFirstPosition().getParentLinkages().get(0)) {
-				ret.add(sub);
-			}
 		}
 
 		return ret;
@@ -279,14 +268,14 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 		return ret;
 	}
 
-	private SubstituentTemplate modifyEndSubstituent (Monosaccharide _mono, String _position, SubstituentTemplate _subT) {
+	/*private SubstituentTemplate modifyEndSubstituent (Monosaccharide _mono, String _position, SubstituentTemplate _subT) {
 		if (_position.equals("?") || !_subT.equals(SubstituentTemplate.AMINE)) return _subT;
 
 		if (_mono.getSuperClass().getSize() == Integer.parseInt(_position) ||
 				Integer.parseInt(_position) == 1) return SubstituentTemplate.AMINO;
 
 		return _subT;
-	}
+	}*/
 
 	private boolean isInteger (char _int) {
 		return String.valueOf(_int).matches("\\d|\\?");
