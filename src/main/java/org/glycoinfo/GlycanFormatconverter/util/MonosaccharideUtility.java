@@ -1,6 +1,5 @@
 package org.glycoinfo.GlycanFormatconverter.util;
 
-import com.sun.xml.internal.rngom.parse.host.Base;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.ModifiedMonosaccharideDescriptor;
