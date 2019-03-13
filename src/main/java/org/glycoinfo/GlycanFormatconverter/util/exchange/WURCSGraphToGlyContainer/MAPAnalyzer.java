@@ -40,11 +40,12 @@ public class MAPAnalyzer {
     public BaseCrossLinkedTemplate getCrossTemplate () { return this.baseCrossTemp; }
 
     public void start (String _map) {
-        String tempMAP = _map;//.substring(1, _map.length());
+        // remove * from MAP
+        String tempMAP = _map;
 
         // analyze MAP with H_AT_OH
-        if (tempMAP.startsWith("O") && !tempMAP.contains("*")) {
-            tempMAP = _map.substring(1, _map.length());
+        if (isMAPOfSingleLinkage(_map) && _map.startsWith("*O")) {
+            tempMAP = tempMAP.replaceFirst("\\*", "");
             this.headAtom = tempMAP.substring(0,1);
             tempMAP = tempMAP.replaceFirst(this.headAtom, "");
             tempMAP = removeOxygenFromHead(tempMAP);
@@ -53,21 +54,22 @@ public class MAPAnalyzer {
         this.baseTemp = BaseSubstituentTemplate.forMAP(tempMAP);
 
         if (baseTemp == null) {
-            System.out.println(tempMAP);
+            System.out.println("start " + tempMAP);
 
             this.headAtom = tempMAP.substring(tempMAP.indexOf("*") + 1, tempMAP.indexOf("*") + 2);
 
+            // remove head star
             tempMAP = _map.substring(1, _map.length());
 
             this.tailAtom = tempMAP.substring(tempMAP.indexOf("*") - 1, tempMAP.indexOf("*"));
 
-            System.out.println(this.headAtom + " " + this.tailAtom);
+            tempMAP = this.removeOxygenFromTail(tempMAP);
 
-            tempMAP = this.removeOxygenFromail(tempMAP);
+            System.out.println("end " + tempMAP);
 
-            System.out.println(tempMAP);
+            this.baseCrossTemp = BaseCrossLinkedTemplate.forMAP(tempMAP);
 
-            this.baseCrossTemp = null;
+            System.out.println(this.baseCrossTemp);
         }
 
         return;
@@ -102,10 +104,11 @@ public class MAPAnalyzer {
         return "*" + newMAP;
     }
 
-    private String removeOxygenFromail (String _map) {
+    private String removeOxygenFromTail (String _map) {
+        // Remove "O" to MAP code before last "*"
         StringBuilder sb = new StringBuilder(_map);
         int pos = _map.lastIndexOf("*");
-        //sb.insert(pos, 'O');
+        //sb.replace(pos-1, pos, "");
         _map = sb.toString();
 
         int posO = 1;
@@ -119,7 +122,7 @@ public class MAPAnalyzer {
             } else if (c == '*') {
                 break;
             }
-            posO--;
+            posO++;
         }
 
         ArrayList<Integer> nums = new ArrayList<Integer>();
@@ -144,13 +147,25 @@ public class MAPAnalyzer {
             if (num1 <= posO) continue;
             Integer num2 = num1 - 1;
             newMAP = newMAP.replaceAll(num1.toString(), num2.toString());
+            //newMAP = newMAP.replaceAll(num1.toString(), "");
+            System.out.println("1: " + num1.toString() + " / 2: " + num2.toString() +" " + newMAP + " " + posO);
         }
 
-        newMAP = "*" + newMAP;
+        //newMAP = "*" + newMAP;
 
-        newMAP = newMAP.replace("*OPO*", "*OP^XO*");
-        newMAP = newMAP.replace("*P*", "*P^X*");
+        newMAP = newMAP.replace("PO*", "P^X*");
+        newMAP = newMAP.replace("P*", "P^X*");
 
         return newMAP;
+    }
+
+    private boolean isMAPOfSingleLinkage (String _map) {
+        int ret = 0;
+        for (int i = 0; i < _map.length(); i++) {
+            char item = _map.charAt(i);
+            if (item == '*') ret++;
+        }
+
+        return (ret == 1);
     }
 }
