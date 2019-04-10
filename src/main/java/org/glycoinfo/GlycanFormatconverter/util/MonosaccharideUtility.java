@@ -29,7 +29,8 @@ public class MonosaccharideUtility {
         String positions = matMod.group(1) != null ? matMod.group(1) : "";
         String notation = matMod.group(2) != null ? matMod.group(2) : "";
 
-        CrossLinkedTemplate crossT = CrossLinkedTemplate.forIUPACNotation(notation);
+        //CrossLinkedTemplate crossT = CrossLinkedTemplate.forIUPACNotation(notation);
+        BaseCrossLinkedTemplate crossT = BaseCrossLinkedTemplate.forIUPACNotation(notation);
 
         if(notation.contains("deoxy")) {
             for(String pos : positions.split(",")) {
@@ -37,7 +38,8 @@ public class MonosaccharideUtility {
                 else ret.add(pos+notation);
             }
         }
-        if(crossT != null && crossT.equals(CrossLinkedTemplate.ANHYDROXYL)) ret.add(positions + notation);
+        if(crossT != null && crossT.equals(BaseCrossLinkedTemplate.ANHYDRO)) ret.add(positions + notation);
+        //if(crossT != null && crossT.equals(CrossLinkedTemplate.ANHYDROXYL)) ret.add(positions + notation);
 
         return ret;
     }
@@ -175,7 +177,11 @@ public class MonosaccharideUtility {
                         hashMod.put(pos, ModificationTemplate.UNSATURATION_FU);
                     }
 
-                    hashMod.put(pos+1, ModificationTemplate.UNSATURATION_FU);
+                    if (hashMod.get(pos+1) != null && hashMod.get(pos+1).equals(ModificationTemplate.DEOXY)) {
+                        hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_FL);
+                    } else {
+                        hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_FU);
+                    }
                     break;
 
                 case "(E)en" :
@@ -185,7 +191,11 @@ public class MonosaccharideUtility {
                         hashMod.put(pos, ModificationTemplate.UNSATURATION_EU);
                     }
 
-                    hashMod.put(pos+1, ModificationTemplate.UNSATURATION_EU);
+                    if (hashMod.get(pos+1) != null && hashMod.get(pos+1).equals(ModificationTemplate.DEOXY)) {
+                        hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_EL);
+                    } else {
+                        hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_EU);
+                    }
                     break;
 
                 case "(Z)en" :
@@ -195,7 +205,11 @@ public class MonosaccharideUtility {
                         hashMod.put(pos, ModificationTemplate.UNSATURATION_ZU);
                     }
 
-                    hashMod.put(pos+1, ModificationTemplate.UNSATURATION_ZU);
+                    if (hashMod.get(pos+1) != null && hashMod.get(pos+1).equals(ModificationTemplate.DEOXY)) {
+                        hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_ZL);
+                    } else {
+                        hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_ZU);
+                    }
                     break;
             }
 
