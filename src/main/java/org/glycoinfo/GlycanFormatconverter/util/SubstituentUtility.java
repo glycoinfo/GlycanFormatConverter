@@ -2,12 +2,13 @@ package org.glycoinfo.GlycanFormatconverter.util;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer.MAPAnalyzer;
+import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.wurcs.graph.Modification;
 
 public class SubstituentUtility {
 
 	public static boolean isNLinkedSubstituent(Substituent _sub) {
-		if (_sub.getSubstituent() instanceof CrossLinkedTemplate) return false;
+		if (_sub.getSubstituent() instanceof BaseCrossLinkedTemplate) return false;
 
 		BaseSubstituentTemplate bsubT = (BaseSubstituentTemplate) _sub.getSubstituent();
 
@@ -18,8 +19,8 @@ public class SubstituentUtility {
 
 	public static boolean isOLinkedSubstituent (Substituent _sub) {
 		SubstituentInterface subFace = (SubstituentInterface) _sub;
-		if (subFace instanceof CrossLinkedTemplate) {
-			return isOLinkedSubstituent((CrossLinkedTemplate) subFace);
+		if (subFace instanceof BaseCrossLinkedTemplate) {
+			return isOLinkedSubstituent((BaseCrossLinkedTemplate) subFace);
 		}
 		if (subFace instanceof BaseSubstituentTemplate) {
 			return (_sub.getHeadAtom().equals("O"));
@@ -28,18 +29,39 @@ public class SubstituentUtility {
 		return false;
 	}
 
-	public static boolean isOLinkedSubstituent (CrossLinkedTemplate _crossT) {
-		if (_crossT.equals(CrossLinkedTemplate.PHOSPHOETHANOLAMINE)) return true;
+	public static boolean isOLinkedSubstituent (BaseCrossLinkedTemplate _crossT) {
+		if (_crossT.equals(BaseCrossLinkedTemplate.PHOSPHO_ETHANOLAMINE)) return true;
 		return (_crossT.getMAP().startsWith("*O") ||  _crossT.getMAP().startsWith("*1O"));
 	}
 
-	public static Substituent MAPToSubstituent(Modification _mod) throws GlycanException {
+	public static Substituent MAPToSubstituent(Modification _mod) throws GlycanException, WURCSFormatException {
 		if(_mod.getMAPCode().equals("")) return null;
 
-		return new Substituent(MAPToInterface(_mod.getMAPCode()));
+		//SubstituentInterface inf = MAPToInterface(_mod.getMAPCode());
+		MAPAnalyzer mapAnalyze = new MAPAnalyzer();
+		mapAnalyze.start(_mod.getMAPCode());
+
+		Substituent ret = null;
+
+		if (mapAnalyze.getSingleTemplate() != null) {
+			ret = new Substituent(mapAnalyze.getSingleTemplate());
+			ret.setHeadAtom(mapAnalyze.getHeadAtom());
+		}
+
+		if (mapAnalyze.getCrossTemplate() != null) {
+			ret = new Substituent(mapAnalyze.getCrossTemplate());
+			ret.setHeadAtom(mapAnalyze.getHeadAtom());
+			ret.setTailAtom(mapAnalyze.getTailAtom());
+		}
+
+		if (mapAnalyze.getSingleTemplate() == null && mapAnalyze.getCrossTemplate() == null)
+			throw new GlycanException("This substituent could not support: " + _mod.getMAPCode());
+
+		return ret;
+//		return new Substituent(MAPToInterface(_mod.getMAPCode()));
 	}
 
-	public static SubstituentInterface MAPToInterface (String _map) throws GlycanException {
+	public static SubstituentInterface MAPToInterface (String _map) throws GlycanException, WURCSFormatException {
 		if(_map.equals("")) return null;
 		SubstituentInterface ret = null;
 
@@ -49,8 +71,10 @@ public class SubstituentUtility {
 		if(mapAnalyze.getSingleTemplate() != null) {
 			ret = mapAnalyze.getSingleTemplate();
 		}
-		if(CrossLinkedTemplate.forMAP(_map) != null) {
-			ret = CrossLinkedTemplate.forMAP(_map);
+		//if(CrossLinkedTemplate.forMAP(_map) != null) {
+		if (mapAnalyze.getCrossTemplate() != null) {
+			ret = mapAnalyze.getCrossTemplate();
+			//ret = CrossLinkedTemplate.forMAP(_map);
 		}
 
 		if(ret == null) throw new GlycanException(_map +" could not found !");
@@ -59,6 +83,13 @@ public class SubstituentUtility {
 
 	public static String optimizeSubstituentNotationWithLinkageType (Substituent _sub) {
 		String ret = _sub.getNameWithIUPAC();
+		String bracket = "";
+
+		if (ret.startsWith("(")) {
+			bracket = ret.substring(0, ret.indexOf(")") + 1);
+			String regex = bracket.replace("(", "\\(").replace(")", "\\)");
+			ret = ret.replaceFirst(regex, "");
+		}
 
 		if (_sub.getFirstPosition() == null) return ret;
 
@@ -66,24 +97,26 @@ public class SubstituentUtility {
 		if (_sub.getFirstPosition().getParentLinkageType().equals(LinkageType.H_LOSE)) {
 			if (ret.startsWith("O")) ret = ret.replaceFirst("O", "C");
 			if (!ret.startsWith("O") && !ret.startsWith("C")) ret = "C" + ret;
+			if (!ret.startsWith("O") && !bracket.equals("")) ret = "C" + ret;
 			//System.out.println("H_LOSE" + " " + ret);
 		}
 
 		// Optimize substituent notation using DEOXY
 		if (_sub.getFirstPosition().getParentLinkageType().equals(LinkageType.DEOXY)) {
-			if (ret.startsWith("O")) ret = ret.replaceFirst("O", "");
-			if (ret.startsWith("C")) ret = ret.replaceFirst("C", "");
+			if (ret.startsWith("O") && bracket.equals("")) ret = ret.replaceFirst("O", "");
+			if (ret.startsWith("C") && bracket.equals("")) ret = ret.replaceFirst("C", "");
 			//System.out.println("DEOXY " + ret);
 		}
 
 		// Optimize substituent notation using H_AT_OH
 		if (_sub.getFirstPosition().getParentLinkageType().equals(LinkageType.H_AT_OH)) {
-			if (ret.startsWith("C")) ret = ret.replaceFirst("C", "O");
-			if (!ret.startsWith("C") && !ret.startsWith("O")) ret = "O" + ret;
+			if (ret.startsWith("C") && bracket.equals("")) ret = ret.replaceFirst("C", "O");
+			if (!ret.startsWith("C") && !ret.startsWith("O") && bracket.equals("")) ret = "O" + ret;
+			if (!bracket.equals("")) ret = "O" + ret;
 			//System.out.println("H_AT_OH " + ret);
 		}
 
-		return ret;
+		return bracket + ret;
 	}
 
 	public static String optimizeSubstituentNotationWithN_linkage (Substituent _sub) {
