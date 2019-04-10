@@ -8,6 +8,7 @@ import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExtendedImporter;
 import org.glycoinfo.GlycanFormatconverter.io.JSON.GCJSONImporter;
 import org.glycoinfo.GlycanFormatconverter.io.KCF.KCFImporter;
 import org.glycoinfo.GlycanFormatconverter.io.LinearCode.LinearCodeImporter;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer.WURCSGraphToGlyContainer;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
@@ -24,7 +25,7 @@ public class ImporterEntrance {
         this.input = _input;
     }
 
-    public GlyContainer start (String _input) throws GlyCoImporterException, WURCSException, GlycanException {
+    public GlyContainer start (String _input) throws GlyCoImporterException, WURCSException, GlycanException, TrivialNameException {
 
         GlyContainer ret = null;
 

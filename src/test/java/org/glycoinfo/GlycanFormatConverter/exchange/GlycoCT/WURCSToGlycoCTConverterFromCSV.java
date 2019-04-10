@@ -13,7 +13,7 @@ import org.eurocarbdb.MolecularFramework.util.visitor.GlycoVisitorException;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.io.GlycoCT.GlyContainerToSugar;
-import org.glycoinfo.GlycanFormatconverter.io.GlycoCT.WURCSExporterGlycoCT;
+import org.glycoinfo.WURCSFramework.io.GlycoCT.WURCSExporterGlycoCT;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer.WURCSGraphToGlyContainer;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;

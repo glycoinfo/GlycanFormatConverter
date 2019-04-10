@@ -1,7 +1,7 @@
 package org.glycoinfo.GlycanFormatconverter.exec;
 
 
-import org.glycoinfo.GlycanFormatconverter.io.GlycoCT.WURCSExporterGlycoCT;
+import org.glycoinfo.WURCSFramework.io.GlycoCT.WURCSExporterGlycoCT;
 
 /**
  * Created by e15d5605 on 2019/02/20.

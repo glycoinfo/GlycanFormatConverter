@@ -7,7 +7,8 @@ import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class KCFImporter {
         glyco = new GlyContainer();
     }
 
-    public GlyContainer start (String _kcf) throws GlyCoImporterException, GlycanException, ConverterExchangeException {
+    public GlyContainer start (String _kcf) throws GlyCoImporterException, GlycanException, ConverterExchangeException, TrivialNameException {
         String countKey = "";
         boolean isRepeat = false;
         ArrayList<String> repeatNode = new ArrayList<String>();

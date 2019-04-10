@@ -4,13 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanRepeatModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanUndefinedUnit;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 
 public abstract class IUPACExporterUtility {
 

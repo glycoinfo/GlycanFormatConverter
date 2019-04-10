@@ -6,7 +6,6 @@ import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.ThreeLetterCodeAnalyzer;
-import org.glycoinfo.WURCSFramework.util.exchange.SubstituentAnalyzer;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

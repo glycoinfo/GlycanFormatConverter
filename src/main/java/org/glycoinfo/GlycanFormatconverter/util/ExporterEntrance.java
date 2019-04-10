@@ -6,10 +6,11 @@ import org.glycoinfo.GlycanFormatconverter.io.GlyCoExporterException;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.*;
 import org.glycoinfo.GlycanFormatconverter.io.JSON.GCJSONExporter;
 import org.glycoinfo.GlycanFormatconverter.io.LinearCode.LinearCodeExporter;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerToWURCSGraph;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 /**
  * Created by e15d5605 on 2017/10/23.
@@ -22,7 +23,7 @@ public class ExporterEntrance {
         this.glyCo = _glyCo;
     }
 
-    public String toIUPAC (IUPACStyleDescriptor _style) throws GlycanException, ConverterExchangeException, GlyCoExporterException {
+    public String toIUPAC (IUPACStyleDescriptor _style) throws GlycanException, GlyCoExporterException, TrivialNameException {
         if (_style == null) throw new GlyCoExporterException(_style + " is incorrect format.");
 
         StringBuilder ret = new StringBuilder();

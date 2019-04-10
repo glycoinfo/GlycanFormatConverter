@@ -6,7 +6,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationConverter;
 import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

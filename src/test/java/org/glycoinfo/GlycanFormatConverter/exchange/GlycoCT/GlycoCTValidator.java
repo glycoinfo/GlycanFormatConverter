@@ -13,7 +13,7 @@ import org.eurocarbdb.MolecularFramework.util.validation.GlycoVisitorValidation;
 import org.eurocarbdb.MolecularFramework.util.visitor.GlycoVisitorException;
 import org.eurocarbdb.resourcesdb.Config;
 import org.eurocarbdb.resourcesdb.io.MonosaccharideConverter;
-import org.glycoinfo.GlycanFormatconverter.io.GlycoCT.GlycoVisitorValidationForWURCS;
+import org.glycoinfo.WURCSFramework.io.GlycoCT.GlycoVisitorValidationForWURCS;
 
 /**
  * Validation class for GlycoCT

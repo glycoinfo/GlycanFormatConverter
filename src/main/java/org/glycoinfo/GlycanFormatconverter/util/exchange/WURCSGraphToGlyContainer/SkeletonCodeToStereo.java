@@ -4,7 +4,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.MAPMASSComparator;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.array.WURCSImporter;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 import org.glycoinfo.WURCSFramework.util.property.AtomicProperties;
 import org.glycoinfo.WURCSFramework.util.subsumption.MSStateDeterminationUtility;
 import org.glycoinfo.WURCSFramework.util.subsumption.WURCSSubsumptionConverter;

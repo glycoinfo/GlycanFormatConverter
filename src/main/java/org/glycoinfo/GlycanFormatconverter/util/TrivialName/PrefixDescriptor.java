@@ -1,7 +1,5 @@
 package org.glycoinfo.GlycanFormatconverter.util.TrivialName;
 
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
-
 public enum PrefixDescriptor {
 
 	UNKNOWN("", 0),
@@ -28,23 +26,23 @@ public enum PrefixDescriptor {
 		return this.a_sPrefix;
 	}
 	
-	public static PrefixDescriptor forPrefix(String _a_sPrefix) throws ConverterExchangeException {
+	public static PrefixDescriptor forPrefix(String _a_sPrefix) throws TrivialNameException {
 		PrefixDescriptor[] enum_array = PrefixDescriptor.values();
 		
 		for(PrefixDescriptor enum_str : enum_array) {
 			if(_a_sPrefix.equals(enum_str.a_sPrefix)) return enum_str;
 		}
 		
-		throw new ConverterExchangeException(_a_sPrefix + " is not found");
+		throw new TrivialNameException(_a_sPrefix + " is not found");
 	}
 	
-	public static PrefixDescriptor forNumber(int _a_iNumber) throws ConverterExchangeException { 
+	public static PrefixDescriptor forNumber(int _a_iNumber) throws TrivialNameException {
 		PrefixDescriptor[] enum_array = PrefixDescriptor.values();
 		
 		for(PrefixDescriptor enum_str : enum_array) {
 			if(_a_iNumber == (enum_str.a_iNumber)) return enum_str;
 		}
 		
-		throw new ConverterExchangeException(_a_iNumber + " is illegal paramertor");
+		throw new TrivialNameException (_a_iNumber + " is illegal paramertor");
 	}
 }

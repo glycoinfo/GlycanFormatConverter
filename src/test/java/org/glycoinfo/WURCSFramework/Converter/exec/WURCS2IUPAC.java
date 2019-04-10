@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.TreeMap;
-import org.glycoinfo.WURCSFramework.util.exchange.IUPAC.WURCSToIUPAC;
+import org.glycoinfo.WURCSFramework.util.oldUtil.IUPAC.WURCSToIUPAC;
 
 public class WURCS2IUPAC {
 

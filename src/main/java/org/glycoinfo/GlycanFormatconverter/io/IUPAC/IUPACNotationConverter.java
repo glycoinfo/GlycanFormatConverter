@@ -5,7 +5,6 @@ import java.util.Iterator;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.*;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 
 public class IUPACNotationConverter {
 
@@ -30,7 +29,7 @@ public class IUPACNotationConverter {
 	}
 
 
-	public void makeTrivialName (Node _node) throws GlycanException, ConverterExchangeException {
+	public void makeTrivialName (Node _node) throws GlycanException {
 		StringBuilder trivialName;
 
 		Monosaccharide mono = (Monosaccharide) _node;
@@ -224,7 +223,7 @@ public class IUPACNotationConverter {
 		return false;
 	}
 	
-	public String makeDeoxyPosition(Monosaccharide _mono) throws ConverterExchangeException {
+	public String makeDeoxyPosition(Monosaccharide _mono) throws TrivialNameException {
 		if(_mono.getModifications().isEmpty()) return "";
 		
 		ArrayList<GlyCoModification> deoxys = new ArrayList<GlyCoModification>();

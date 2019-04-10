@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 import org.glycoinfo.WURCSFramework.util.WURCSDataConverter;
-import org.glycoinfo.WURCSFramework.util.exchange.SubstituentTemplate;
-import org.glycoinfo.WURCSFramework.util.exchange.IUPAC.ConverterIUPACException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.SubstituentTemplate;
+import org.glycoinfo.WURCSFramework.util.oldUtil.IUPAC.ConverterIUPACException;
 
 public class ResidueContainerUtility {
 

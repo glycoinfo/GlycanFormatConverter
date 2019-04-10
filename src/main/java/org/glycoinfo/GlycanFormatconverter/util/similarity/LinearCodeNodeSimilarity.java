@@ -6,7 +6,7 @@ import org.glycoinfo.GlycanFormatconverter.io.LinearCode.LinearCodeNodeConverter
 import org.glycoinfo.GlycanFormatconverter.io.LinearCode.LinearCodeSUDictionary;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.LCNodeComparater;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.NodeDescendingComparator;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 import java.util.*;
 

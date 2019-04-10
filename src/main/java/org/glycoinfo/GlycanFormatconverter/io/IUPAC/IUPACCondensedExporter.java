@@ -16,7 +16,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
 import org.glycoinfo.GlycanFormatconverter.io.ExporterInterface;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 public class IUPACCondensedExporter extends IUPACExporterUtility implements ExporterInterface {
 
@@ -33,7 +33,7 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 		return condensed.toString();
 	}
 
-	public void start (GlyContainer _glyCo) throws ConverterExchangeException, GlycanException {
+	public void start (GlyContainer _glyCo) throws GlycanException {
 		init();
 		
 		for( Node _node : _glyCo.getAllNodes()) {
@@ -152,7 +152,7 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 		}
 	}
 	
-	public void makeMonosaccharideNotation (Node _node) throws ConverterExchangeException, GlycanException {
+	public void makeMonosaccharideNotation (Node _node) throws GlycanException {
 		CondensedConverter condConv = new CondensedConverter();
 		if (!notationIndex.containsKey(_node)) notationIndex.put(_node, condConv.start(_node, isGlycanWeb));
 	}

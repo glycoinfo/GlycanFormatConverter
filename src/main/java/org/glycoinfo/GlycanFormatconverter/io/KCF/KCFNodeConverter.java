@@ -6,7 +6,8 @@ import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationParser;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.BaseStereoIndex;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.KCFNotationToIUPACNotation;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 import java.util.ArrayList;
 
@@ -21,7 +22,7 @@ public class KCFNodeConverter {
         kcfUtil = _kcfUtil;
     }
 
-    public Node start (String _node) throws GlycanException, GlyCoImporterException, ConverterExchangeException {
+    public Node start (String _node) throws GlycanException, GlyCoImporterException, TrivialNameException {
         ArrayList<String> units = kcfUtil.splitNotation(_node);
         String notation = units.get(1);
 

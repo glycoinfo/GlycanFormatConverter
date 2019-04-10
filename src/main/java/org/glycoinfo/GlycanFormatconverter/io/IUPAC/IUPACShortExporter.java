@@ -3,7 +3,6 @@ package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.AnomericStateDescriptor;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
@@ -16,7 +15,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
 import org.glycoinfo.GlycanFormatconverter.io.ExporterInterface;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 public class IUPACShortExporter extends IUPACExporterUtility implements ExporterInterface{
 
@@ -28,7 +27,7 @@ public class IUPACShortExporter extends IUPACExporterUtility implements Exporter
 		return shortIUPAC.toString();
 	}
 	
-	public void start (GlyContainer _glyCo) throws ConverterExchangeException, GlycanException {
+	public void start (GlyContainer _glyCo) throws GlycanException {
 		init();
 		
 		for( Node _node : _glyCo.getAllNodes()) {
@@ -151,7 +150,7 @@ public class IUPACShortExporter extends IUPACExporterUtility implements Exporter
 		}
 	}
 	
-	public void makeMonosaccharideNotation(Node _node) throws ConverterExchangeException, GlycanException {
+	public void makeMonosaccharideNotation(Node _node) throws GlycanException {
 		IUPACNotationConverter monoIUPAC = new IUPACNotationConverter();
 
 		Node copy = _node.copy();

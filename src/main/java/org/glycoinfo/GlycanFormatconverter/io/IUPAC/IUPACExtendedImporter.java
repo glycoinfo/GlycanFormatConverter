@@ -4,19 +4,15 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 
 public class IUPACExtendedImporter {
 
-	public GlyContainer start(String _iupac) throws GlycanException, GlyCoImporterException, ConverterExchangeException {
+	public GlyContainer start(String _iupac) throws GlycanException, GlyCoImporterException {
 		GlyContainer glyCo = new GlyContainer();
 		
 		LinkedHashMap<Node, String> nodeIndex = new LinkedHashMap<Node, String>();

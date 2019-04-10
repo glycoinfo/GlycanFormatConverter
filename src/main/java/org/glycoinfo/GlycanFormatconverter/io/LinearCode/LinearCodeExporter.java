@@ -5,7 +5,7 @@ import org.glycoinfo.GlycanFormatconverter.io.ExporterInterface;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoExporterException;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporterUtility;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.LinearCodeNodeSimilarity;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 import java.util.ArrayList;
 import java.util.HashMap;

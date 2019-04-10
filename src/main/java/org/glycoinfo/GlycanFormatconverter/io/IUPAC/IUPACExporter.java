@@ -2,7 +2,8 @@ package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 public class IUPACExporter {
 
@@ -26,7 +27,7 @@ public class IUPACExporter {
 		return ise.getIUPACShort();
 	}
 	
-	public void start (GlyContainer _glyCo) throws ConverterExchangeException, GlycanException {
+	public void start (GlyContainer _glyCo) throws GlycanException, TrivialNameException {
 
 		//TODO : ここで全てのノードをソートしてしまう
 

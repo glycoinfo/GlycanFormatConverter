@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 
-import org.glycoinfo.WURCSFramework.util.exchange.GRESToTrivialName;
+import org.glycoinfo.WURCSFramework.util.oldUtil.GRESToTrivialName;
 
 public class CoreNameTester {
 	public static void main(String[] args) throws Exception {

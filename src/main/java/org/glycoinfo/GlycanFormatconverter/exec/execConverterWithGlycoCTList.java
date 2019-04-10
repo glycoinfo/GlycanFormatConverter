@@ -1,6 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.exec;
 
-import org.glycoinfo.GlycanFormatconverter.io.GlycoCT.WURCSExporterGlycoCTList;
+import org.glycoinfo.WURCSFramework.io.GlycoCT.WURCSExporterGlycoCTList;
 
 import java.util.TreeMap;
 

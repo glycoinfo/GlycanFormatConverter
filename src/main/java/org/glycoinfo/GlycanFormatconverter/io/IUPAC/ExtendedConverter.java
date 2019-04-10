@@ -5,14 +5,14 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 
 /**
  * Created by e15d5605 on 2017/11/15.
  */
 public class ExtendedConverter extends IUPACNotationConverter {
 
-    public String start (Node _node) throws ConverterExchangeException, GlycanException {
+    public String start (Node _node) throws GlycanException, TrivialNameException {
         Node copy = _node.copy();
 
         makeTrivialName(copy);
@@ -20,7 +20,7 @@ public class ExtendedConverter extends IUPACNotationConverter {
         return makeExtendedNotation(copy);
     }
 
-    public String makeExtendedNotation (Node _copy) throws ConverterExchangeException {
+    public String makeExtendedNotation (Node _copy) throws TrivialNameException {
         Monosaccharide mono = (Monosaccharide) _copy;
         String threeLetter = getThreeLetterCode().toString();
         String configuration = "?";

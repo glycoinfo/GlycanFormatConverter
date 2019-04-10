@@ -1,11 +1,10 @@
-package org.glycoinfo.WURCSFramework.util.exchange;
+package org.glycoinfo.WURCSFramework.util.oldUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainer;
 import org.glycoinfo.WURCSFramework.wurcs.array.LIP;
-import org.glycoinfo.WURCSFramework.wurcs.array.LIPs;
 import org.glycoinfo.WURCSFramework.wurcs.array.MOD;
 import org.glycoinfo.WURCSFramework.wurcs.array.MS;
 import org.glycoinfo.WURCSFramework.wurcs.sequence2.BRIDGE;

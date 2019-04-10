@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
-import org.glycoinfo.WURCSFramework.util.exchange.Carbbank.WURCSToCarbBank;
+import org.glycoinfo.WURCSFramework.util.oldUtil.Carbbank.WURCSToCarbBank;
 
 public class WURCSToCarbBankTester {
 

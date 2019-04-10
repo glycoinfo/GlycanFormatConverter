@@ -3,11 +3,9 @@ package org.glycoinfo.GlycanFormatconverter.util.TrivialName;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.io.KCF.KCFMonosaccharideDescriptor;
-import org.glycoinfo.GlycanFormatconverter.util.TrivialName.HexoseDescriptor;
-import org.glycoinfo.GlycanFormatconverter.util.TrivialName.PrefixDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.MonosaccharideNotationAnalyzer;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -18,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class KCFNotationToIUPACNotation {
 
-    public String start (String _input) throws ConverterExchangeException, GlyCoImporterException, GlycanException {
+    public String start (String _input) throws GlyCoImporterException, GlycanException, TrivialNameException {
     		String ulosonic = "";
         String ringSize = "";
         String tailStatus = "";
@@ -466,7 +464,7 @@ public class KCFNotationToIUPACNotation {
         return configuration;
     }
 
-    private String analyzeDeoxy (String _position) throws ConverterExchangeException {
+    private String analyzeDeoxy (String _position) throws TrivialNameException {
         PrefixDescriptor preDesc = PrefixDescriptor.forNumber(_position.split(",").length);
         return (_position + "-" + preDesc.getPrefix() + "deoxy");
     }

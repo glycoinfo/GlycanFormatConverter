@@ -2,7 +2,7 @@ package org.glycoinfo.GlycanFormatconverter.util.analyzer;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 /**
  * Created by e15d5605 on 2017/08/24.
@@ -11,7 +11,7 @@ public class MonosaccharideNotationAnalyzer {
 
     //TODO : SubstituentとModificationを判別する処理の実装
 
-    public static boolean start (String _notation) throws ConverterExchangeException {
+    public static boolean start (String _notation) {
         MonosaccharideIndex modIndex = null;
         SuperClass superclass = null;
 

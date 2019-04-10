@@ -3,15 +3,12 @@ package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContain
 import java.util.*;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerEdgeAnalyzer;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
-import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparator;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparatorSimple;
 import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSVisitorCollectSequence;
 import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSVisitorException;

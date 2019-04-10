@@ -14,12 +14,13 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporter;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExtendedImporter;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 public class IUPACImporterTester {
 
-	public static void main(String[] args) throws GlycanException, GlyCoImporterException, ConverterExchangeException {
+	public static void main(String[] args) throws GlycanException, GlyCoImporterException, ConverterExchangeException, TrivialNameException {
 		
 		ArrayList<String> samples = new ArrayList<String>();
 

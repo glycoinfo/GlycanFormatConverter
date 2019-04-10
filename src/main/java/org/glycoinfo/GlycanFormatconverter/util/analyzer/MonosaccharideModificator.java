@@ -6,7 +6,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.ModificationTemplate;
 import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 import java.util.Iterator;
 import java.util.TreeMap;

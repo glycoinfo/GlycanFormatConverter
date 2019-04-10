@@ -5,8 +5,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
-import org.glycoinfo.GlycanFormatconverter.util.TrivialName.SubstituentIUPACNotationConverter;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 /**
  * Created by e15d5605 on 2017/11/15.
@@ -19,7 +18,7 @@ import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
  * */
 public class CondensedConverter extends IUPACNotationConverter{
 
-    public String start (Node _node, boolean _iswebStyle) throws ConverterExchangeException, GlycanException {
+    public String start (Node _node, boolean _iswebStyle) throws GlycanException {
         Node copy = _node.copy();
 
         makeTrivialName(copy);
@@ -27,7 +26,7 @@ public class CondensedConverter extends IUPACNotationConverter{
         return makeCondensedNotation(copy, _iswebStyle);
     }
 
-    private String makeCondensedNotation (Node _copy, boolean _iswebStyle) throws ConverterExchangeException {
+    private String makeCondensedNotation (Node _copy, boolean _iswebStyle) {
         Monosaccharide mono = (Monosaccharide) _copy;
         String threeLetter = getThreeLetterCode().toString();
         String configuration = "?";

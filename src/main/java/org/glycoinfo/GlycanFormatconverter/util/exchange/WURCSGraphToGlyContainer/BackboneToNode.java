@@ -4,7 +4,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.GlyCoModificationComparater;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 import org.glycoinfo.WURCSFramework.wurcs.graph.*;
 
 import java.util.ArrayList;

@@ -1,9 +1,7 @@
 package org.glycoinfo.GlycanFormatConverter.GlycoCT;
 
-import org.glycoinfo.GlycanFormatconverter.io.GlycoCT.GlycoCTListReader;
-import org.glycoinfo.GlycanFormatconverter.io.GlycoCT.WURCSExporterGlycoCTList;
-import org.glycoinfo.WURCSFramework.util.WURCSFileWriter;
-import org.junit.Test;
+import org.glycoinfo.WURCSFramework.io.GlycoCT.GlycoCTListReader;
+import org.glycoinfo.WURCSFramework.io.GlycoCT.WURCSExporterGlycoCTList;
 
 import java.io.*;
 import java.util.*;

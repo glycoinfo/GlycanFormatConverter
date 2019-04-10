@@ -7,9 +7,8 @@ import java.util.LinkedHashMap;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.ExporterInterface;
-import org.glycoinfo.GlycanFormatconverter.util.TrivialName.ThreeLetterCodeConverter;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
-import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 
 public class IUPACExtendedExporter extends IUPACExporterUtility implements ExporterInterface{
 
@@ -32,7 +31,7 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 		return ret;
 	}
 	
-	public void start (GlyContainer _glyCo) throws GlycanException, ConverterExchangeException {
+	public void start (GlyContainer _glyCo) throws GlycanException, TrivialNameException {
 		init();
 		
 		for( Node node : _glyCo.getAllNodes()) {
@@ -157,7 +156,7 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 		}
 	}
 	
-	public void makeMonosaccharideNotation (Node _node) throws ConverterExchangeException, GlycanException {
+	public void makeMonosaccharideNotation (Node _node) throws GlycanException, TrivialNameException {
 		if (!(_node instanceof Monosaccharide)) return;
 		ExtendedConverter extConv = new ExtendedConverter();
 		//IUPACNotationConverter monoIUPAC = new IUPACNotationConverter();
