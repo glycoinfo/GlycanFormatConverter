@@ -1,8 +1,11 @@
-package org.glycoinfo.GlycanFormatconverter.util.TrivialName;
+package org.glycoinfo.GlycanFormatconverter.io.KCF;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.io.KCF.KCFMonosaccharideDescriptor;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.HexoseDescriptor;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.PrefixDescriptor;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.MonosaccharideNotationAnalyzer;
 import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;

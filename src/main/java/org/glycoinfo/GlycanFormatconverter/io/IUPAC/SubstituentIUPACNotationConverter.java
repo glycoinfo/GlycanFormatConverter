@@ -1,4 +1,4 @@
-package org.glycoinfo.GlycanFormatconverter.util.TrivialName;
+package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +7,8 @@ import java.util.Iterator;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.HexoseDescriptor;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameDictionary;
 
 public class SubstituentIUPACNotationConverter {
 

@@ -5,9 +5,7 @@ import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationParser;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.BaseStereoIndex;
-import org.glycoinfo.GlycanFormatconverter.util.TrivialName.KCFNotationToIUPACNotation;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
-import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 import java.util.ArrayList;
 
