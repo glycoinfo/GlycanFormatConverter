@@ -12,6 +12,7 @@ public class Substituent extends Node{
 	private SubstituentInterface subInterface;
 
 	String headAtom;
+	String tailAtom;
 
 	public Substituent(SubstituentInterface enumSub) {
 		this.setTemplate(enumSub);
@@ -33,6 +34,8 @@ public class Substituent extends Node{
 	}
 
 	public String getHeadAtom () { return this.headAtom; }
+
+	public String getTailAtom () { return this.tailAtom; }
 
 	public void setTemplate(SubstituentInterface _template) {
 		this.subInterface = _template;
@@ -56,6 +59,8 @@ public class Substituent extends Node{
 	public void setHeadAtom (String _headAtom) {
 		this.headAtom = _headAtom;
 	}
+
+	public void setTailAtom (String _tailAtom) { this.tailAtom = _tailAtom; }
 
 	public String getNameWithIUPAC() {
 		return subInterface.getIUPACnotation();
