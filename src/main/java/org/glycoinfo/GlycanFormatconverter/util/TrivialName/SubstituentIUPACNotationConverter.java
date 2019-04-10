@@ -42,9 +42,9 @@ public class SubstituentIUPACNotationConverter {
 			if (child.getSubstituent() == null) continue;
 			
 			Substituent sub = (Substituent) child.getSubstituent();
-			SubstituentInterface subface = sub.getSubstituent();
+			//SubstituentInterface subface = sub.getSubstituent();
 
-			if (subface == null || sub instanceof GlycanRepeatModification || child.getChild() != null) continue;
+			if (sub.getSubstituent() == null || sub instanceof GlycanRepeatModification || child.getChild() != null) continue;
 
 			// extract only N (Amino group) part from N-linked substituent
 			if (haveNativeSubstituentWithNsulfate(_code, sub, _node)) {
@@ -55,10 +55,10 @@ public class SubstituentIUPACNotationConverter {
 			}
 
 			if (haveNativeSubstituentInNeu(_code, sub)) {
-				nativeSub.append(makePosition(sub.getFirstPosition(), haveSecondPos(sub)) + subface.getIUPACnotation());
+				nativeSub.append(makePosition(sub.getFirstPosition(), haveSecondPos(sub)) + sub.getSubstituent().getIUPACnotation());
 			} else if (haveNativeSubstituent(_code, sub, _node)) {
-				nativeSub.append(subface.getIUPACnotation());
-			} else if (haveAnhydroxyl(subface)) {
+				nativeSub.append(sub.getSubstituent().getIUPACnotation());
+			} else if (haveAnhydroxyl(sub.getSubstituent())) {
 				extractAnhydroxylSubstituent(sub);
 			} else {
 				extractSubstituentWithPosition(sub);
@@ -239,12 +239,15 @@ public class SubstituentIUPACNotationConverter {
 	}
 	
 	private boolean haveAnhydroxyl (SubstituentInterface _subface) {
-		if (!(_subface instanceof CrossLinkedTemplate)) return false;		
-		return (_subface).equals(CrossLinkedTemplate.ANHYDROXYL);
+		if (!(_subface instanceof BaseCrossLinkedTemplate)) return false;
+		return (_subface).equals(BaseCrossLinkedTemplate.ANHYDRO);
+		//if (!(_subface instanceof CrossLinkedTemplate)) return false;
+		//return (_subface).equals(CrossLinkedTemplate.ANHYDROXYL);
 	}
 	
 	private boolean haveNativeSubstituent(String _code, Substituent _sub, Node _node) {
-		if (_sub.getSubstituent() instanceof CrossLinkedTemplate) return false;
+		if (_sub.getSubstituent() instanceof BaseCrossLinkedTemplate) return false;
+		//if (_sub.getSubstituent() instanceof CrossLinkedTemplate) return false;
 
 		BaseSubstituentTemplate subT = (BaseSubstituentTemplate) _sub.getSubstituent();
 		
@@ -268,8 +271,8 @@ public class SubstituentIUPACNotationConverter {
 	
 	private boolean haveNativeSubstituentInNeu(String _code, Substituent _sub) {
 		if (isNeuraminicAcid(_code)) return false;
-		if (_sub.getSubstituent() instanceof CrossLinkedTemplate) return false;
-
+		if (_sub.getSubstituent() instanceof BaseCrossLinkedTemplate) return false;
+		//if (_sub.getSubstituent() instanceof CrossLinkedTemplate) return false;
 
 		if (!isHexoseWithNativeSubstituent(_code)) return false;
 		if (_sub.getFirstPosition().getParentLinkages().size() > 1 ||
@@ -296,9 +299,7 @@ public class SubstituentIUPACNotationConverter {
 	}
 	
 	protected boolean haveNativeSubstituentWithNsulfate(String _code, Substituent _sub, Node _current) {
-		if (_sub.getSubstituent() instanceof CrossLinkedTemplate) return false;
-		
-		BaseSubstituentTemplate subT = (BaseSubstituentTemplate) _sub.getSubstituent();
+		if (_sub.getSubstituent() instanceof BaseCrossLinkedTemplate) return false;
 		
 		if (_sub.getFirstPosition().getParentLinkages().size() > 1) return false;
 
@@ -307,7 +308,7 @@ public class SubstituentIUPACNotationConverter {
 		if (firstPosition != 2) return false;
 		if (is6DeoxyHexose(_code) || isAcidicTail(_current)) return false;
 
-		//if (subT.equals(BaseSubstituentTemplate.NACETYL)) return false;
+		if (_sub.getSubstituent().equals(BaseSubstituentTemplate.NACETYL)) return false;
 
 		return (SubstituentUtility.isNLinkedSubstituent(_sub));
 
