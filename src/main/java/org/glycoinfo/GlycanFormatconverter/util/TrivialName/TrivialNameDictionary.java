@@ -45,8 +45,8 @@ public enum TrivialNameDictionary {
 	
 	// Amino sugars
 	BAC("Bac", "glc", "6*m", "2*N_4*N", 6),
-	MUR("Mur", "glc", "", "3*(R)Lac", 6),
-	ISOMUR("iMur", "glc", "", "3*(S)Lac", 6),
+	MUR("Mur", "glc", "", "3*(R)OLac", 6),
+	ISOMUR("iMur", "glc", "", "3*(S)OLac", 6),
 	//PURC("PurC", "dery", "3*d_4*d", "2*N_6*N", 6), //always d configuration
 		
 	// Other
