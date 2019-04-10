@@ -6,7 +6,7 @@ package org.glycoinfo.GlycanFormatconverter.Glycan;
 public enum BaseCrossLinkedTemplate implements SubstituentInterface {
 
     // For double
-    ANHYDROXYL			("*o", "anhydro", "Anhydro"),
+    ANHYDRO			    ("*o", "anhydro", "Anhydro"),
     PYRUVATE			("C^X*/2CO/4=O/2C", "pyruvate",	"Py"),
     R_PYRUVATE			("C^R*/2CO/4=O/2C", "(r)-pyruvate",	"(R)Py"),
     S_PYRUVATE			("C^R*/2CO/4=O/2C", "(s)-pyruvate",	"(S)Py"),
