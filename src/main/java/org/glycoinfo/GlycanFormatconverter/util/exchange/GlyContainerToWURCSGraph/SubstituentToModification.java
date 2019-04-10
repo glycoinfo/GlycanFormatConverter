@@ -80,7 +80,7 @@ public class SubstituentToModification {
 			linkageTypes.add(this.substituent.getFirstPosition().getParentLinkageType());
 		}
 		if (this.substituent.getSecondPosition() != null) {
-			linkageTypes.add(this.substituent.getSecondPosition().getParentLinkageType());
+			linkageTypes.add(this.substituent.getSecondPosition().getChildLinkageType());
 		}
 
 		if (linkageTypes.isEmpty()) {
@@ -128,13 +128,9 @@ public class SubstituentToModification {
 		if (isSwap != null) {
 			parentSidePosition = 1;
 			childSidePosition = 2;
-			//this.parentSidePosition = substituent.getSecondPosition().getChildLinkages().get(0);
-			//this.childSidePosition  = substituent.getFirstPosition().getChildLinkages().get(0);
 			if (isSwap) {
 				parentSidePosition = 2;
 				childSidePosition = 1;
-				//this.parentSidePosition = substituent.getFirstPosition().getChildLinkages().get(0);
-				//this.childSidePosition  = substituent.getSecondPosition().getChildLinkages().get(0);
 			}
 			hasOrder = true;
 		} else {
@@ -212,7 +208,7 @@ public class SubstituentToModification {
 	
 	private String addOxygenToHead (String _map) {
 		if (_map.startsWith("NCCOP")) return _map;
-		
+
 		ArrayList<Integer> nums = new ArrayList<Integer>();
 		String num = "";
 		for (int i = 0; i < _map.length(); i++) {
@@ -228,7 +224,7 @@ public class SubstituentToModification {
 		}
 		Collections.sort(nums);
 		Collections.reverse(nums);
-		
+
 		String newMAP = _map;
 		for (Iterator<Integer> iterNum = nums.iterator(); iterNum.hasNext();) {
 			Integer num1 = iterNum.next();
