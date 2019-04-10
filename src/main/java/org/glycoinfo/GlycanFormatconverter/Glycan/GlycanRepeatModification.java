@@ -26,7 +26,8 @@ public class GlycanRepeatModification extends Substituent implements RepeatInter
 	}
 
 	public GlycanRepeatModification copy() {
-		CrossLinkedTemplate subT = (CrossLinkedTemplate) this.getSubstituent();
+		//CrossLinkedTemplate subT = (CrossLinkedTemplate) this.getSubstituent();
+		BaseCrossLinkedTemplate subT = (BaseCrossLinkedTemplate) this.getSubstituent();
 		GlycanRepeatModification copy;
 		try {
 			copy = new GlycanRepeatModification(subT);
