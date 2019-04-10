@@ -9,6 +9,7 @@ import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerEdgeAnalyzer;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
+import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparator;
 import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparatorSimple;
@@ -90,7 +91,7 @@ public class WURCSGraphToGlyContainer {
 		glyCo = gop.start(glyCo);
 	}
 
-	private void WURCSEdgeToLinkage(Backbone _backbone) throws GlycanException, ConverterExchangeException {
+	private void WURCSEdgeToLinkage(Backbone _backbone) throws GlycanException, ConverterExchangeException, WURCSFormatException {
 		if (und != null) und = null;
 
 		// define parent linkage
@@ -121,7 +122,7 @@ public class WURCSGraphToGlyContainer {
 		}
 	}
 
-	private void extractSimpleLinkage (Backbone _backbone, WURCSEdge _c, Modification _mod) throws GlycanException {
+	private void extractSimpleLinkage (Backbone _backbone, WURCSEdge _c, Modification _mod) throws GlycanException, WURCSFormatException {
 		Backbone ccBackbone = null;
 		Backbone cpBackbone = null;
 		LinkedList<LinkagePosition> donor = null;
@@ -216,7 +217,7 @@ public class WURCSGraphToGlyContainer {
 		//open(_backbone, cpBackbone, ccBackbone, acceptor, donor, sub);
 	}
 
-	private void extractRpeatingUnit (Backbone _backbone, Modification _mod) throws GlycanException {
+	private void extractRpeatingUnit (Backbone _backbone, Modification _mod) throws GlycanException, WURCSFormatException {
 		Node start;
 		Node end;
 		Node current = backbone2node.get(_backbone);
@@ -346,7 +347,7 @@ public class WURCSGraphToGlyContainer {
 		return true;
 	}
 
-	private void extractCyclicUnit(Backbone _backbone, WURCSEdge _cEdge, Modification _mod) throws GlycanException {
+	private void extractCyclicUnit(Backbone _backbone, WURCSEdge _cEdge, Modification _mod) throws GlycanException, WURCSFormatException {
 		if (!_cEdge.getNextComponent().getChildEdges().isEmpty()) return;
 		if (_mod instanceof ModificationRepeat) return;
 
@@ -405,7 +406,7 @@ public class WURCSGraphToGlyContainer {
 	 * @param _modAlt
 	 * @throws GlycanException
 	 */
-	private void compositionToUndefinedUnitForSubstituent (ModificationAlternative _modAlt) throws GlycanException {
+	private void compositionToUndefinedUnitForSubstituent (ModificationAlternative _modAlt) throws GlycanException, WURCSFormatException {
 		// Populate Substituent
 		SubstituentUtility subUtil = new SubstituentUtility();
 		Substituent sub = subUtil.MAPToSubstituent(_modAlt);
@@ -416,7 +417,8 @@ public class WURCSGraphToGlyContainer {
 		// Add undefined linkage to substituent
 		sub.getFirstPosition().addParentLinkage(-1);
 		sub.getFirstPosition().addChildLinkage(1);
-		if ( sub.getSubstituent() instanceof CrossLinkedTemplate ) {
+		//if ( sub.getSubstituent() instanceof CrossLinkedTemplate ) {
+		if ( sub.getSubstituent() instanceof BaseCrossLinkedTemplate ) {
 			sub.getSecondPosition().addParentLinkage(-1);
 			sub.getSecondPosition().addChildLinkage(1);
 		}
@@ -439,7 +441,7 @@ public class WURCSGraphToGlyContainer {
 		glyCo.addGlycanUndefinedUnit(und);
 	}
 
-	private void backboneToUndefinedUnit(Backbone _backbone) throws GlycanException {
+	private void backboneToUndefinedUnit(Backbone _backbone) throws GlycanException, WURCSFormatException {
 		Node current = backbone2node.get(_backbone);
 		GlycanUndefinedUnit fragment = new GlycanUndefinedUnit();
 
@@ -465,7 +467,8 @@ public class WURCSGraphToGlyContainer {
 				}
 
 				if (!cpEdge.getModification().getMAPCode().equals("")) {
-					current = new Substituent(SubstituentUtility.MAPToInterface(cpEdge.getModification().getMAPCode()));
+					current = SubstituentUtility.MAPToSubstituent(cpEdge.getModification());
+							//new Substituent(SubstituentUtility.MAPToInterface(cpEdge.getModification().getMAPCode()));
 					donor = cpEdge.getLinkages();
 					acceptor = donor;
 				}
@@ -509,18 +512,25 @@ public class WURCSGraphToGlyContainer {
 		return edge;
 	}
 
-	private Substituent makeSubstituentWithRepeat (Modification _mod) throws GlycanException {
-		CrossLinkedTemplate crossTemp = (CrossLinkedTemplate) SubstituentUtility.MAPToInterface(_mod.getMAPCode());
+	private Substituent makeSubstituentWithRepeat (Modification _mod) throws GlycanException, WURCSFormatException {
+		MAPAnalyzer mapAnalyze = new MAPAnalyzer();
+		mapAnalyze.start(_mod.getMAPCode());
+		BaseCrossLinkedTemplate bcT = mapAnalyze.getCrossTemplate();
+		//BaseCrossLinkedTemplate bcT = (BaseCrossLinkedTemplate) SubstituentUtility.MAPToInterface(_mod.getMAPCode());
+		//CrossLinkedTemplate crossTemp = (CrossLinkedTemplate) SubstituentUtility.MAPToInterface(_mod.getMAPCode());
 
-		GlycanRepeatModification ret = new GlycanRepeatModification(crossTemp);
+		GlycanRepeatModification ret = new GlycanRepeatModification(bcT);
+
+		ret.setHeadAtom(mapAnalyze.getHeadAtom());
+		ret.setTailAtom(mapAnalyze.getTailAtom());
 
 		ModificationRepeat repMod = (_mod instanceof  ModificationRepeat) ? (ModificationRepeat) _mod : null;
 
 		ret.setMinRepeatCount(repMod == null ? 0 : repMod.getMinRepeatCount());
 		ret.setMaxRepeatCount(repMod == null ? 0 : repMod.getMaxRepeatCount());
 
-		SubstituentUtility subUtil = new SubstituentUtility();
-		//ret = (GlycanRepeatModification) subUtil.modifyLinkageType(ret);
+		ret.setFirstPosition(new Linkage());
+		ret.setSecondPosition(new Linkage());
 
 		return ret;
 	}
@@ -630,9 +640,10 @@ public class WURCSGraphToGlyContainer {
 		return ret;
 	}
 
-	private boolean isCrossLinkedSubstituent (Modification _mod) throws GlycanException {
+	private boolean isCrossLinkedSubstituent (Modification _mod) throws GlycanException, WURCSFormatException {
 		if (_mod.getMAPCode().equals("")) return false;
-		return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof CrossLinkedTemplate);
+		return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof BaseCrossLinkedTemplate);
+		//return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof CrossLinkedTemplate);
 	}
 
 	private boolean isFlipFlop (Backbone _parent, Backbone _child) {

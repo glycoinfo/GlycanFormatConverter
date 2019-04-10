@@ -1,8 +1,9 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.CrossLinkedTemplate;
+import org.glycoinfo.GlycanFormatconverter.Glycan.BaseCrossLinkedTemplate;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
+import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparator;
 import org.glycoinfo.WURCSFramework.wurcs.graph.Backbone;
 import org.glycoinfo.WURCSFramework.wurcs.graph.Modification;
@@ -48,7 +49,7 @@ public class GlycanFragmentsParser {
      * @param _backbones
      * @throws GlycanException
      */
-    public void start (LinkedList<Backbone> _backbones) throws GlycanException {
+    public void start (LinkedList<Backbone> _backbones) throws GlycanException, WURCSFormatException {
         for (Backbone bb : _backbones) {
             this.parseFragments(bb);
         }
@@ -56,7 +57,7 @@ public class GlycanFragmentsParser {
         return;
     }
 
-    private void parseFragments (Backbone _backbone) throws GlycanException {
+    private void parseFragments (Backbone _backbone) throws GlycanException, WURCSFormatException {
         if (!_backbone.isRoot()) return;
 
         // Extract root of glycan fragments
@@ -87,9 +88,10 @@ public class GlycanFragmentsParser {
         return;
     }
 
-    private boolean isCrossLinkedSubstituent (Modification _mod) throws GlycanException {
+    private boolean isCrossLinkedSubstituent (Modification _mod) throws GlycanException, WURCSFormatException {
         if (_mod.getMAPCode().equals("")) return false;
-        return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof CrossLinkedTemplate);
+        return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof BaseCrossLinkedTemplate);
+        //return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof CrossLinkedTemplate);
     }
 
     /**

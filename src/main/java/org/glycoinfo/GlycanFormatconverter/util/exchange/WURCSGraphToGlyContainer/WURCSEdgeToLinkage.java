@@ -3,6 +3,7 @@ package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContain
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerEdgeAnalyzer;
+import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.exchange.ConverterExchangeException;
 import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparatorSimple;
 import org.glycoinfo.WURCSFramework.wurcs.graph.*;
@@ -31,7 +32,7 @@ public class WURCSEdgeToLinkage {
         this.antennae = new ArrayList<>();
     }
 
-    public void start (GlyContainer _glyCo) throws GlycanException, ConverterExchangeException {
+    public void start (GlyContainer _glyCo) throws GlycanException, ConverterExchangeException, WURCSFormatException {
         Backbone root = this.nodeLists.getFirst();
 
         if (_glyCo.getNodes().isEmpty()) _glyCo.addNode(backbone2node.get(root));
@@ -45,7 +46,7 @@ public class WURCSEdgeToLinkage {
         gcEdgeAnalyzer.start(backbone2node, root);
     }
 
-    private void WURCSEdgeAnalyzer (Backbone _backbone) throws GlycanException, ConverterExchangeException {
+    private void WURCSEdgeAnalyzer (Backbone _backbone) throws GlycanException, ConverterExchangeException, WURCSFormatException {
         if (und != null) und = null;
 
         // define parent linkage
@@ -181,7 +182,7 @@ public class WURCSEdgeToLinkage {
         }
     }
 
-    private void extractRpeatingUnit (Backbone _backbone, Modification _mod) throws GlycanException {
+    private void extractRpeatingUnit (Backbone _backbone, Modification _mod) throws GlycanException, WURCSFormatException {
         Node start;
         Node end;
         Node current = backbone2node.get(_backbone);
@@ -220,7 +221,7 @@ public class WURCSEdgeToLinkage {
   //      glyCo.addNode(end, parentEdge, start);
     }
 
-    private void extractCyclicUnit(Backbone _backbone, WURCSEdge _cEdge, Modification _mod) throws GlycanException {
+    private void extractCyclicUnit(Backbone _backbone, WURCSEdge _cEdge, Modification _mod) throws GlycanException, WURCSFormatException {
         if (!_cEdge.getNextComponent().getChildEdges().isEmpty()) return;
         if (_mod instanceof ModificationRepeat) return;
 
@@ -273,7 +274,7 @@ public class WURCSEdgeToLinkage {
         }
     }
 
-    private void backboneToUndefinedUnit(Backbone _backbone) throws GlycanException {
+    private void backboneToUndefinedUnit(Backbone _backbone) throws GlycanException, WURCSFormatException {
         Node current = backbone2node.get(_backbone);
         GlycanUndefinedUnit fragment = new GlycanUndefinedUnit();
 
@@ -299,7 +300,7 @@ public class WURCSEdgeToLinkage {
                 }
 
                 if (!cpEdge.getModification().getMAPCode().equals("")) {
-                    current = new Substituent(SubstituentUtility.MAPToInterface(cpEdge.getModification().getMAPCode()));
+                    current = SubstituentUtility.MAPToSubstituent(cpEdge.getModification());//new Substituent(SubstituentUtility.MAPToInterface(cpEdge.getModification().getMAPCode()));
                     donor = cpEdge.getLinkages();
                     acceptor = donor;
                 }
@@ -343,18 +344,16 @@ public class WURCSEdgeToLinkage {
         return edge;
     }
 
-    private Substituent makeSubstituentWithRepeat (Modification _mod) throws GlycanException {
-        CrossLinkedTemplate crossTemp = (CrossLinkedTemplate) SubstituentUtility.MAPToInterface(_mod.getMAPCode());
+    private Substituent makeSubstituentWithRepeat (Modification _mod) throws GlycanException, WURCSFormatException {
+        BaseCrossLinkedTemplate bcT = (BaseCrossLinkedTemplate) SubstituentUtility.MAPToInterface(_mod.getMAPCode());
+        //CrossLinkedTemplate crossTemp = (CrossLinkedTemplate) SubstituentUtility.MAPToInterface(_mod.getMAPCode());
 
-        GlycanRepeatModification ret = new GlycanRepeatModification(crossTemp);
+        GlycanRepeatModification ret = new GlycanRepeatModification(bcT);
 
         ModificationRepeat repMod = (_mod instanceof  ModificationRepeat) ? (ModificationRepeat) _mod : null;
 
         ret.setMinRepeatCount(repMod == null ? 0 : repMod.getMinRepeatCount());
         ret.setMaxRepeatCount(repMod == null ? 0 : repMod.getMaxRepeatCount());
-
-        SubstituentUtility subUtil = new SubstituentUtility();
-        //ret = (GlycanRepeatModification) subUtil.modifyLinkageType(ret);
 
         return ret;
     }
@@ -484,9 +483,10 @@ public class WURCSEdgeToLinkage {
         return isDefined;
     }
 
-    private boolean isCrossLinkedSubstituent (Modification _mod) throws GlycanException {
+    private boolean isCrossLinkedSubstituent (Modification _mod) throws GlycanException, WURCSFormatException {
         if (_mod.getMAPCode().equals("")) return false;
-        return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof CrossLinkedTemplate);
+        return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof BaseCrossLinkedTemplate);
+        //return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof CrossLinkedTemplate);
     }
 
     private boolean isFlipFlop (Backbone _parent, Backbone _child) {

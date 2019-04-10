@@ -13,9 +13,9 @@ import org.glycoinfo.GlycanFormatconverter.util.analyzer.ThreeLetterCodeAnalyzer
 
 public class IUPACNotationParser {
 
-	public Node parseMonosaccharide (String _iupacNotation) throws GlycanException, GlyCoImporterException{
+	public Node parseMonosaccharide (String _iupac) throws GlycanException, GlyCoImporterException{
 		/* remove */
-		String temp = this.trim(_iupacNotation);
+		String temp = this.trim(_iupac);
 		
 		String linkagePos = "";
 		String anomericState = "";
@@ -41,7 +41,7 @@ public class IUPACNotationParser {
 		//group 1 : anchor
 		//group 2 : notation
 		//group 3 : fragments ID
-		Matcher matSub = Pattern.compile("^([?\\d])+([(\\w)]+)+=(\\d\\$)").matcher(_iupacNotation);
+		Matcher matSub = Pattern.compile("^([?\\d])+([(\\w)]+)+=(\\d\\$)").matcher(_iupac);
 		if (matSub.find()) {
 			subAna.start(matSub.group(1) + matSub.group(2));
 			Substituent sub = subAna.getSubstituents().get(0);
@@ -62,7 +62,7 @@ public class IUPACNotationParser {
 		Matcher matMod = Pattern.compile("([\\d,:]*-Anhydro-)?([\\d,?]*-\\w*deoxy-)?([LD?]-\\w{3}-)?((aldehyde|\\?|\u03B1|\u03B2)-)?([\\d,:]*-Anhydro-)?([\\d,?]*-\\w*deoxy-)?([DL?])?").matcher(temp);
 		
 		if(matMod.find()) {
-			/* extract anomeric state */
+			// extract anomeric state
 			if(matMod.group(5) != null && matMod.group(8) != null) {
 				if (!matMod.group(5).equals("aldehyde")) anomericState = matMod.group(5);
 				else modifications.add(matMod.group(5));
@@ -71,13 +71,13 @@ public class IUPACNotationParser {
 				temp = temp.replaceFirst(regex, "");
 			}
 			
-			/* extract anhydro */
+			// extract anhydro
 			if(matMod.group(1) != null || matMod.group(6) != null) {
 				String anhydro = (matMod.group(1) != null) ? matMod.group(1) : matMod.group(6);
 				subNotation.addAll(monoUtil.resolveNotation(trimTail(anhydro)));
 				temp = temp.replace(anhydro, "");
 			}
-			/* extract modifications */
+			// extract modifications
 			if(matMod.group(2) != null || matMod.group(7) != null) {
 				String deoxy = "";
 				if (matMod.group(2) != null) deoxy = matMod.group(2);
@@ -149,12 +149,13 @@ public class IUPACNotationParser {
 			}
 		}
 
-		/* make anomeric state */
+		// make anomeric state
 		mono.setAnomer(convertAnomericState(mono, anomericState));
 
-		/* define anomeric position */
-		mono.setAnomericPosition(extractAnomericPosition(mono, linkagePos));
-		
+		// define anomeric position
+		//mono.setAnomericPosition(extractAnomericPosition(mono, linkagePos));
+
+
 		/* extract ring size and substituents */
 		//group 1 : ring size
 		//group 2 : substituents
@@ -169,12 +170,12 @@ public class IUPACNotationParser {
 			}
 			if (matTail.group(1) == null) isRingSize = false;
 			
-			/* extract ring size */
+			// extract ring size
 			if (isRingSize) {
 				mono = monoUtil.makeRingSize(mono, matTail.group(1), threeLetterCode, modifications);
 			}
 			
-			/* extract substituents */
+			// extract substituents
 			if(matTail.group(2) != null) {
 				String subNotations = "";
 				if (!isRingSize && matTail.group(1) != null) {
@@ -194,7 +195,7 @@ public class IUPACNotationParser {
 				}
 			}
 		}
-		
+
 		// make modifications
 		mono = monoUtil.appendModifications(mono, modifications);
 

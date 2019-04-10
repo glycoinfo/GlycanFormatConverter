@@ -33,11 +33,11 @@ public enum ModifiedMonosaccharideDescriptor {
 	RHANAC("RhaNAc", "man", "6*m", "2*NAc"),
 	QUINAC("QuiNAc", "glc", "6*m", "2*NAc"),
 	//MURNAC_XLAC("MurNAc", "glc", "", "2*NAc_3*(X)Lac"),
-	MURNAC_SLAC("MurNAc", "glc", "", "2*NAc_3*(S)Lac"),
-	MURNAC_RLAC("MurNAc", "glc", "", "2*NAc_3*(R)Lac"),
+	MURNAC_SLAC("iMurNAc", "glc", "", "2*NAc_3*(S)OLac"),
+	MURNAC_RLAC("MurNAc", "glc", "", "2*NAc_3*(R)OLac"),
 	//MURNGC_XLAC("MurNGc", "glc", "", "2*NGc_3*(X)Lac"),
-	MURNGC_SLAC("MurNGc", "glc", "", "2*NGc_3*(S)Lac"),
-	MURNGC_RLAC("MurNGc", "glc", "", "2*NGc_3*(R)Lac"),
+	MURNGC_SLAC("iMurNGc", "glc", "", "2*NGc_3*(S)OLac"),
+	MURNGC_RLAC("MurNGc", "glc", "", "2*NGc_3*(R)OLac"),
 	//MURNGC_XLAC("MurNGc", "glc", "", "2*NGc_3*(X)Lac"),
 	NEUGC("NeuGc", "gro_gal", "1*A_2*O_3*d", "5*NGc"), //always d configuration
 	NEUAC("NeuAc", "gro_gal", "1*A_2*O_3*d", "5*NAc"), //always d configuration

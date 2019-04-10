@@ -4,18 +4,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.CrossLinkedTemplate;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanRepeatModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanUndefinedUnit;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Linkage;
-import org.glycoinfo.GlycanFormatconverter.Glycan.LinkageType;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
-import org.glycoinfo.GlycanFormatconverter.Glycan.SubstituentInterface;
-import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStacker;
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 
 
@@ -143,7 +132,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 			/*
 			  group(1) : child pos
 			  group(3) : child side modification position
-			  group(4) : crosslinked substituent
+			  group(4) : cross-linked substituent
 			  group(5) : parent side modification position
 			  group(7) : probability low
 			  group(8) : probability high
@@ -157,22 +146,25 @@ public class IUPACLinkageParser extends SubstituentUtility {
 				Linkage lin = new Linkage();
 				lin.setChildLinkages(makeLinkageList(matLin.group(1)));
 
-				/* for cross linked substituent */
+				// for cross linked substituent
 				if(matLin.group(4) != null) {
-					SubstituentInterface subface = CrossLinkedTemplate.forIUPACNotation(matLin.group(4));
+					SubstituentInterface subface = BaseCrossLinkedTemplate.forIUPACNotation(matLin.group(4));
 
 					Substituent bridge = new Substituent(subface, new Linkage(), new Linkage());
 
 					bridge.getFirstPosition().setParentLinkages(makeLinkageList(matLin.group(1)));
 					bridge.getSecondPosition().setParentLinkages(makeLinkageList(matLin.group(9)));
-					if (matLin.group(3) != null) {
-						bridge.getFirstPosition().addChildLinkage(Integer.parseInt(matLin.group(3)));
-					}
-					if (matLin.group(5) != null) {
-						bridge.getSecondPosition().addChildLinkage(Integer.parseInt(matLin.group(5)));
-					}
 
-					//bridge = modifyLinkageType(bridge);
+					String headPos = matLin.group(5);
+					String tailPos = matLin.group(3);
+
+					// HEAD is parent, Tail is child
+					if (headPos != null) {
+						bridge.getFirstPosition().addChildLinkage(Integer.parseInt(headPos));
+					}
+					if (tailPos != null) {
+						bridge.getSecondPosition().addChildLinkage(Integer.parseInt(tailPos));
+					}
 
 					parentEdge.setSubstituent(bridge);
 					bridge.addParentEdge(parentEdge);
@@ -242,15 +234,13 @@ public class IUPACLinkageParser extends SubstituentUtility {
 
 				/* for substituent */
 				if (matEndRep.group(2) != null) {
-					subface = CrossLinkedTemplate.forIUPACNotation(matEndRep.group(2));
+					subface = BaseCrossLinkedTemplate.forIUPACNotation(matEndRep.group(2));
 				}
 
 				GlycanRepeatModification repMod = new GlycanRepeatModification(subface);
 
 				repMod.setFirstPosition(new Linkage());
 				repMod.setSecondPosition(new Linkage());
-
-				//repMod = (GlycanRepeatModification) modifyLinkageType(repMod);
 
 				String[] repCount = count.split("-");
 				String min = "n";
@@ -283,11 +273,12 @@ public class IUPACLinkageParser extends SubstituentUtility {
 
 					SubstituentInterface subface = null;
 
-					/* for substituent */
+					// for substituent
 					if (matParent.group(3) != null) {
-						subface = CrossLinkedTemplate.forIUPACNotation(matParent.group(3));
+						subface = BaseCrossLinkedTemplate.forIUPACNotation(matParent.group(3));
 
-						Substituent bridge = new Substituent(subface, new Linkage(), new Linkage());//modifyLinkageType(new Substituent(subface, new Linkage(), new Linkage()));
+						Substituent bridge = new Substituent(subface, new Linkage(), new Linkage());
+
 						parentEdge.setSubstituent(bridge);
 						bridge.addParentEdge(parentEdge);
 					}
@@ -341,7 +332,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 	}
 	
 	private ArrayList<Node> getEndRepeatingNode (Node _node) {
-		int size = new ArrayList<Node>(nodeIndex.keySet()).indexOf(_node) + 1;
+		int size = new ArrayList<>(nodeIndex.keySet()).indexOf(_node) + 1;
 
 		ArrayList<Node> nodes = stacker.getNodes();
 
@@ -365,7 +356,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 		ArrayList<Node> retNodes = new ArrayList<Node>();
 
 		/* extract current repeating unit */
-		Node start = new ArrayList<Node>(_nodes).get(0);
+		Node start = new ArrayList<>(_nodes).get(0);
 		TreeMap<Integer, String> repPos = extractMultipleRepStart(start);
 
 		for (Integer key : repPos.keySet()) {
@@ -418,7 +409,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 	private Node getStartRepeatingNode (Node _node) {
 		Node ret = null;
 		
-		int start = new ArrayList<Node> (nodeIndex.keySet()).indexOf(_node);
+		int start = new ArrayList<> (nodeIndex.keySet()).indexOf(_node);
 		
 		for(int i = start; i < nodeIndex.size(); i++) {
 			if(this.isStartRep(stacker.getNotationByIndex(i))) {

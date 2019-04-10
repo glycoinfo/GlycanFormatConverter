@@ -129,9 +129,9 @@ public class MonosaccharideAnalyzer {
 
 		// Analyzer core modifications contained double bond
 		for (GlyCoModification glyCoMod : mods) {
-			if (!this.replaceCarbonDescirptorByUnsaturate(glyCoMod)) {
-				throw new WURCSExchangeException("There is an error in the modification \"en\" or \"enx\".");
-			}
+			//if (!this.replaceCarbonDescirptorByUnsaturate(glyCoMod)) {
+			//	throw new WURCSExchangeException("There is an error in the modification \"en\" or \"enx\".");
+			//}
 		}
 
 		// Count non terminal stereo
@@ -220,7 +220,7 @@ public class MonosaccharideAnalyzer {
 		this.posToChar.put(pos, carbonDescriptor);
 	}
 	
-	private boolean replaceCarbonDescirptorByUnsaturate (GlyCoModification _glyCoMod) {
+	/*private boolean replaceCarbonDescirptorByUnsaturate (GlyCoModification _glyCoMod) {
 		int pos1 = _glyCoMod.getPositionOne();
 		int pos2 = _glyCoMod.getPositionTwo();
 
@@ -303,7 +303,7 @@ public class MonosaccharideAnalyzer {
 		this.posToChar.put(pos1, (carbonDescriptor1 == 'd') ? 'f' : 'F');
 		this.posToChar.put(pos2, (carbonDescriptor2 == 'd') ? 'f' : 'F');
 		return true;
-	}
+	}*/
 	
 	private boolean isDoublebond (GlyCoModification _glyCoMod) {
 		ModificationTemplate modT = _glyCoMod.getModificationTemplate();

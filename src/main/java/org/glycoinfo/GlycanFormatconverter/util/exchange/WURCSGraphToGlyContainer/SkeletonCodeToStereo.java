@@ -34,7 +34,9 @@ public class SkeletonCodeToStereo {
         }
 
         // extract branch substituent position
-        extractSubstituentOnBranchPosition(_backbone, modMap);
+        if (!(_backbone instanceof BackboneUnknown_TBD)) {
+            extractSubstituentOnBranchPosition(_backbone, modMap);
+        }
 
         // check whether there is substituent to the branches
         if (!this.haveSubstituent(modMap)) {
@@ -170,7 +172,6 @@ public class SkeletonCodeToStereo {
     private HashMap<Integer, ArrayList<Modification>> extractSubstituentOnBranchPosition
             (Backbone _backbone, HashMap<Integer, ArrayList<Modification>> _modMap) {
         _modMap = this.extractBranchingPoints(_backbone, _modMap);
-
         String skeletonCode = _backbone.getSkeletonCode();
 
         for (WURCSEdge we : _backbone.getChildEdges()) {

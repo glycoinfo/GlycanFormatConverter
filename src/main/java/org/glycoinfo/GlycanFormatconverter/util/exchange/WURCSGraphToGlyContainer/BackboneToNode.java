@@ -106,7 +106,7 @@ public class BackboneToNode {
         return ret;
     }
 
-    private Monosaccharide extractSubstituent (Backbone _backbone, Monosaccharide _mono) throws GlycanException, ConverterExchangeException {
+    private Monosaccharide extractSubstituent (Backbone _backbone, Monosaccharide _mono) throws GlycanException, ConverterExchangeException, WURCSFormatException {
         ArrayList<Modification> tempMods = new ArrayList<>();
         for(WURCSEdge we : _backbone.getChildEdges()) {
             Modification mod = we.getModification();
@@ -143,7 +143,7 @@ public class BackboneToNode {
         return _mono;
     }
 
-  private Substituent ModificationToSubstituent(Backbone _backbone, Modification _mod) throws ConverterExchangeException, GlycanException {
+  private Substituent ModificationToSubstituent(Backbone _backbone, Modification _mod) throws ConverterExchangeException, GlycanException, WURCSFormatException {
         MAPAnalyzer mapAnalyze = new MAPAnalyzer();
         mapAnalyze.start(_mod.getMAPCode());
 
@@ -168,8 +168,10 @@ public class BackboneToNode {
         Substituent ret = new Substituent(bsubT, lin);
         ret.setHeadAtom(mapAnalyze.getHeadAtom());
 
+        if (_backbone instanceof BackboneUnknown_TBD) return ret;
+
         // When linkage type is H_LOSE, assign character of 'C' to head-atom
-        if (lin.getParentLinkages().size() == 1) {
+        if (lin.getParentLinkages().size() == 1 && !lin.getParentLinkages().contains(-1)) {
             int pos = lin.getParentLinkages().get(0);
             if (_backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_X_U) ||
                     _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_R_U) ||
@@ -183,11 +185,12 @@ public class BackboneToNode {
         return ret;
     }
 
-    private Substituent ModificationToCrossLinkedSubstituent(Modification _mod) throws ConverterExchangeException, GlycanException {
+    private Substituent ModificationToCrossLinkedSubstituent(Modification _mod) throws ConverterExchangeException, GlycanException, WURCSFormatException {
         MAPAnalyzer mapAnalyze = new MAPAnalyzer();
         mapAnalyze.start(_mod.getMAPCode().equals("") ? "*o" : _mod.getMAPCode());
 
-        SubstituentInterface subT = CrossLinkedTemplate.forMAP(_mod.getMAPCode().equals("") ? "*o" : _mod.getMAPCode());
+        SubstituentInterface subT = mapAnalyze.getCrossTemplate();
+                //CrossLinkedTemplate.forMAP(_mod.getMAPCode().equals("") ? "*o" : _mod.getMAPCode());
         Linkage first = new Linkage();
         Linkage second = new Linkage();
 
@@ -214,7 +217,11 @@ public class BackboneToNode {
             }
         }
 
-        return new Substituent(subT, first, second);
+        Substituent ret = new Substituent(subT, first, second);
+        ret.setHeadAtom(mapAnalyze.getHeadAtom());
+        ret.setTailAtom(mapAnalyze.getTailAtom());
+
+        return ret;
     }
 
     //TODO : 修正が必要

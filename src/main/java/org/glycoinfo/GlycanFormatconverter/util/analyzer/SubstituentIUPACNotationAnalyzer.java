@@ -127,17 +127,21 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 				Linkage firstLink = makeLinkage(positions, "1", 1.0D, 1.0D);
 				Substituent sub = new Substituent(subT, firstLink);
-				sub.setHeadAtom(notation.replace(makePlaneNotation(notation), ""));
+				sub.setHeadAtom(makeHeadAtom(notation, makePlaneNotation(notation))/*notation.replace(makePlaneNotation(notation), "")*/);
 
 				substituents.add(sub);
 				continue;
-			} 
+			}
 
 			//TODO :辞書の更新が必要
 			for(String position : positions.split(":")) {
 				//Dual linkages
 				if((positions.indexOf(":") != -1 && position.contains(",")) || (position.contains(",") && number == 1)) {
-					subT = CrossLinkedTemplate.forIUPACNotation(notation);
+					//subT = CrossLinkedTemplate.forIUPACNotation(notation);
+					String plane = this.makePlaneNotation(notation);
+
+					subT = BaseCrossLinkedTemplate.forIUPACNotation(plane);
+
 					String[] pos = position.split(",");
 
 					String[] firstPos = extractPos(pos[0]);
@@ -150,7 +154,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 					//Modify LinkageType and SubstituentTemplate
 					Substituent sub = new Substituent(subT, firstLink, secondLink);
-					sub.setHeadAtom(notation.replace(makePlaneNotation(notation), ""));
+					sub.setHeadAtom(makeHeadAtom(notation, plane)/*notation.replaceFirst(plane, "")*/);
 
 					substituents.add(sub);
 					continue;
@@ -167,7 +171,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 					//Modify LinkageType and SubstituentTemplate
 					Substituent sub = new Substituent(subT, firstLink);
-					sub.setHeadAtom(notation.replaceFirst(plane, ""));
+					sub.setHeadAtom(makeHeadAtom(notation, plane)/*notation.replaceFirst(plane, "")*/);
 
 					substituents.add(sub);
 					continue;
@@ -183,7 +187,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 					Linkage firstLink = makeLinkage(matSub.group(1).equals("?") ? "-1" : extractPos(multi)[0], "1", extractProbability(probs[0]), extractProbability(probs[1]));
 
 					Substituent sub = new Substituent(subT, firstLink);
-					sub.setHeadAtom(notation.replaceFirst(plane, ""));
+					sub.setHeadAtom(makeHeadAtom(notation, plane)/*notation.replaceFirst(plane, "")*/);
 
 					substituents.add(sub);
 				}
@@ -195,6 +199,17 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 		if (_notation.equals("N")) return _notation;
 		if (_notation.startsWith("O") || _notation.startsWith("C")) {
 			return _notation.substring(1,_notation.length());
+		}
+		if (_notation.startsWith("(")) {
+			String bracket = _notation.substring(0, _notation.indexOf(")") + 1);
+			String regex = bracket.replace("(", "\\(").replace(")", "\\)");
+			_notation = _notation.replaceFirst(regex, "");
+
+			if ((_notation.startsWith("C") && _notation.length() == 3) || (!_notation.startsWith("C") && _notation.length() > 2)) {
+				_notation = _notation.substring(1, _notation.length());
+			}
+
+			return bracket + _notation;
 		}
 
 		return _notation;
@@ -263,6 +278,25 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 		} else {
 			ret[0] = _position;
 			ret[1] = "1";
+		}
+
+		return ret;
+	}
+
+	private String makeHeadAtom (String _notation, String _planeNotaiton) {
+		String ret;
+
+		if (_notation.startsWith("(")) {
+			String bracket = _notation.substring(0, _notation.indexOf(")") + 1);
+
+			// make regex and remove molecular direction
+			String regex = bracket.replace("(", "\\(").replace(")", "\\)");
+			_notation = _notation.replaceFirst(regex, "");
+			_planeNotaiton = _planeNotaiton.replaceFirst(regex, "");
+
+			ret = _notation.replaceFirst(_planeNotaiton, "");
+		} else {
+			ret = _notation.replaceFirst(_planeNotaiton, "");
 		}
 
 		return ret;

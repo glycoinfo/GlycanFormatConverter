@@ -1,5 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.util;
 
+import com.sun.xml.internal.rngom.parse.host.Base;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 
 import java.util.ArrayList;
@@ -11,7 +12,6 @@ import java.util.HashMap;
 public class GlyContainerOptimizer {
 
     public GlyContainer start (GlyContainer _glyCo) throws GlycanException {
-
         for (Node node : _glyCo.getNodes()) {
             // Optimize monoasccharide
             this.optimizeMonosaccharide((Monosaccharide) node);
@@ -84,7 +84,7 @@ public class GlyContainerOptimizer {
             Substituent sub = (Substituent) childEdge.getSubstituent();
 
             if (sub instanceof GlycanRepeatModification) continue;
-            if (sub.getSubstituent() instanceof CrossLinkedTemplate) continue;
+            if (sub.getSubstituent() instanceof BaseCrossLinkedTemplate) continue;
             if (sub.getFirstPosition().getParentLinkages().size() > 1) continue;
             if (Double.compare(sub.getFirstPosition().getParentProbabilityLower(), 1.0D) != 0) continue;
 
@@ -111,6 +111,9 @@ public class GlyContainerOptimizer {
             if (edge.getChild() != null) continue;
 
             Substituent sub = (Substituent) edge.getSubstituent();
+
+            // Optimize linkage atoms
+            this.optimizeSubstituentAtoms(sub);
 
             if (sub instanceof GlycanRepeatModification) continue;
 
@@ -144,20 +147,62 @@ public class GlyContainerOptimizer {
             }
 
             // Cyclic substituent
-            if (sub.getFirstPosition() != null && sub.getSecondPosition() != null) {
-                Linkage first = sub.getFirstPosition();
-                Linkage second = sub.getSecondPosition();
-
-                first.setChildLinkageType(LinkageType.NONMONOSACCHARIDE);
-                first.setParentLinkageType(LinkageType.H_AT_OH);
-
-                second.setChildLinkageType(LinkageType.NONMONOSACCHARIDE);
-                second.setParentLinkageType(LinkageType.H_AT_OH);
-
-                edge.getGlycosidicLinkages().get(0).setChildLinkageType(LinkageType.NONMONOSACCHARIDE);
-                edge.getGlycosidicLinkages().get(0).setParentLinkageType(LinkageType.H_AT_OH);
+            if (this.isCrossLinkedSubstituent(edge)) {
+                this.optimizeCrossLinkedSubstituent(edge, sub);
             }
         }
+    }
+
+    public void optimizeCrossLinkedSubstituent (Edge _edge, Substituent _sub) throws GlycanException {
+        // Optimize linkage type between cross-linked substituent
+        //if (!isRepeating(_edge) && isCrossLinkedSubstituent(_edge)) {
+        Linkage first = _sub.getFirstPosition();
+        Linkage second = _sub.getSecondPosition();
+
+        first.setChildLinkageType(LinkageType.NONMONOSACCHARIDE);
+        second.setParentLinkageType(LinkageType.NONMONOSACCHARIDE);
+
+        if (_edge.getChild() != null) {
+            // HEAD is parent, Tail is child
+            // First is parent, second is child
+            // (head/first)*NCCOP^X*(tail/second)/6O/6=O
+            // 1 is H_AT_OH 2 is DEOXY
+            if (second.getChildLinkages().contains(1) || second.getChildLinkages().isEmpty()) {
+                second.setChildLinkageType(LinkageType.H_AT_OH);
+            } else {
+                second.setChildLinkageType(LinkageType.DEOXY);
+            }
+
+            if (first.getChildLinkages().contains(1) || first.getChildLinkages().isEmpty()) {
+                first.setParentLinkageType(LinkageType.H_AT_OH);
+            } else {
+                first.setParentLinkageType(LinkageType.DEOXY);
+            }
+
+            // Check phospho-ethanol amine
+            if (_sub.getSubstituent().equals(BaseCrossLinkedTemplate.PHOSPHO_ETHANOLAMINE)) {
+                first.setParentLinkageType(LinkageType.H_AT_OH);
+                //second.setChildLinkageType(LinkageType.H_AT_OH);
+            }
+
+            if (_sub.getSubstituent().equals(BaseCrossLinkedTemplate.AMINO)) {
+                first.setParentLinkageType(LinkageType.DEOXY);
+                second.setChildLinkageType(LinkageType.DEOXY);
+            }
+        }
+
+        if (_edge.getChild() == null) {
+            first.setParentLinkageType(LinkageType.H_AT_OH);
+            second.setChildLinkageType(LinkageType.H_AT_OH);
+        }
+
+        // Optimize linkage type between monosaccharides
+        for (Linkage lin : _edge.getGlycosidicLinkages()) {
+            lin.setChildLinkageType(first.getParentLinkageType());
+            lin.setParentLinkageType(second.getChildLinkageType());
+        }
+
+        return;
     }
 
     public void optimizeGlycoSidicLinkage (Monosaccharide _mono) throws GlycanException {
@@ -176,6 +221,9 @@ public class GlyContainerOptimizer {
 
             if (sub == null) continue;
 
+            //Optimize head and tail atoms
+            this.optimizeSubstituentAtoms(sub);
+
             // Optimize linkage of repeating unit
             if (isRepeating(edge)) {
                 GlycanRepeatModification repMod = (GlycanRepeatModification) sub;
@@ -192,23 +240,8 @@ public class GlyContainerOptimizer {
             }
 
             // Optimize linkage type between cross-linked substituent
-            // First linkage : donor side
-            // Second linkage : acceptor side
-            if (!isRepeating(edge) && isCrossLinkedSubstituent(edge)) {
-                Linkage first = sub.getFirstPosition();
-                Linkage second = sub.getSecondPosition();
-
-                first.setChildLinkageType(LinkageType.NONMONOSACCHARIDE);
-                first.setParentLinkageType(LinkageType.H_AT_OH);
-
-                second.setChildLinkageType(LinkageType.H_AT_OH);
-                second.setParentLinkageType(LinkageType.NONMONOSACCHARIDE);
-
-                // Optimize linkage type between monosaccharides
-                for (Linkage lin : edge.getGlycosidicLinkages()) {
-                    lin.setChildLinkageType(LinkageType.H_AT_OH);
-                    lin.setParentLinkageType(LinkageType.H_AT_OH);
-                }
+            if (this.isCrossLinkedSubstituent(edge)) {
+                this.optimizeCrossLinkedSubstituent(edge, sub);
             }
         }
 
@@ -236,6 +269,20 @@ public class GlyContainerOptimizer {
         }
     }
 
+    public void optimizeSubstituentAtoms (Substituent _sub) {
+        if (_sub.getSubstituent() == null) return;
+
+        if (_sub.getHeadAtom() == null) {
+            _sub.setHeadAtom("");
+        }
+
+        if (_sub.getTailAtom() == null) {
+            _sub.setTailAtom("");
+        }
+
+        return;
+    }
+
     public boolean withH_LOSE (Monosaccharide _mono, Substituent _sub) {
         if (_sub.getHeadAtom().equals("C")) return true;
         //if (_mono.getModifications().isEmpty()) return false;
@@ -260,7 +307,8 @@ public class GlyContainerOptimizer {
         if (_edge.getSubstituent() == null) return false;
         Substituent sub = (Substituent) _edge.getSubstituent();
 
-        if (sub.getSubstituent() instanceof CrossLinkedTemplate) return true;
+        //if (sub.getSubstituent() instanceof CrossLinkedTemplate) return true;
+        if (sub.getSubstituent() instanceof BaseCrossLinkedTemplate) return true;
         return false;
     }
 
@@ -284,10 +332,11 @@ public class GlyContainerOptimizer {
                         System.out.println(sub.getSecondPosition().getParentLinkages() + " " + sub.getSecondPosition().getChildLinkages() + " " + sub.getSecondPosition().getParentLinkageType() + " " + sub.getSecondPosition().getChildLinkageType());
                     }
                     System.out.println(sub.getSubstituent());
+
+                    System.out.println("head atom : " + sub.getHeadAtom() + "/ tail atom : " + sub.getTailAtom());
+                    System.out.println("");
                 }
             }
         }
-
-
     }
 }
