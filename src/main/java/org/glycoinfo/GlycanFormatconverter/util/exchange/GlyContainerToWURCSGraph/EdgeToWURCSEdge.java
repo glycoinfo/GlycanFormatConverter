@@ -170,7 +170,8 @@ public class EdgeToWURCSEdge {
 		if (this.sub != null) {
 			SubstituentToModification subst2mod = new SubstituentToModification();
 
-			if (!(sub instanceof GlycanRepeatModification) && !(sub.getSubstituent() instanceof CrossLinkedTemplate)) {
+			//if (!(sub instanceof GlycanRepeatModification) && !(sub.getSubstituent() instanceof CrossLinkedTemplate)) {
+			if (!(sub instanceof GlycanRepeatModification) && !(sub.getSubstituent() instanceof BaseCrossLinkedTemplate)) {
 				probabilityLow = sub.getFirstPosition().getParentProbabilityLower();
 				probabilityUpper = sub.getFirstPosition().getParentProbabilityUpper();
 			}
