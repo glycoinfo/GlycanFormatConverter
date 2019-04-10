@@ -37,7 +37,7 @@ public class ThreeLetterCodeConverter {
 		for(TrivialNameDictionary dict : TrivialNameDictionary.forStereos(stereo)) {
 			if(checkSubstituentAndModifications(_node, dict)) trivial = dict;
 		}
-		
+
 		if (trivial == null) {
 			stereo = makeNotation(_node, true);
 			for(TrivialNameDictionary dict : TrivialNameDictionary.forStereos(stereo)) {
@@ -111,18 +111,18 @@ public class ThreeLetterCodeConverter {
 		int subPoint = 0;
 		for(Edge childEdge : _node.getChildEdges()) {
 			if(childEdge.getSubstituent() == null) continue;
-			//ignore cross linked substituent 
-			if(childEdge.getSubstituent() != null && childEdge.getChild() != null) continue;
+
 			Substituent sub = (Substituent) childEdge.getSubstituent();
+
+			//ignore cross linked substituent
+			if (sub.getSubstituent() instanceof BaseCrossLinkedTemplate) continue;
+//			if(childEdge.getSubstituent() != null && childEdge.getChild() != null) continue;
 			//ignore wrong substituent
 			if(sub.getFirstPosition() == null || sub.getSecondPosition() != null) continue;
 			//ignore ambiguous linkage position
 			if(sub.getFirstPosition().getParentLinkages().size() > 1) continue;
 			//
-			if (Double.compare(sub.getFirstPosition().getChildProbabilityLower(), 1.0) != 0 ||
-					Double.compare(sub.getFirstPosition().getChildProbabilityUpper(), 1.0) != 0 ||
-					Double.compare(sub.getFirstPosition().getParentProbabilityLower(), 1.0) != 0 ||
-					Double.compare(sub.getFirstPosition().getParentProbabilityUpper(), 1.0) != 0) continue;
+			if (isProbability(sub)) continue;
 
 			for(Substituent tempSub : subs) {
 				if(!sub.getFirstPosition().getParentLinkages().contains(tempSub.getFirstPosition().getParentLinkages().get(0))) continue;
@@ -130,6 +130,7 @@ public class ThreeLetterCodeConverter {
 					subPoint++;
 					continue;
 				}
+
 				if(tempSub.getSubstituent().equals(sub.getSubstituent())) subPoint++;
 			}
 		}
@@ -139,7 +140,7 @@ public class ThreeLetterCodeConverter {
 		for(GlyCoModification tempMod : mods) {
 			if(((Monosaccharide) _node).hasModification(tempMod, tempMod.getPositionOne())) modPoint++;
 		}
-		
+
 		if(subs.size() == subPoint && mods.size() == modPoint) return true;
 		return false;
 	}
@@ -198,8 +199,8 @@ public class ThreeLetterCodeConverter {
 	private ArrayList<Substituent> extractSubstituents (String _item) {
 		ArrayList<Substituent> ret = new ArrayList<Substituent>();
 		if(_item.equals("")) return ret;
-		
-		for(String unit : _item.split("_")) {			
+
+		for(String unit : _item.split("_")) {
 			String[] split_unit = unit.split("\\*");
 			LinkedList<Integer> pos = new LinkedList<Integer>();
 			pos.addLast(Integer.parseInt(String.valueOf(split_unit[0])));
@@ -209,7 +210,7 @@ public class ThreeLetterCodeConverter {
 			BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotation(makePlaneNotation(split_unit[1]));
 			if(bsubT != null) ret.add(new Substituent(bsubT, lin));
 		}
-		
+
 		return ret;
 	}
 	
@@ -241,6 +242,28 @@ public class ThreeLetterCodeConverter {
 		if (_notation.startsWith("O") || _notation.startsWith("C"))
 			return (_notation.substring(1, _notation.length()));
 
+		if (_notation.startsWith("(")) {
+			String bracket = _notation.substring(0, _notation.indexOf(")")+1);
+			String regex = bracket.replace("(", "\\(").replace(")", "\\)");
+			_notation = _notation.replaceFirst(regex, "");
+
+			if (_notation.startsWith("O")) {
+				_notation = _notation.replaceFirst("O", "");
+			}
+			if (_notation.startsWith("C") && _notation.length() == 3) {
+				_notation = _notation.substring(1, _notation.length());
+			}
+
+			_notation = bracket + _notation;
+		}
+
 		return _notation;
+	}
+
+	private boolean isProbability (Substituent _sub) {
+		return (Double.compare(_sub.getFirstPosition().getChildProbabilityLower(), 1.0) != 0 ||
+				Double.compare(_sub.getFirstPosition().getChildProbabilityUpper(), 1.0) != 0 ||
+				Double.compare(_sub.getFirstPosition().getParentProbabilityLower(), 1.0) != 0 ||
+				Double.compare(_sub.getFirstPosition().getParentProbabilityUpper(), 1.0) != 0);
 	}
 }
