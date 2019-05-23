@@ -34,11 +34,11 @@ public class IUPACExtendedImporter {
 		}
 		
 		if (notations.isEmpty()) notations.add(_iupac);
-		
+
 		/**/
 		for (String subst : notations) {
 			IUPACStacker stacker = new IUPACStacker();
-			
+
 			// check monosaccharide composition
 			Matcher matComp = Pattern.compile("^\\{.+}(\\d+)+$").matcher(subst);
 			if (matComp.find()) {
@@ -46,10 +46,13 @@ public class IUPACExtendedImporter {
 				subst = subst.replaceFirst("\\{", "");
 				subst = subst.substring(0, subst.indexOf("}" + count));
 				stacker.setNumOfNode(Integer.parseInt(count));
+				stacker.setComposition();
 			}
 			
 			stacker.setNotations(parseNotation(subst));
-			
+
+			if (subst.endsWith("$,")) stacker.setFragment();
+
 			// generate moonsaccharide
 			for (String unit : stacker.getNotations()) {
 				if (stacker.isComposition()) {

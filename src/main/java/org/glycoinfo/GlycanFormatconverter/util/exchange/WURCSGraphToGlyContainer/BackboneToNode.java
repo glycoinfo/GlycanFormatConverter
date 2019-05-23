@@ -2,6 +2,7 @@ package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContain
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
+import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.GlyCoModificationComparater;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
@@ -32,7 +33,6 @@ public class BackboneToNode {
         ret.setAnomericPosition(anomericposition);
 
 		// extract stereo
-        //TODO : 一部の構造に対する解析が甘いため、より詳細な解析を行う関数が必要
         SkeletonCodeToStereo sc2s = new SkeletonCodeToStereo();
         ret.setStereos(sc2s.start(_backbone));
 
@@ -40,13 +40,10 @@ public class BackboneToNode {
         this.extractRingPosition(_backbone, ret);
 
 		// extract modification
-        //ArrayList<GlyCoModification> mods = extractModification(ret, _backbone);
         ret.setModification(extractModification(ret, _backbone));
 
         // extract substituent
         this.extractSubstituent(_backbone, ret);
-
-        //ret.setModification(mods);
 
         return ret;
     }
@@ -94,7 +91,6 @@ public class BackboneToNode {
 
             // 2018/09/07 Masaaki
             // A MAP "*" means a deoxy, not unknown substituent.
-//                ModificationTemplate modT = ModificationTemplate.forCarbon(mod.getMAPCode().charAt(0));
             ModificationTemplate modT = ModificationTemplate.DEOXY;
             GlyCoModification gmod = new GlyCoModification(modT, 0);
             ret.add(gmod);
@@ -118,20 +114,20 @@ public class BackboneToNode {
                 _mono = appendSubstituent(_mono, ModificationToSubstituent(_backbone, mod));
             }
 
-            // extract cross-linked substituent
-            if (mod.getParentEdges().size() == 2 && !mod.getMAPCode().equals("")) {
+            // extract cross-linked substituent and an-hydro
+            if (mod.getParentEdges().size() == 2 /*&& !mod.getMAPCode().equals("")*/) {
                 if (tempMods.contains(mod)) continue;
                 _mono = appendSubstituent(_mono, ModificationToCrossLinkedSubstituent(mod));
                 tempMods.add(mod);
             }
 
-            // extract an-hydroxyl
+/*
             if (mod.getParentEdges().size() == 2 && mod.getMAPCode().equals("")) {
                 if (tempMods.contains(mod)) continue;
                 _mono = appendSubstituent(_mono, ModificationToCrossLinkedSubstituent(mod));
                 tempMods.add(mod);
             }
-
+*/
             if (mod.getParentEdges().size() > 2) {
                 // 2018/10/02 Masaaki
                 // Multiple linkages on alternative modifications are allowed
@@ -190,7 +186,7 @@ public class BackboneToNode {
         mapAnalyze.start(_mod.getMAPCode().equals("") ? "*o" : _mod.getMAPCode());
 
         SubstituentInterface subT = mapAnalyze.getCrossTemplate();
-                //CrossLinkedTemplate.forMAP(_mod.getMAPCode().equals("") ? "*o" : _mod.getMAPCode());
+
         Linkage first = new Linkage();
         Linkage second = new Linkage();
 

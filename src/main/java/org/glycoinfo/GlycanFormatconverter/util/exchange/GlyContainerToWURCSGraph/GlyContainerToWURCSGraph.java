@@ -8,6 +8,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.util.visitor.VisitorException;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
+import org.glycoinfo.WURCSFramework.util.WURCSFactory;
 import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
 import org.glycoinfo.WURCSFramework.util.graph.WURCSGraphNormalizer;
 import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSVisitorCollectSequence;
@@ -78,8 +79,9 @@ public class GlyContainerToWURCSGraph {
 				}
 
 				ModificationAlternative alt = new ModificationAlternative(mod.getMAPCode());
+
 				for (Monosaccharide parent : frag2Edge.getParents()) {
-					LinkedList<WURCSEdge> parentEdges = new LinkedList<WURCSEdge>();
+					LinkedList<WURCSEdge> parentEdges = new LinkedList<>();
 					parentEdges.add(frag2Edge.getParentEdges().get(0).copy());
 
 					Backbone backbone = node2Backbone.get(parent);
@@ -87,6 +89,7 @@ public class GlyContainerToWURCSGraph {
 
 					alt.addLeadInEdge(parentEdges.getFirst());
 				}
+
 				mod = alt;
 			} else {
 				Backbone backbone = node2Backbone.get(frag2Edge.getChild());
@@ -96,24 +99,11 @@ public class GlyContainerToWURCSGraph {
 			Backbone child = node2Backbone.get(frag2Edge.getChild());
 			makeLinkage(child, frag2Edge.getChildEdges(), mod);
 		}
-		
+
 		/* normalize */
 		WURCSGraphNormalizer norm = new WURCSGraphNormalizer();
-
-		try {
-			norm.start(graph);
-		} catch (WURCSException e) {
-			throw new WURCSExchangeException(e.getErrorMessage());
-		}
-
-		WURCSVisitorCollectSequence w = new WURCSVisitorCollectSequence();
-		w.start(graph);
-
-		LinkedList<Backbone> ret = new LinkedList<Backbone>();
-		for (WURCSComponent wc : w.getNodes()) {
-			if (wc instanceof Backbone) ret.add(((Backbone) wc));
-		}
-	}	
+		norm.start(graph);
+	}
 
 	private void analyzerMonosaccharide (Node _node, boolean _isRootOfSubgraoh) throws WURCSExchangeException, GlycanException {
 		Monosaccharide mono = (Monosaccharide) _node;

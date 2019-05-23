@@ -44,7 +44,6 @@ public class SubstituentIUPACNotationConverter {
 			if (child.getSubstituent() == null) continue;
 			
 			Substituent sub = (Substituent) child.getSubstituent();
-			//SubstituentInterface subface = sub.getSubstituent();
 
 			if (sub.getSubstituent() == null || sub instanceof GlycanRepeatModification || child.getChild() != null) continue;
 

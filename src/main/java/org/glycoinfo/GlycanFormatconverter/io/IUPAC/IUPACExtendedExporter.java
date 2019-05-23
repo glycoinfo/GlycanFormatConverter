@@ -15,7 +15,13 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 	private StringBuilder extended;
 	private HashMap<Node, String> notationIndex;
 	private NodeSimilarity gu;
-	
+
+	public IUPACExtendedExporter () {
+		this.extended = new StringBuilder();
+		this.notationIndex = new HashMap<>();
+		this.gu = new NodeSimilarity();
+	}
+
 	public String getIUPACExtended () {
 		return this.extended.toString();
 	}
@@ -32,8 +38,6 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 	}
 	
 	public void start (GlyContainer _glyCo) throws GlycanException, TrivialNameException {
-		init();
-		
 		for( Node node : _glyCo.getAllNodes()) {
 			/* make core notations */
 			makeMonosaccharideNotation(node);
@@ -137,12 +141,14 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 				notation += ("=" + index + "$");
 				notationIndex.put(antennae, notation);
 			}
-			
+
 			for(Node parent : und.getParents()) {
 				String notation = notationIndex.get(parent);
 				notationIndex.put(parent, index + "$" + (index > 1 ? "|" : "") + notation);
 			}
 		}
+
+		return;
 	}
 
 	public void makeSubstituentNotation (GlycanUndefinedUnit _und) {
@@ -159,9 +165,6 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 	public void makeMonosaccharideNotation (Node _node) throws GlycanException, TrivialNameException {
 		if (!(_node instanceof Monosaccharide)) return;
 		ExtendedConverter extConv = new ExtendedConverter();
-		//IUPACNotationConverter monoIUPAC = new IUPACNotationConverter();
-		//monoIUPAC.start(_node);
-		//if(!notationIndex.containsKey(_node)) notationIndex.put(_node, monoIUPAC.getExtendedNotation());
 		if (!notationIndex.containsKey(_node)) notationIndex.put(_node, extConv.start(_node));
 	}
 	
@@ -198,9 +201,10 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 					linkagePos.append(":");
 				}
 			}
+
 			notation.append(linkagePos);
 		}
-		
+
 		/* for root node */
 		if(mono.getParentEdges().isEmpty() && mono.getAnomericPosition() != Monosaccharide.OPEN_CHAIN && !isFacingAnoms(mono.getChildEdges())) {
 			notation.append("-(");
@@ -223,15 +227,14 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 					endReppos.append(sub.getFirstPosition() == null ? "" : extractPosition(sub.getFirstPosition().getChildLinkages()));
 					endReppos.append(sub.getNameWithIUPAC());
 					endReppos.append(sub.getSecondPosition() == null ? "" : extractPosition(sub.getSecondPosition().getChildLinkages()));
-					//endReppos.append(sub.getNameWithIUPAC());
 					endReppos.append("-");
 				}
+
 				endReppos.append(makeParentSidePosition(edge));
 				endReppos.append(")-");
 				notation.insert(0, endReppos);
 			}
 		}
-		
 		this.notationIndex.put(mono, notation.toString());
 	}
 	
@@ -276,11 +279,4 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 		if (child.getAnomer().equals(AnomericStateDescriptor.OPEN)) return true;
 		return (childPos.contains(child.getAnomericPosition()));
 	}
-
-	private void init() {
-		this.extended = new StringBuilder();
-		this.notationIndex = new HashMap<Node, String>();
-		this.gu = new NodeSimilarity();
-	}
-	
 }

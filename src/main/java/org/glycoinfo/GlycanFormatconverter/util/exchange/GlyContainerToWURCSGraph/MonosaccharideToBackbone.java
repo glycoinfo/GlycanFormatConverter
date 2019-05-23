@@ -24,7 +24,7 @@ public class MonosaccharideToBackbone {
 	private Monosaccharide mono;
 	private boolean isRootOfSubgraph = false;
 	
-	private LinkedList<Modification> unknownPosCoreMod = new LinkedList<Modification>();
+	private LinkedList<Modification> unknownPosCoreMod = new LinkedList<>();
 	
 	public Backbone getBackbone() {
 		return this.backbone;

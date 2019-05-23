@@ -12,7 +12,7 @@ import java.util.HashMap;
 public class GlyContainerOptimizer {
 
     public GlyContainer start (GlyContainer _glyCo) throws GlycanException {
-        for (Node node : _glyCo.getNodes()) {
+        for (Node node : _glyCo.getAllNodes()) {
             // Optimize monoasccharide
             this.optimizeMonosaccharide((Monosaccharide) node);
 

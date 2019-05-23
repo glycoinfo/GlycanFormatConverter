@@ -202,8 +202,6 @@ public class MonosaccharideAnalyzer {
 			this.isAldose = false;
 		}
 		if (pos == 0) {
-			if (carbonDescriptor != '*')
-				throw new WURCSExchangeException ("Core modification at unknown position is not handled without DEOXY.");
 			this.unknownPosMap.add("*");
 		}
 		
@@ -319,24 +317,5 @@ public class MonosaccharideAnalyzer {
 	private char ModificationTempalteToCarbonDescriptor (ModificationTemplate _modT) {
 		if (_modT.equals(ModificationTemplate.KETONE_U)) return 'O';
 		return _modT.getCarbon();
-	}
-
-	private String trimModificationPositions (Monosaccharide _mono, String _stereo) {
-		for (Integer key : posToChar.keySet()) {
-			if (key == 1 || key == numOfAtom) continue;
-			_stereo = _stereo.replaceFirst("x", "");
-		}
-
-		return _stereo;
-	}
-
-	private boolean isAmbiguousBaseType (BaseTypeDictionary _baseDict) {
-		return (_baseDict.equals(BaseTypeDictionary.TRI) ||
-				_baseDict.equals(BaseTypeDictionary.TET) ||
-				_baseDict.equals(BaseTypeDictionary.PEN) ||
-				_baseDict.equals(BaseTypeDictionary.HEX) ||
-				_baseDict.equals(BaseTypeDictionary.HEP) ||
-				_baseDict.equals(BaseTypeDictionary.OCT) ||
-				_baseDict.equals(BaseTypeDictionary.NON));
 	}
 }

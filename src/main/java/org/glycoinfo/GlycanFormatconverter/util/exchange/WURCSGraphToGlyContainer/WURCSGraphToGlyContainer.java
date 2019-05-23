@@ -18,10 +18,9 @@ public class WURCSGraphToGlyContainer {
 
 	private HashMap<WURCSComponent, Node> backbone2node;
 	private GlyContainer glyCo;
-	private ArrayList<Backbone> antennae;
+	private ArrayList<ModificationAlternative> antennae;
 	private ArrayList<ModificationAlternative> undefinedLinkages; // 09/24/2018 Masaaki added
 	private ArrayList<ModificationAlternative> undefinedSubstituents; // 09/25/2018 Masaaki added
-	private GlycanUndefinedUnit und;
 	private Backbone root;
 
 	public WURCSGraphToGlyContainer () {
@@ -30,7 +29,6 @@ public class WURCSGraphToGlyContainer {
 		this.antennae = new ArrayList<>();
 		this.undefinedLinkages = new ArrayList<>(); // 09/24/2018 Masaaki added
 		this.undefinedSubstituents = new ArrayList<>(); // 09/25/2018 Masaaki added
-		this.und = null;
 		this.root = null;
 	}
 	
@@ -39,27 +37,26 @@ public class WURCSGraphToGlyContainer {
 	}
 	
 	public void start (WURCSGraph _graph) throws WURCSException, GlycanException {
-
 		// sort nodes
 		LinkedList<Backbone> sortedNodes = sortNodes(_graph);
 		
 		// set root
 		Backbone root = sortedNodes.getFirst();
 		this.root = sortedNodes.getFirst();
-		
+
 		// convert node
 		BackboneToNode b2n = new BackboneToNode();
 		for (Backbone bb : sortedNodes) {
 			backbone2node.put(bb, b2n.start(bb));
-//			extractAntennae(bb);
 		}
 
 		// extract glycan fragments root
-		GlycanFragmentsParser gfParser = new GlycanFragmentsParser(root);
+		ModAltToUndUnit gfParser = new ModAltToUndUnit(glyCo, backbone2node);
 		gfParser.start(sortedNodes);
 		this.antennae = gfParser.getAntennae();
 		this.undefinedLinkages = gfParser.getUndefinedLinkages();
 		this.undefinedSubstituents = gfParser.getUndefinedSubstituents();
+		this.glyCo = gfParser.getGlycan();
 
 		// extract compositions
 		if (isCompositions(_graph)) {
@@ -76,6 +73,7 @@ public class WURCSGraphToGlyContainer {
 
 			// convert linkage
 			for (Backbone bb : sortedNodes) {
+				if (glyCo.containsAntennae(backbone2node.get(bb))) continue;
 				WURCSEdgeToLinkage(bb);
 			}
 			//
@@ -83,19 +81,12 @@ public class WURCSGraphToGlyContainer {
 			gcEdgeAnalyzer.start(backbone2node, root);
 		}
 
-		//Optimmize GlyContainer
+		//Optimize GlyContainer
 		GlyContainerOptimizer gop = new GlyContainerOptimizer();
 		glyCo = gop.start(glyCo);
 	}
 
 	private void WURCSEdgeToLinkage(Backbone _backbone) throws GlycanException, ConverterExchangeException, WURCSFormatException {
-		if (und != null) und = null;
-
-		// define parent linkage
-		for (Backbone antennae : antennae) {
-			if (antennae.equals(_backbone)) backboneToUndefinedUnit(_backbone);
-		}
-
 		for (WURCSEdge cEdge : _backbone.getChildEdges()) {
 			Modification mod = cEdge.getModification();
 
@@ -104,7 +95,8 @@ public class WURCSGraphToGlyContainer {
 
 			// define simple linkage
 			if (!(mod instanceof ModificationRepeat)) {
-				extractSimpleLinkage(_backbone, cEdge, mod);
+				//extractSimpleLinkage(_backbone, cEdge, mod);
+				defineSimpleLinkage(_backbone, mod);
 			}
 
 			// define repeating unit
@@ -119,14 +111,117 @@ public class WURCSGraphToGlyContainer {
 		}
 	}
 
+	private void defineSimpleLinkage (Backbone _acceptor, Modification _mod) throws WURCSFormatException, GlycanException {
+		ArrayList<Backbone> donors = new ArrayList<>();
+		ArrayList<Backbone> acceptors = new ArrayList<>();
+		LinkedList<LinkagePosition> donorPos = null;
+		LinkedList<LinkagePosition> acceptorPos = null;
+
+		Substituent sub = SubstituentUtility.MAPToSubstituent(_mod);
+
+		if (_mod.getChildEdges().isEmpty() && _mod.getParentEdges().size() > 1) {
+			// donor <--> acceptor
+			Backbone donor = null;
+
+			// extract monosaccharide of acceptor side.
+			for (WURCSEdge acceptorEdge : _mod.getParentEdges()) {
+				Modification mod = acceptorEdge.getModification();
+				if (!mod.isGlycosidic()) continue;
+				if (_acceptor.equals(acceptorEdge.getBackbone())) continue;
+
+				acceptors.add(_acceptor);
+				donors.add(acceptorEdge.getBackbone());
+				donor = acceptorEdge.getBackbone();
+				acceptorPos = acceptorEdge.getLinkages();
+			}
+
+			// extract monosaccharide of donor side.
+			for (WURCSEdge donorEdge : donor.getChildEdges()) {
+				Modification mod = donorEdge.getModification();
+				if (!mod.isGlycosidic()) continue;
+				if (mod.getParentEdges().size() < 2) continue;
+
+				for (WURCSEdge acceptorEdge : donorEdge.getNextComponent().getParentEdges()) {
+					if (donor.equals(acceptorEdge.getBackbone())) continue;
+					acceptors.add(donorEdge.getBackbone());
+					donors.add(acceptorEdge.getBackbone());
+					donorPos = acceptorEdge.getLinkages();
+				}
+			}
+		} else {
+
+			for (WURCSEdge donorEdge : _mod.getChildEdges()) {
+				Modification mod = donorEdge.getModification();
+				if (!mod.isGlycosidic()) continue;
+
+				donors.add(donorEdge.getBackbone());
+				donorPos = donorEdge.getLinkages();
+			}
+
+			for (WURCSEdge acceptorEdge : _mod.getParentEdges()) {
+				Modification mod = acceptorEdge.getModification();
+				if (!mod.isGlycosidic()) continue;
+
+				acceptors.add(acceptorEdge.getBackbone());
+				acceptorPos = acceptorEdge.getLinkages();
+			}
+		}
+
+		//Check linkage for fragments
+		if (glyCo.containsAntennae(backbone2node.get(donors.get(0)))) return;
+
+		if (sub != null) {
+			sub.setFirstPosition(new Linkage());
+			sub.setSecondPosition(new Linkage());
+
+			for (LinkagePosition lp : donorPos) {
+				if (lp.getModificationPosition() != 0) {
+					sub.getSecondPosition().addChildLinkage(lp.getModificationPosition());
+				}
+			}
+
+			for (LinkagePosition lp : acceptorPos) {
+				if (lp.getModificationPosition() != 0) {
+					sub.getFirstPosition().addChildLinkage(lp.getModificationPosition());
+				}
+			}
+		}
+
+		Node acceptorNode = backbone2node.get(acceptors.get(0));
+		Node donorNode = backbone2node.get(donors.get(0));
+		Edge edge = null;
+
+		//if (!donorNode.getParentEdges().isEmpty()) return;
+
+		for (Backbone donor : donors) {
+			if (backbone2node.get(donor).getParentEdges().isEmpty()) {
+				int index = donors.indexOf(donor);
+				acceptorNode = backbone2node.get(acceptors.get(index));
+				donorNode = backbone2node.get(donor);
+			}
+
+			for (Edge familyEdge : glyCo.getEdges()) {
+				if (familyEdge.getSubstituent() != null && familyEdge.getChild() == null) continue;
+				if (familyEdge.getParent().equals(acceptorNode) && familyEdge.getChild().equals(donorNode)) return;
+				if (familyEdge.getParent().equals(donorNode) && familyEdge.getChild().equals(acceptorNode)) return;
+			}
+		}
+
+		edge = this.WURCSEdgeToEdge(acceptorPos, donorPos);
+		edge.setSubstituent(sub);
+
+		glyCo.addNode(acceptorNode, edge, donorNode);
+
+		return;
+	}
+
 	private void extractSimpleLinkage (Backbone _backbone, WURCSEdge _c, Modification _mod) throws GlycanException, WURCSFormatException {
 		Backbone ccBackbone = null;
 		Backbone cpBackbone = null;
 		LinkedList<LinkagePosition> donor = null;
 		LinkedList<LinkagePosition> acceptor = null;
 
-		SubstituentUtility subUtil = new SubstituentUtility();
-		Substituent sub = subUtil.MAPToSubstituent(_mod);
+		Substituent sub = SubstituentUtility.MAPToSubstituent(_mod);
 
 		// extract child side child
 		for (WURCSEdge cc : _c.getNextComponent().getChildEdges()) {
@@ -156,7 +251,7 @@ public class WURCSGraphToGlyContainer {
 			donor = _c.getLinkages();
 		}
 
-		if (isFlipFlop(_backbone, ccBackbone != null ? ccBackbone : cpBackbone != null ? cpBackbone : null)) {
+		if (isFlipFlop(_backbone)) {
 			Backbone tmp = _backbone;
 			LinkedList<LinkagePosition> temp = acceptor;
 			if (cpBackbone != null) {
@@ -181,11 +276,9 @@ public class WURCSGraphToGlyContainer {
 			edge = WURCSEdgeToEdge(acceptor, donor);
 		}
 
-		//TODO: 修飾がH_LOSEであった場合に、LinkageTypeを最適化する必要がある
 		if (sub != null) {
 			sub.setFirstPosition(new Linkage());
 			sub.setSecondPosition(new Linkage());
-			//sub = subUtil.modifyLinkageType(sub);
 		}
 
 		for (LinkagePosition lp : donor) {
@@ -202,15 +295,18 @@ public class WURCSGraphToGlyContainer {
 
 		edge.setSubstituent(sub);
 
-		//TODO: Glycosyl bondのLinkageTypeを最適化する必要がある
-		if (ccBackbone != null && !isDefinedLinkage(_backbone, edge, ccBackbone)) { //&& !containNodes(_backbone, ccBackbone)) {
-			glyCo.addNode(backbone2node.get(_backbone), edge, backbone2node.get(ccBackbone));
-		}
+		if (glyCo.containsAntennae(backbone2node.get(_backbone))) {
+			GlycanUndefinedUnit und = glyCo.getUndefinedUnitWithIndex(backbone2node.get(_backbone));
+			und.addNode(backbone2node.get(_backbone), edge, backbone2node.get(ccBackbone));
+		} else {
+			if (ccBackbone != null && !isDefinedLinkage(_backbone, edge, ccBackbone)) { //&& !containNodes(_backbone, ccBackbone)) {
+				glyCo.addNode(backbone2node.get(_backbone), edge, backbone2node.get(ccBackbone));
+			}
 
-		if (cpBackbone != null && !isDefinedLinkage(_backbone, edge, cpBackbone)) {// && !containNodes(_backbone, cpBackbone)) {
-			glyCo.addNode(backbone2node.get(_backbone), edge, backbone2node.get(cpBackbone));
+			if (cpBackbone != null && !isDefinedLinkage(_backbone, edge, cpBackbone)) {// && !containNodes(_backbone, cpBackbone)) {
+				glyCo.addNode(backbone2node.get(_backbone), edge, backbone2node.get(cpBackbone));
+			}
 		}
-
 		//open(_backbone, cpBackbone, ccBackbone, acceptor, donor, sub);
 	}
 
@@ -229,10 +325,9 @@ public class WURCSGraphToGlyContainer {
 		// define end rep
 		start = backbone2node.get(_mod.getParentEdges().getFirst().getBackbone());
 
-		if (!current.equals(end) /*&& !start.equals(end)*/) return;
+		if (!current.equals(end)) return;
 
 		if ( !this.isStandardRepeatEdgeOrder((ModificationRepeat)_mod) ) { // 09/21/2018 Masaaki added
-//		if (_backbone.getParentEdges().isEmpty() && current.equals(end)) {
 			LinkedList<LinkagePosition> linkTemp = donor;
 			donor = acceptor;
 			acceptor = linkTemp;
@@ -405,16 +500,13 @@ public class WURCSGraphToGlyContainer {
 	 */
 	private void compositionToUndefinedUnitForSubstituent (ModificationAlternative _modAlt) throws GlycanException, WURCSFormatException {
 		// Populate Substituent
-		SubstituentUtility subUtil = new SubstituentUtility();
-		Substituent sub = subUtil.MAPToSubstituent(_modAlt);
+		Substituent sub = SubstituentUtility.MAPToSubstituent(_modAlt);
 		sub.setFirstPosition(new Linkage());
 		sub.setSecondPosition(new Linkage());
-		//sub = subUtil.modifyLinkageType(sub);
 
 		// Add undefined linkage to substituent
 		sub.getFirstPosition().addParentLinkage(-1);
 		sub.getFirstPosition().addChildLinkage(1);
-		//if ( sub.getSubstituent() instanceof CrossLinkedTemplate ) {
 		if ( sub.getSubstituent() instanceof BaseCrossLinkedTemplate ) {
 			sub.getSecondPosition().addParentLinkage(-1);
 			sub.getSecondPosition().addChildLinkage(1);
@@ -432,62 +524,10 @@ public class WURCSGraphToGlyContainer {
 
 	private void compositionToUndefinedUnit (Backbone _backbone) throws GlycanException {
 		Node current = backbone2node.get(_backbone);
-		und = new GlycanUndefinedUnit();
+		GlycanUndefinedUnit und = new GlycanUndefinedUnit();
 		und.addNode(current);
 
 		glyCo.addGlycanUndefinedUnit(und);
-	}
-
-	private void backboneToUndefinedUnit(Backbone _backbone) throws GlycanException, WURCSFormatException {
-		Node current = backbone2node.get(_backbone);
-		GlycanUndefinedUnit fragment = new GlycanUndefinedUnit();
-
-		/* add parent node in core structure */
-		LinkedList<LinkagePosition> acceptor = null;
-		LinkedList<LinkagePosition> donor = null;
-
-		ArrayList<WURCSEdge> fragments = new ArrayList<>();
-
-		for (WURCSEdge cEdge : _backbone.getChildEdges()) {
-			if (!(cEdge.getNextComponent() instanceof ModificationAlternative)) continue;
-			fragments.add(cEdge);
-		}
-
-		for (Iterator<WURCSEdge> iterWG = fragments.iterator(); iterWG.hasNext();) {
-
-			WURCSEdge modAlt = iterWG.next();
-
-			for (WURCSEdge cpEdge : modAlt.getNextComponent().getParentEdges()) {
-				if (_backbone.equals(cpEdge.getBackbone())) {
-					if (cpEdge.getModification().getMAPCode().equals("")) continue;
-					if (cpEdge.getModification().getParentEdges().size() < 2) continue;
-				}
-
-				if (!cpEdge.getModification().getMAPCode().equals("")) {
-					current = SubstituentUtility.MAPToSubstituent(cpEdge.getModification());
-							//new Substituent(SubstituentUtility.MAPToInterface(cpEdge.getModification().getMAPCode()));
-					donor = cpEdge.getLinkages();
-					acceptor = donor;
-				}
-
-				if (donor == null) donor = cpEdge.getLinkages();
-
-				fragment.addParentNode( backbone2node.get(cpEdge.getBackbone()));
-			}
-
-			if (acceptor == null && !isSubstituentEdge(modAlt)) acceptor = modAlt.getLinkages();
-
-			if (iterWG.hasNext()) fragment = new GlycanUndefinedUnit();
-		}
-
-		Edge parentEdge = WURCSEdgeToEdge(donor, acceptor);
-		parentEdge.setChild(current);
-
-		current.addParentEdge(parentEdge);
-		fragment.setConnection(parentEdge);
-		fragment.addNode(current);
-
-		glyCo.addGlycanUndefinedUnit(fragment);
 	}
 
 	private Edge WURCSEdgeToEdge (LinkedList<LinkagePosition> _donor, LinkedList<LinkagePosition> _acceptor) throws GlycanException {
@@ -510,11 +550,9 @@ public class WURCSGraphToGlyContainer {
 	}
 
 	private Substituent makeSubstituentWithRepeat (Modification _mod) throws GlycanException, WURCSFormatException {
-		MAPAnalyzer mapAnalyze = new MAPAnalyzer();
+	    MAPAnalyzer mapAnalyze = new MAPAnalyzer();
 		mapAnalyze.start(_mod.getMAPCode());
 		BaseCrossLinkedTemplate bcT = mapAnalyze.getCrossTemplate();
-		//BaseCrossLinkedTemplate bcT = (BaseCrossLinkedTemplate) SubstituentUtility.MAPToInterface(_mod.getMAPCode());
-		//CrossLinkedTemplate crossTemp = (CrossLinkedTemplate) SubstituentUtility.MAPToInterface(_mod.getMAPCode());
 
 		GlycanRepeatModification ret = new GlycanRepeatModification(bcT);
 
@@ -538,7 +576,9 @@ public class WURCSGraphToGlyContainer {
 		w.start(_graph);
 
 		for (WURCSComponent wc : w.getNodes()) {
-			if (wc instanceof Backbone) ret.add(((Backbone) wc));
+			if (wc instanceof Backbone && !ret.contains(wc)) {
+				ret.add(((Backbone) wc));
+			}
 		}
 
 		return ret;
@@ -622,31 +662,27 @@ public class WURCSGraphToGlyContainer {
 	private boolean isAntennaeAnchor (Backbone _backbone) {
 		boolean ret = false;
 
-		for (Backbone bb : antennae) {
-			for (WURCSEdge edge : bb.getChildEdges()) {
-				if (edge.getModification().isRing()) continue;
-				for (WURCSEdge pp : edge.getNextComponent().getParentEdges()) {
-					if (_backbone.equals(pp.getBackbone())) {
+		for (ModificationAlternative modAlt : antennae) {
+			for (WURCSEdge inEdge : modAlt.getLeadInEdges()) {
+				for (WURCSEdge parentEdge : inEdge.getNextComponent().getParentEdges()) {
+					if (parentEdge.getBackbone().equals(_backbone)) {
 						ret = true;
 						break;
 					}
 				}
+
+				if (ret) break;
 			}
+
+			if (ret) break;
 		}
 
 		return ret;
 	}
 
-	private boolean isCrossLinkedSubstituent (Modification _mod) throws GlycanException, WURCSFormatException {
-		if (_mod.getMAPCode().equals("")) return false;
-		return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof BaseCrossLinkedTemplate);
-		//return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof CrossLinkedTemplate);
-	}
-
-	private boolean isFlipFlop (Backbone _parent, Backbone _child) {
+	private boolean isFlipFlop (Backbone _parent) {
 		if (!_parent.isRoot() || root.equals(_parent) || antennae.contains(_parent)) return false;
 		return (backbone2node.get(_parent).getParentEdges().isEmpty());
-		//return (!backbone2node.get(_child).getParentEdges().isEmpty() && backbone2node.get(_parent).getParentEdges().isEmpty());
 	}
 
 	private boolean isCompositions (WURCSGraph _graph) {

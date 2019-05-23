@@ -21,7 +21,6 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 		init();
 
 		this.makeSubstituent(_mono, _substituents);
-		//this.margeSubstituents();
 	}
 
 	public void start (String _substituent) throws GlycanException, GlyCoImporterException {
@@ -91,7 +90,6 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 	}
 
 	private void makeSubstituent (Monosaccharide _mono, ArrayList<String> _substituents) throws GlycanException {
-
 		String regex = "([\\d?:/,(%)-]+(?![RSX]\\)))?([(a-zA-Z?\\-)]+)+(\\d)?([\\d?])?";
 
 		for(String unit : _substituents) {
@@ -127,7 +125,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 				Linkage firstLink = makeLinkage(positions, "1", 1.0D, 1.0D);
 				Substituent sub = new Substituent(subT, firstLink);
-				sub.setHeadAtom(makeHeadAtom(notation, makePlaneNotation(notation))/*notation.replace(makePlaneNotation(notation), "")*/);
+				sub.setHeadAtom(makeHeadAtom(notation, makePlaneNotation(notation)));
 
 				substituents.add(sub);
 				continue;
@@ -154,7 +152,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 					//Modify LinkageType and SubstituentTemplate
 					Substituent sub = new Substituent(subT, firstLink, secondLink);
-					sub.setHeadAtom(makeHeadAtom(notation, plane)/*notation.replaceFirst(plane, "")*/);
+					sub.setHeadAtom(makeHeadAtom(notation, plane));
 
 					substituents.add(sub);
 					continue;
@@ -171,13 +169,13 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 					//Modify LinkageType and SubstituentTemplate
 					Substituent sub = new Substituent(subT, firstLink);
-					sub.setHeadAtom(makeHeadAtom(notation, plane)/*notation.replaceFirst(plane, "")*/);
+					sub.setHeadAtom(makeHeadAtom(notation, plane));
 
 					substituents.add(sub);
 					continue;
 				}
 
-				//Singele linkage
+				//Single linkage
 				for(String multi : position.split(",")) {
 					String plane = makePlaneNotation(notation);
 
@@ -187,7 +185,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 					Linkage firstLink = makeLinkage(matSub.group(1).equals("?") ? "-1" : extractPos(multi)[0], "1", extractProbability(probs[0]), extractProbability(probs[1]));
 
 					Substituent sub = new Substituent(subT, firstLink);
-					sub.setHeadAtom(makeHeadAtom(notation, plane)/*notation.replaceFirst(plane, "")*/);
+					sub.setHeadAtom(makeHeadAtom(notation, plane));
 
 					substituents.add(sub);
 				}
@@ -301,15 +299,6 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 		return ret;
 	}
-
-	/*private SubstituentTemplate modifyEndSubstituent (Monosaccharide _mono, String _position, SubstituentTemplate _subT) {
-		if (_position.equals("?") || !_subT.equals(SubstituentTemplate.AMINE)) return _subT;
-
-		if (_mono.getSuperClass().getSize() == Integer.parseInt(_position) ||
-				Integer.parseInt(_position) == 1) return SubstituentTemplate.AMINO;
-
-		return _subT;
-	}*/
 
 	private boolean isInteger (char _int) {
 		return String.valueOf(_int).matches("\\d|\\?");

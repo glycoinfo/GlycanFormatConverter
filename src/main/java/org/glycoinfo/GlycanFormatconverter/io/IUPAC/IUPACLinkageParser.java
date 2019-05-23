@@ -27,39 +27,31 @@ public class IUPACLinkageParser extends SubstituentUtility {
 	}
 	
 	public void start () throws GlycanException {
-		GlycanUndefinedUnit antennae = null;
-		
-		for(Node node : stacker.getNodes()) {
-			parseLinkage(node);
+		// define sub-graph, compositions
+		for (Node node : stacker.getNodes()) {
 			String notation = nodeIndex.get(node);
-
-			if(isRootOfFramgnets(notation) || stacker.isComposition()) {
-				antennae = this.makeUndefinedUnit(node, notation);
-			}
-			if (stacker.isComposition()) {
-				antennae = this.makeUndefinedUnit(node, notation);
-				glyCo.addGlycanUndefinedUnit(antennae);
-				continue;
-			}
-
-			if (!glyCo.containsNode(node)) {
-				if (antennae != null && !antennae.containsNode(node)) glyCo.addNode(node);
-				if (antennae == null) glyCo.addNode(node);
-			}
+			if (!isRootOfFramgnets(notation) && !stacker.isComposition()) continue;
+			glyCo.addGlycanUndefinedUnit(makeUndefinedUnit(node, notation));
 		}
 
-		/* set fragments */
-		if(antennae != null && !stacker.isComposition()) glyCo.addGlycanUndefinedUnit(antennae);
+		for (Node node : stacker.getNodes()) {
+			parseLinkage(node);
+		}
+
+		if (stacker.isFragment()) {
+			Node root = stacker.getRoot();
+			GlycanUndefinedUnit und = glyCo.getUndefinedUnitWithIndex(root);
+			und.setConnection(root.getParentEdge());
+		}
 	}
 
 	public GlycanUndefinedUnit makeUndefinedUnit (Node _node, String _notation) throws GlycanException {
 		GlycanUndefinedUnit ret = new GlycanUndefinedUnit();
 		ret.addNode(_node);
-		ret.setConnection(_node.getParentEdge());
 		for(Node parent : parseFragmentParents(_notation)) {
 			ret.addParentNode(parent);
 		}
-		
+
 		return ret;
 	}
 	
@@ -123,6 +115,10 @@ public class IUPACLinkageParser extends SubstituentUtility {
 		if(isEndCyclic(notation)) {
 			parseCyclic(_node, getIndex(nodeIndex.size() - 1));
 		}
+
+		if (parent == null && !glyCo.containsNode(_node)) {
+			glyCo.addNode(_node);
+		}
 	}
 	
 	private void parseSimpleLinkage (Node _node, Node _parent, String _notation) throws GlycanException{
@@ -185,9 +181,15 @@ public class IUPACLinkageParser extends SubstituentUtility {
 
 				if(matLin.group(9) != null) lin.setParentLinkages(makeLinkageList(matLin.group(9)));
 				parentEdge.addGlycosidicLinkage(lin);
-		
-				if(_parent != null) glyCo.addNode(_parent, parentEdge, _node);
-				
+
+				if(_parent != null) {
+					if (!stacker.isFragment()) glyCo.addNode(_parent, parentEdge, _node);
+					else {
+						GlycanUndefinedUnit und = glyCo.getUndefinedUnitWithIndex(stacker.getRoot());
+						und.addNode(_parent, parentEdge, _node);
+					}
+				}
+
 				/* for root of antennae */
 				if(matLin.group(9) != null && _parent == null) {
 					_node.addParentEdge(parentEdge);

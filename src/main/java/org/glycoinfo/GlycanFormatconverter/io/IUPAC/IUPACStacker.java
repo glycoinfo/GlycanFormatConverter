@@ -12,9 +12,11 @@ public class IUPACStacker {
 	private ArrayList<String> notations = new ArrayList<String>();
 	private HashMap<Node, Node> family = new HashMap<Node, Node>();
 	private int numOfNode = -1;
+	private boolean isFragment;
+	private boolean isComposition;
 
 	public IUPACStacker () {
-		
+		isFragment = false;
 	}
 	
 	public ArrayList<Node> getNodes () {
@@ -42,7 +44,7 @@ public class IUPACStacker {
 	}
 	
 	public boolean isComposition () {
-		return (this.numOfNode != -1);
+		return this.isComposition;
 	}
 	
 	public boolean haveChild (Node _child) {
@@ -86,5 +88,27 @@ public class IUPACStacker {
 		if (_notation.equals(""))
 			throw new GlyCoImporterException("Invalid notation.");
 		return this.notations.add(_notation);
+	}
+
+	public void setFragment () {
+		this.isFragment = true;
+		return;
+	}
+
+	public boolean isFragment () {
+		return this.isFragment;
+	}
+
+	public void setComposition () {
+		this.isComposition = true;
+		return;
+	}
+
+	public Node getRoot () {
+		Node ret = null;
+		for (Node node : this.nodes) {
+			if (family.get(node) == null) ret = node;
+		}
+		return ret;
 	}
 }

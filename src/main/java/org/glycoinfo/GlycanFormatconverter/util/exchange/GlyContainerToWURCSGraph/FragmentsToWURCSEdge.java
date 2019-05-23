@@ -76,8 +76,4 @@ public class FragmentsToWURCSEdge extends EdgeToWURCSEdge {
 		
 		this.setWURCSEdge(false);
 	}
-	
-	public void clear() {
-		this.parents = new ArrayList<Monosaccharide>();
-	}
 }
