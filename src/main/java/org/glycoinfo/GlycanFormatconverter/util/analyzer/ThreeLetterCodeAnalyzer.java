@@ -51,7 +51,7 @@ public class ThreeLetterCodeAnalyzer {
 		//group 1 : deoxy notation
 		//group 2 : three letter code
 		//group 3 : super class
-		Matcher matTriv = Pattern.compile("(\\dd)?([a-z]{2,3})+([A-Z]{1}[a-z]{1,2})+").matcher(_trivialName);
+		Matcher matTriv = Pattern.compile("(\\dd)?([a-z]{2,3})+([A-Z][a-z]{1,2})+").matcher(_trivialName);
 		BaseStereoIndex bsi;
 		String stereo = "";
 
@@ -74,11 +74,11 @@ public class ThreeLetterCodeAnalyzer {
 				bsi = BaseStereoIndex.forCode(sugarName);
 				if(bsi != null) stereo = matTriv.group(2);
 			}
-			
+
 			superclass = SuperClass.forSuperClass(matTriv.group(3));
 			
 			if (!stereo.contains("_") && _templates.size() == 2) {
-				stereos.addFirst(_templates.getFirst());			
+				stereos.addFirst(_templates.getFirst().toLowerCase());
 				stereos.addLast(stereo.toLowerCase());
 			} else extractStereos(stereo);
 		} else {
@@ -114,7 +114,7 @@ public class ThreeLetterCodeAnalyzer {
 
 	private void extractStereos (String _temp) {
 		for(String unit : _temp.split("_")) {
-			stereos.add(unit);
+			stereos.add(unit.toLowerCase());
 		}
 	}
 	

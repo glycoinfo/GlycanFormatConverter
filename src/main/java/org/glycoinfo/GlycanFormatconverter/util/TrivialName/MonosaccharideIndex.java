@@ -56,9 +56,11 @@ public enum MonosaccharideIndex {
     AMI("Ami", "D", "p", 1),
     RHO("Rho", "D", "p", 1),
     SDTAL("6dTal", "D", "p", 1),
-    SDAlt("6dAlt", "D", "p", 1),
+    SDALT("6dAlt", "D", "p", 1),
+    SDGUL("6dGul", "D", "p", 1),
 
     /* Ketoses */
+    DHA("Dha", "D", "p", 2),
     FRU("Fru", "D", "p", 2),
     TAG("Tag", "D", "p", 2),
     SOR("Sor", "L", "p", 2),
@@ -75,6 +77,9 @@ public enum MonosaccharideIndex {
     NEU("Neu", "D", "p", 2),
     LEG("Leg", "D", "p", 2),
     PSE("Pse", "L", "p", 2),
+    ACI("Aci", "L", "p", 2),
+    FELEG("4eLeg", "D", "p", 2),
+    EELEG("8eLeg", "L", "p", 2),
 
     /* Amino sugars */
     BAC("Bac", "D", "p", 1),
@@ -85,7 +90,8 @@ public enum MonosaccharideIndex {
     CYM("Cym", "D", "p", 1),
     OLE("Ole", "D", "p", 1),
     THE("The", "D", "p", 1),
-    Aco("Aco", "D", "p", 1);
+    ACO("Aco", "D", "p", 1),
+    PURC("PurC", "D", "p", 1);
 
     private String trivialName;
     private String configuration1;

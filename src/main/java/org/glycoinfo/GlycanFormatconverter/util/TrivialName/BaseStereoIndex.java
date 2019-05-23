@@ -1,5 +1,7 @@
 package org.glycoinfo.GlycanFormatconverter.util.TrivialName;
 
+import java.util.ArrayList;
+
 public enum BaseStereoIndex {
 
 	GRO("gro",3),
@@ -21,11 +23,13 @@ public enum BaseStereoIndex {
 	private String code;
 	private int size;
 	
-	private BaseStereoIndex (String _code, int _size) { 
+	BaseStereoIndex (String _code, int _size) {
 		this.code = _code;
 		this.size = _size;
 	}
-	
+
+	public String getNotation () { return this.code; }
+
 	public int getSize () {
 		return this.size;
 	}
@@ -35,6 +39,17 @@ public enum BaseStereoIndex {
 			if(bsi.code.equalsIgnoreCase(_code)) return bsi;
 		}
 		
+		return null;
+	}
+
+	public static ArrayList<BaseStereoIndex> forSize (int _size) {
+		ArrayList<BaseStereoIndex> ret = new ArrayList<>();
+		for (BaseStereoIndex bsi : BaseStereoIndex.values()) {
+			if (bsi.size == _size) {
+				ret.add(bsi);
+			}
+		}
+
 		return null;
 	}
 }

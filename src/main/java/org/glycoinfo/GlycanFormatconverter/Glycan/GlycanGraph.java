@@ -15,6 +15,8 @@ public interface GlycanGraph {
 
 	ArrayList<Node> getNodes();
 
+	ArrayList<Edge> getEdges();
+
 	boolean addEdge(Node _parent, Node _child, Edge _linkage) throws GlycanException;
 	
 	boolean addNode(Node _node) throws GlycanException;

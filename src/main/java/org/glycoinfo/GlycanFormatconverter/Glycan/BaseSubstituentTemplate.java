@@ -43,8 +43,7 @@ public enum BaseSubstituentTemplate implements SubstituentInterface {
     X_CARBOXYETHYL		("C^XCO/3=O/2C", "(x)-carboxyethyl", "(X)CE"),
     S_LACTATE			("CC^SC/3O/2=O", "(s)-lactate", "(S)Lac"),
     R_LACTATE			("CC^RC/3O/2=O", "(r)-lactate", "(R)Lac"),
-    X_LACTATE			("CC^XC/3O/2=O", "(x)-lactate", "(X)Lac"),
-    UNKNOWN				("*", "epoxy", "?");
+    X_LACTATE			("CC^XC/3O/2=O", "(x)-lactate", "(X)Lac");
 
     private String map;
     private String gct;
