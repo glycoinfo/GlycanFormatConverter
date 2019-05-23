@@ -20,7 +20,7 @@ import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSGraph;
 public class WURCSToGlycoCT {
 
 	// Version
-	private static final String VERSION = "1.0.181201";
+	private static final String VERSION = "1.0.190520";
 
 	public static void main(String[] args) {
 
@@ -36,13 +36,52 @@ public class WURCSToGlycoCT {
 			t_strWURCS = args[i];
 		}
 
-		start(t_strWURCS);
+		WURCSToGlycoCT converter = new WURCSToGlycoCT();
+		converter.start(t_strWURCS);
+		if ( !converter.getErrorMessages().isEmpty() )
+			System.out.println(converter.getErrorMessages());
+		String strGlycoCT = converter.getGlycoCT();
+		System.out.println(strGlycoCT);
 	}
 
-	private static void start(String a_strWURCS) {
-		String t_strError = validate(a_strWURCS);
+	private static void usage() {
+		System.err.println("Conversion System from WURCS2.0 to GlycoCT");
+		System.err.println("\tCurrent version: "+VERSION);
+		System.err.println();
+		System.err.println("Usage: java (this program).jar [OPTION]... [WURCS]... ");
+		System.err.println();
+		System.err.println("where OPTION include:");
+		System.err.println("\t-help\t\tto print this help message");
+		System.err.println();
+	}
+
+	private String m_strWURCS;
+	private String m_strGlycoCT;
+	private String m_strValidationErrors;
+	private String m_strConversionErrors;
+
+	public String getWURCS() {
+		return this.m_strWURCS;
+	}
+
+	public String getGlycoCT() {
+		return this.m_strGlycoCT;
+	}
+
+	public String getErrorMessages() {
+		String strErrorMessages = "";
+		if ( this.m_strValidationErrors != null )
+			strErrorMessages = this.m_strValidationErrors;
+		else if ( this.m_strConversionErrors != null ) {
+			strErrorMessages = this.m_strConversionErrors;
+		}
+		return strErrorMessages;
+	}
+
+	public void start(String a_strWURCS) {
+		String t_strError = this.validate(a_strWURCS);
 		if ( !t_strError.isEmpty() ) {
-			System.out.println(t_strError);
+			this.m_strValidationErrors = t_strError;
 			return;
 		}
 
@@ -65,13 +104,14 @@ public class WURCSToGlycoCT {
 			t_exportGlycoCT.start(t_sugar);
 			String t_strGlycoCT = t_exportGlycoCT.getHashCode();
 
-			System.out.println(t_strGlycoCT);
+			this.m_strGlycoCT = t_strGlycoCT;
 		} catch (Exception e) {
+			this.m_strConversionErrors = e.getMessage();
 			e.printStackTrace();
 		}
 	}
 
-	private static String validate(String a_strWURCS) {
+	private String validate(String a_strWURCS) {
 		// Validate WURCS for GlycoCT conversion
 		WURCSConversionValidatorForGlycoCT t_wcv4g = new WURCSConversionValidatorForGlycoCT();
 		t_wcv4g.start(a_strWURCS);
@@ -111,16 +151,5 @@ public class WURCSToGlycoCT {
 		}
 
 		return t_strErrorMessages;
-	}
-
-	private static void usage() {
-		System.err.println("Conversion System from WURCS2.0 to GlycoCT");
-		System.err.println("\tCurrent version: "+VERSION);
-		System.err.println();
-		System.err.println("Usage: java (this program).jar [OPTION]... [WURCS]... ");
-		System.err.println();
-		System.err.println("where OPTION include:");
-		System.err.println("\t-help\t\tto print this help message");
-		System.err.println();
 	}
 }
