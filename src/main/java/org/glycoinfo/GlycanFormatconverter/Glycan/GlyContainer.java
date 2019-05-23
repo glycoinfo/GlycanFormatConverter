@@ -107,7 +107,21 @@ public class GlyContainer implements GlycanGraph {
 
 		return ret;
 	}
-	
+
+	@Override
+	public ArrayList<Edge> getEdges() {
+		ArrayList<Edge> ret = new ArrayList<>();
+		Iterator<Node> iterNode = getNodeIterator();
+
+		while(iterNode.hasNext()) {
+			Node node = iterNode.next();
+			for (Edge edge : node.getChildEdges()) {
+				ret.add(edge);
+			}
+		}
+		return ret;
+	}
+
 	public boolean addNode(Node _node) throws GlycanException {
 		if(_node == null) throw new GlycanException ("Invalid residue.");
 		if(!this.nodes.contains(_node)) {
@@ -229,7 +243,15 @@ public class GlyContainer implements GlycanGraph {
 	public ArrayList<GlycanUndefinedUnit> getUndefinedUnit() {
 		return this.antennae;
 	}
-	
+
+	public GlycanUndefinedUnit getUndefinedUnitWithIndex (Node _node) {
+		GlycanUndefinedUnit ret = null;
+		for (GlycanUndefinedUnit und : this.antennae) {
+			if (und.containsNode(_node)) ret = und;
+		}
+		return ret;
+	}
+
 	public boolean addGlycanUndefinedUnit(GlycanUndefinedUnit _und, Node _parent) throws GlycanException {
 		if(!this.antennae.contains(_parent)) {
 			throw new GlycanException ("Parent is not part of the glycan");
@@ -344,46 +366,27 @@ public class GlyContainer implements GlycanGraph {
 
 		/* make copy of fragments */
 		for (GlycanUndefinedUnit und : getUndefinedUnit()) {
-			GlycanUndefinedUnit copyUnd = new GlycanUndefinedUnit();
-			Edge connection = null;
-
-			if (und.getConnection() != null) {
-				connection = und.getConnection().copy();
-				copyUnd.setConnection(connection);
-			}
-
-			for (Node node : und.getParents()) {
-				copyUnd.addParentNode(copyIndex.get(node));
-			}
-			for (Node node : und.getNodes()) {
-				if (node instanceof Substituent) {
-					copyUnd.addNode(node);
-				}
-				if (node instanceof Monosaccharide) {
-					if (!copyIndex.containsKey(node)) {
-						Node copyRoot = node.copy();
-						copyUnd.addNode(copyRoot);
-					} else {
-						copyUnd.addNode(copyIndex.get(node));
-					}
-
-					if (connection != null) {
-						connection.setChild(node);
-						copyUnd.getNodes().get(0).addParentEdge(connection);
-					}
-				}
-			}
-
+			GlycanUndefinedUnit copyUnd = und.copy();
 			copy.addGlycanUndefinedUnit(copyUnd);
+
+			ArrayList<Node> acceptorNodes = new ArrayList<>();
+			for (Node acceptor : und.getParents()) {
+				acceptorNodes.add(copyIndex.get(acceptor));
+			}
+			copyUnd.setParentNodes(acceptorNodes);
 		}
 
-		/* make copy of core */
+		// make copy of core
 		for (Node node : getNodes()) {
 			for (Edge parentEdge : node.getParentEdges()) {				
 				Edge copyEdge = parentEdge.copy();
-				Node copyParent = null;
-				Node copyChild = null;
-				Node copySub = null;
+				Node copyParent;
+				Node copyChild;
+				Node copySub;
+
+				if (containsAntennae(node)) {
+				    continue;
+                }
 
 				if (copyIndex.containsKey(parentEdge.getChild())) {
 					copyChild = copyIndex.get(parentEdge.getChild());
@@ -397,7 +400,7 @@ public class GlyContainer implements GlycanGraph {
 					copyParent = parentEdge.getParent().copy();
 				}
 
-				/* copy of simple cross linked substituent */
+				// copy of simple cross linked substituent
 				if (parentEdge.getChild() != null && parentEdge.getSubstituent() != null) {
 					copySub = parentEdge.getSubstituent().copy();
 					copyEdge.setSubstituent(copySub);

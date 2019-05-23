@@ -232,7 +232,11 @@ public class Monosaccharide extends Node {
 			if (sub instanceof GlycanRepeatModification) continue;
 			if (childEdge.getChild() != null) continue;
 			//if (sub.getSubstituent() instanceof SubstituentTemplate) {
-				ret.addChildEdge(childEdge.copy());
+			Edge copyEdge = childEdge.copy();
+			Substituent copySub = sub.copy();
+			copyEdge.setSubstituent(copySub);
+			copyEdge.setParent(ret);
+			ret.addChildEdge(copyEdge);
 			//}
 		}
 

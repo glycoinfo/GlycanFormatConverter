@@ -1,13 +1,14 @@
 package org.glycoinfo.GlycanFormatconverter.Glycan;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 public class GlycanUndefinedUnit implements GlycanGraph {
 	
 	private ArrayList<Node> parents = new ArrayList<Node>();
 	private Edge connection = null;
-	private ArrayList<Node> children = new ArrayList<Node>();
+	private ArrayList<Node> children = new ArrayList<>();
 	public static final double UNKNOWN = -1;
 	
 	private double probabilityLow = 100;
@@ -31,8 +32,8 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 				ret.add(root);
 				continue;
 			}
-			if(root.getParentEdges().size() > 1 && !parent.isCyclic()) continue;
-			if(parent.getParent() == null) {
+			//if(root.getParentEdges().size() > 1 && !parent.isCyclic()) continue;
+			if(parent != null && parent.getParent() == null) {
 				ret.add(root);
 				continue;
 			}
@@ -44,7 +45,7 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 
 		if(ret.size() == 1) return ret;
 
-		throw new GlycanException ("Node seems not to have at least one root residue");	
+		throw new GlycanException ("Node seems not to have at least one root residue");
 	}
 	
 	@Override
@@ -94,7 +95,21 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 		}
 		return ret;
 	}
-	
+
+	@Override
+	public ArrayList<Edge> getEdges() {
+		ArrayList<Edge> ret = new ArrayList<>();
+		Iterator<Node> iterNode = getNodeIterator();
+
+		while (iterNode.hasNext()) {
+			Node node = iterNode.next();
+			for (Edge edge : node.getChildEdges()) {
+				ret.add(edge);
+			}
+		}
+		return ret;
+	}
+
 	@Override
 	public boolean addNode(Node _node) throws GlycanException {
 		if(_node == null) throw new GlycanException ("Invalid residue.");
@@ -248,15 +263,78 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 
 	public GlycanUndefinedUnit copy () throws GlycanException {
 		GlycanUndefinedUnit und = new GlycanUndefinedUnit();
+		HashMap<Node, Node> copyIndex = new HashMap<>();
 
-		for (Node node : und.getRootNodes()) {
-			und.addNode(node);
+		for (Node node : getNodes()) {
+			for (Edge parentEdge : node.getParentEdges()) {
+				Node copyParent;
+				Node copyChild;
+
+				if (parentEdge.getChild() == null || parentEdge.getParent() == null) continue;
+
+				if (!copyIndex.containsKey(parentEdge.getChild())) {
+					copyChild = parentEdge.getChild().copy();
+					copyIndex.put(parentEdge.getChild(), copyChild);
+				}
+
+				if (!copyIndex.containsKey(parentEdge.getParent())) {
+					copyParent = parentEdge.getParent().copy();
+					copyIndex.put(parentEdge.getParent(), copyParent);
+				}
+			}
 		}
+
 		und.setParentNodes(parents);
 
-		und.setConnection(connection);
+		if (this.connection != null) {
+			und.setConnection(connection.copy());
+		}
 
 		und.setProbability(probabilityHigh, probabilityLow);
+
+		// make copy of fragment linkages
+		for (Node node : getNodes()) {
+			if (node.getParentEdges().isEmpty()) {
+				Node copyNode = node.copy();
+				und.addNode(copyNode);
+			}
+			for (Edge parentEdge : node.getParentEdges()) {
+				Edge copyEdge = parentEdge.copy();
+				Node copyParent;
+				Node copyChild = null;
+				Node copySub;
+
+				if (copyIndex.containsKey(parentEdge.getChild())) {
+					copyChild = copyIndex.get(parentEdge.getChild());
+				} else {
+					if (parentEdge.getChild() != null) {
+						copyChild = parentEdge.getChild().copy();
+					}
+					if (parentEdge.getSubstituent() != null) {
+						copyChild = parentEdge.getSubstituent().copy();
+					}
+				}
+
+				if (copyIndex.containsKey(parentEdge.getParent())) {
+					copyParent = copyIndex.get(parentEdge.getParent());
+				} else {
+					copyParent = null;
+				}
+
+				// copy of simple cross linked substituent
+				if (parentEdge.getChild() != null && parentEdge.getSubstituent() != null) {
+					copySub = parentEdge.getSubstituent().copy();
+					copyEdge.setSubstituent(copySub);
+				}
+
+				if (copyParent instanceof Monosaccharide) {
+					und.addNode(copyParent, copyEdge, copyChild);
+				} else {
+					copyChild.addParentEdge(copyEdge);
+					und.addNode(copyChild);
+				}
+			}
+		}
 
 		return und;
 	}
