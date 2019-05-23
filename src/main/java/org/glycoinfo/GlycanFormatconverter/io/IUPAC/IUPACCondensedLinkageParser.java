@@ -29,6 +29,7 @@ public class IUPACCondensedLinkageParser {
             //Make glycosidic linkage with simple bond
             if (node instanceof Substituent) {
                 parseSubstituent(node);
+                continue;
             } else {
                 parseLinkage(node);
             }
