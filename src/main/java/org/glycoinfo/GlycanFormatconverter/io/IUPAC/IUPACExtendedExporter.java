@@ -172,7 +172,7 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 		StringBuilder notation = new StringBuilder(notationIndex.get(_node));
 		Monosaccharide mono = (Monosaccharide) _node;
 
-		if(!mono.getParentEdges().isEmpty()) {	
+		if(!mono.getParentEdges().isEmpty()) {
 			StringBuilder linkagePos = new StringBuilder("-(");
 			for(Iterator<Edge> iterParent = gu.sortParentSideEdges(mono.getParentEdges()).iterator(); iterParent.hasNext();) {
 				Edge parentEdge = iterParent.next();
@@ -183,10 +183,16 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 				linkagePos.append(makeChildSidePosition(parentEdge));
 
 				/* append start repeating position */
-				if(parentEdge.getSubstituent() != null && parentEdge.getSubstituent() instanceof GlycanRepeatModification) {
-					if(!parentEdge.isCyclic()) linkagePos.append("]");
+				if (parentEdge.isRepeat()) {
+					linkagePos.append("]");
 					linkagePos.append(makeRepeatingCount((GlycanRepeatModification) parentEdge.getSubstituent()));
 				}
+				/*if(parentEdge.getSubstituent() != null && parentEdge.getSubstituent() instanceof GlycanRepeatModification) {
+					if(!parentEdge.isCyclic()) {
+						linkagePos.append("]");
+						linkagePos.append(makeRepeatingCount((GlycanRepeatModification) parentEdge.getSubstituent()));
+					}
+				}*/
 
 				/* append probability annotation */
 				linkagePos.append(makeProbabilityAnnotation(parentEdge));

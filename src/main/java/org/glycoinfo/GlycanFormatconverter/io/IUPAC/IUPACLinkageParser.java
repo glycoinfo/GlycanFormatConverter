@@ -316,8 +316,8 @@ public class IUPACLinkageParser extends SubstituentUtility {
 		cyclicEdge.addGlycosidicLinkage(lin);
 		
 		GlycanRepeatModification repMod = new GlycanRepeatModification(null);
-		repMod.setMaxRepeatCount(0);
-		repMod.setMinRepeatCount(0);
+		repMod.setMaxRepeatCount(1);
+		repMod.setMinRepeatCount(1);
 		cyclicEdge.setSubstituent(repMod);
 		
 		glyCo.addNode(_node, cyclicEdge, _startCyclic);

@@ -80,15 +80,15 @@ public class Edge implements Visitable {
 	public boolean isRepeat() {
 		if(substituent == null) return false;
 		if(!(substituent instanceof GlycanRepeatModification)) return false;
-		GlycanRepeatModification cyclic = (GlycanRepeatModification) substituent;
-		return (cyclic.getMaxRepeatCount() != 0 && cyclic.getMinRepeatCount() != 0);
+		//GlycanRepeatModification cyclic = (GlycanRepeatModification) substituent;
+		return (!isCyclic());
 	}
 	
 	public boolean isCyclic() {
 		if(substituent == null) return false;
 		if(!(substituent instanceof GlycanRepeatModification)) return false;
 		GlycanRepeatModification cyclic = (GlycanRepeatModification) substituent;
-		return (cyclic.getMaxRepeatCount() == 0 && cyclic.getMinRepeatCount() == 0);
+		return (cyclic.getMaxRepeatCount() == 1 && cyclic.getMinRepeatCount() == 1);
 	}
 	
 	public boolean isReverseEdge () {
