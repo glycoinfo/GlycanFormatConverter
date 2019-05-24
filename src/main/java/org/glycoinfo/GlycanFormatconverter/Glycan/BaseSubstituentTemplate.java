@@ -7,6 +7,7 @@ public enum BaseSubstituentTemplate implements SubstituentInterface {
 
     ETHYR				("CC", "ethyl", "Et"),
     METHYL				("C", "methyl", "Me"),
+    NMETHYL             ("NC", "n-methyl", "NMe"),
     ACETYL				("CC/2=O", "acetyl", "Ac"),
     NACETYL             ("NCC/3=O", "n-acetyl", "NAc"),
     GLYCOLYL			("CCO/2=O", "glycolyl", "Gc"),
