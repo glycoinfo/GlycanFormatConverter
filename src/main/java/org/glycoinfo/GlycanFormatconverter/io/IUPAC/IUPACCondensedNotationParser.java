@@ -371,8 +371,9 @@ public class IUPACCondensedNotationParser {
             ret = item + ret;
             if (item == '-') isLinkage = true;
 
-            if (isLinkage && (item == 'a' | item == 'b' | item == '?')) {
-                break;
+            if (isLinkage) {
+                if (item == 'a' | item == 'b') break;
+                if (item == '?' && _notation.charAt(i - 1) != '?') break;
             }
         }
 

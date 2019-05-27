@@ -72,43 +72,8 @@ public class SkeletonCodeToStereo {
         /* check uncertain groups */
         if (haveUncertainGroups(_ms)) return a_aStereo;
 
-        SuperClass enumSuperClass = SuperClass.forSize(_ms.getSkeletonCode().length());
-        MSStateDeterminationUtility msUtil = new MSStateDeterminationUtility();
-
-        if(a_sSkeletonCode.contains("1") && a_sSkeletonCode.contains("2")) {
-            for(String s :
-                    msUtil.extractStereo(_wsc.convertConfigurationUnknownToAbsolutes(_ms).getFirst())) {
-                if(a_sSkeletonCode.endsWith("xh") && s.contains("gro")) {
-                    a_aStereo.addLast(checkDLconfiguration(s));
-                    continue;
-                }a_aStereo.addLast(s);
-            }
-        }
-
-        if(a_sSkeletonCode.contains("3") || a_sSkeletonCode.contains("4")) {
-            for (String ms : msUtil.extractStereo(_wsc.convertConfigurationRelativeToD(_ms))) {
-                if (ms.contains("gro")) {
-                    if (a_sSkeletonCode.endsWith("xh")) a_aStereo.addLast(checkDLconfiguration(ms));
-                    else a_aStereo.addLast(ms);
-                } else a_aStereo.addLast(checkDLconfiguration(ms));
-            }
-            //a_aStereo = _msUtility.extractStereo(_wsc.convertConfigurationRelativeToD(_ms));
-        }
-
         if(a_aStereo.isEmpty()) {
-            if(enumSuperClass.equals(SuperClass.TET))
-                throw new ConverterExchangeException(_ms.getSkeletonCode() + " could not handled");
-            else if(enumSuperClass.equals(SuperClass.TRI)) {
-                _ms = _wsc.convertCarbonylGroupToHydroxyl(_ms) != null ?
-                        _wsc.convertCarbonylGroupToHydroxyl(_ms) : _ms;
-                _ms =  _wsc.convertConfigurationUnknownToAbsolutes(_ms) != null ?
-                        _wsc.convertConfigurationUnknownToAbsolutes(_ms).getFirst() : _ms;
-
-                LinkedList<String> stereos = msUtil.extractStereo(_ms);
-                if (stereos.isEmpty())
-                    throw new ConverterExchangeException(_ms.getSkeletonCode() + " could not handled");
-                a_aStereo.add(checkDLconfiguration(stereos.getFirst()));
-            }
+            throw new ConverterExchangeException(_ms.getSkeletonCode() + " could not handled");
         }
 
         return a_aStereo;
