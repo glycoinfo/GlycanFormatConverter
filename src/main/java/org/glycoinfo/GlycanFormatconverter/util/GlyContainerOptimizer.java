@@ -1,6 +1,5 @@
 package org.glycoinfo.GlycanFormatconverter.util;
 
-import com.sun.xml.internal.rngom.parse.host.Base;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 
 import java.util.ArrayList;
