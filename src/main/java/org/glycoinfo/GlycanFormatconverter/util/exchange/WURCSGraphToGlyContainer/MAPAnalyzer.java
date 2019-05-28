@@ -65,6 +65,9 @@ public class MAPAnalyzer {
         }
 
         this.baseTemp = BaseSubstituentTemplate.forMAP(tempMAP);
+        if (baseTemp.equals(BaseSubstituentTemplate.AMINE)) {
+            this.headAtom = "N";
+        }
 
         if (this.baseTemp != null) return;
 

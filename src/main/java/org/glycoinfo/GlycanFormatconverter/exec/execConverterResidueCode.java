@@ -3,7 +3,10 @@ package org.glycoinfo.GlycanFormatconverter.exec;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.CondensedConverter;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.ExtendedConverter;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationConverter;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer.WURCSGraphToGlyContainer;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
@@ -54,12 +57,13 @@ public class execConverterResidueCode {
         GlyContainer gc = wg2gc.getGlycan();
 
         //TODO : 修飾とか構造情報などの情報を併記する必要があるかも
-        IUPACNotationConverter inConv = new IUPACNotationConverter();
+        CondensedConverter condConv = new CondensedConverter();
+        String ret = "";
         for (Node node : gc.getNodes()) {
-            inConv.makeTrivialName(node);
+            ret = condConv.start(node, false);
         }
 
-        return inConv.getCoreCode();
+        return ret;
     }
 
 }
