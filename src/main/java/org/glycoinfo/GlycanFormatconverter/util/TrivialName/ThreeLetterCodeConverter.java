@@ -106,7 +106,7 @@ public class ThreeLetterCodeConverter {
 
 		// extract substituents
 		ArrayList<Substituent> subs = extractSubstituents(_dict.getSubstituentNotation());
-		
+
 		// compare substituents
 		int subPoint = 0;
 		for(Edge childEdge : _node.getChildEdges()) {
@@ -217,20 +217,24 @@ public class ThreeLetterCodeConverter {
 	private ArrayList<GlyCoModification> extractModifications (String _item) throws GlycanException {
 		ArrayList<GlyCoModification> ret = new ArrayList<>();
 		if(_item.equals("")) return ret;
-		
+
 		for(String unit : _item.split("_")) {
 			if(unit.equals("")) continue;
 			String[] split_unit = unit.split("\\*");
 			ModificationTemplate modT = ModificationTemplate.forCarbon(split_unit[1].charAt(0));
+
 			if(modT != null) {
 				if(modT.equals(ModificationTemplate.ULOSONIC)) modT = ModificationTemplate.KETONE_U;
+				if (_item.startsWith("1*A") && !split_unit[0].equals("1") && modT.equals(ModificationTemplate.ALDONICACID)) {
+					modT = ModificationTemplate.URONICACID;
+				}
 				ret.add(new GlyCoModification(modT, Integer.parseInt(String.valueOf(split_unit[0]))));
 			}
 		}
 		
 		return ret;
-	}	
-	
+	}
+
 	private String trimConfiguration(String _stereo) {
 		if(_stereo.length() == 3) return "";
 		if(_stereo.length() == 4) return _stereo.substring(0, 1);

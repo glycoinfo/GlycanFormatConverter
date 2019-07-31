@@ -195,6 +195,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 	private String makePlaneNotation (String _notation) {
 		if (_notation.equals("N")) return _notation;
+		if (_notation.equals("Cl")) return _notation;
 		if (_notation.startsWith("O") || _notation.startsWith("C")) {
 			return _notation.substring(1,_notation.length());
 		}
@@ -283,6 +284,8 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 	private String makeHeadAtom (String _notation, String _planeNotaiton) {
 		String ret;
+
+		if (_notation.equals("N") && _planeNotaiton.equals("N")) return _planeNotaiton;
 
 		if (_notation.startsWith("(")) {
 			String bracket = _notation.substring(0, _notation.indexOf(")") + 1);

@@ -16,12 +16,14 @@ public enum MonosaccharideIndex {
     ERY("Ery", "D", "f", 1),
     THR("Thr", "D", "f", 1),
     THO("Tho", "D", "f", 1),
+    TET("Tet", "?", "?", 1),
 
     /* Pentose */
     ARA("Ara", "L", "p", 1),
     LYX("Lyx", "L", "p", 1),
     RIB("Rib", "D", "p", 1),
     XYL("Xyl", "D", "p", 1),
+    PEN("Pen", "?", "?", 1),
 
     /* Hexose */
 
@@ -30,16 +32,17 @@ public enum MonosaccharideIndex {
     HEP("Hep", "?", "?", 1),
 
     /* Octose */
+    OCT("Oct", "?", "?", 1),
 
     GLC("Glc", "D", "p", 1),
     GAL("Gal", "D", "p", 1),
     MAN("Man", "D", "p", 1),
-    IDO("Ido", "D", "p", 1),
+    IDO("Ido", "L", "p", 1),
     TAL("Tal", "D", "p", 1),
     GUL("Gul", "D", "p", 1),
     ALT("Alt", "L", "p", 1),
     ALL("All", "D", "p", 1),
-    HEX("Hex", "D", "p", 1),
+    HEX("Hex", "?", "p", 1),
 
     /* Deoxy hexoses */
     FUC("Fuc", "L", "p", 1),
@@ -56,7 +59,7 @@ public enum MonosaccharideIndex {
     AMI("Ami", "D", "p", 1),
     RHO("Rho", "D", "p", 1),
     SDTAL("6dTal", "D", "p", 1),
-    SDALT("6dAlt", "D", "p", 1),
+    SDALT("6dAlt", "L", "p", 1),
     SDGUL("6dGul", "D", "p", 1),
 
     /* Ketoses */

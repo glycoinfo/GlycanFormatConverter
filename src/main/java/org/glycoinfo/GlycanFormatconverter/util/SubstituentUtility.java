@@ -104,13 +104,13 @@ public class SubstituentUtility {
 		// Optimize substituent notation using DEOXY
 		if (_sub.getFirstPosition().getParentLinkageType().equals(LinkageType.DEOXY)) {
 			if (ret.startsWith("O") && bracket.equals("")) ret = ret.replaceFirst("O", "");
-			if (ret.startsWith("C") && bracket.equals("")) ret = ret.replaceFirst("C", "");
+			if (ret.startsWith("C") && !ret.equals("Cl") && bracket.equals("")) ret = ret.replaceFirst("C", "");
 			//System.out.println("DEOXY " + ret);
 		}
 
 		// Optimize substituent notation using H_AT_OH
 		if (_sub.getFirstPosition().getParentLinkageType().equals(LinkageType.H_AT_OH)) {
-			if (ret.startsWith("C") && bracket.equals("")) ret = ret.replaceFirst("C", "O");
+			if (ret.startsWith("C") && !ret.equals("Cl") && bracket.equals("")) ret = ret.replaceFirst("C", "O");
 			if (!ret.startsWith("C") && !ret.startsWith("O") && bracket.equals("")) ret = "O" + ret;
 			if (!bracket.equals("")) ret = "O" + ret;
 			//System.out.println("H_AT_OH " + ret);
