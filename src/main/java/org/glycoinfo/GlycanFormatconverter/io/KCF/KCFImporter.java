@@ -105,8 +105,9 @@ public class KCFImporter {
         String parentLin;
         String anomericState;
 
+        /* extract donor and acceptor monosaccharides */
         if ((nodeIndex.get(pID) instanceof Substituent &&
-                !(((Substituent) nodeIndex.get(pID)).getSubstituent() instanceof CrossLinkedTemplate))) {
+                !(((Substituent) nodeIndex.get(pID)).getSubstituent() instanceof BaseCrossLinkedTemplate))) {
             childNode = nodeIndex.get(pID);
             childLin = kcfUtil.extractLinkagePosition(units.get(2));
             parentNode = nodeIndex.get(cID);
@@ -121,7 +122,7 @@ public class KCFImporter {
 
             anomericState = kcfUtil.extractAnomerixState(units.get(1));
         }
- 
+
         if (childNode == null && parentNode == null || parentNode == null && childNode instanceof Substituent) return;
         if (childNode instanceof Substituent && parentNode instanceof Substituent) return;
 
@@ -169,19 +170,24 @@ public class KCFImporter {
         /* define edge with substituent */
         if (childNode instanceof Substituent) {
             String bridgeChild = kcfUtil.extractEdgeByID(units.get(1), true);
+
             if (!bridgeChild.equals("")) {
                 String childID = kcfUtil.extractID(kcfUtil.splitNotation(bridgeChild).get(1));
 
-                /* check pyrophoshate */
-                if (nodeIndex.get(childID) == null) {
-                    Linkage first = ((Substituent) childNode).getFirstPosition();
-                    first.setParentLinkages(makeLinkages(parentLin));
-                    ((Substituent) childNode).setFirstPosition(first);
-                    edge.addGlycosidicLinkage(first);
-                    edge.setParent(parentNode);
-                    childNode.addParentEdge(edge);
 
-                    glyco.addNodeWithSubstituent(parentNode, edge, ((Substituent) childNode));
+                if (nodeIndex.get(childID) == null) {
+                    if (!isRepeat(kcfUtil.extractEdgeByID(units.get(1), true))) {
+                        /* check pyrophoshate */
+                        Linkage first = ((Substituent) childNode).getFirstPosition();
+                        first.setParentLinkages(makeLinkages(parentLin));
+                        ((Substituent) childNode).setFirstPosition(first);
+                        edge.addGlycosidicLinkage(first);
+                        edge.setParent(parentNode);
+                        childNode.addParentEdge(edge);
+
+                        glyco.addNodeWithSubstituent(parentNode, edge, ((Substituent) childNode));
+
+                    }
                     return;
                 }
 
@@ -490,5 +496,14 @@ public class KCFImporter {
         }
 
         return ret;
+    }
+
+    private boolean isRepeat (String _notation) {
+        if (_notation.equals("")) return false;
+        ArrayList<String> units = kcfUtil.splitNotation(_notation);
+        String nodeString = kcfUtil.getNodeByID(units.get(1));
+        ArrayList<String> nodeItems = kcfUtil.splitNotation(nodeString);
+
+        return (nodeItems.get(1).equals("*"));
     }
 }

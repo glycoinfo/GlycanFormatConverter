@@ -6,6 +6,7 @@ import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationParser;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.BaseStereoIndex;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
+import org.glycoinfo.GlycanFormatconverter.util.analyzer.MonosaccharideNotationAnalyzer;
 
 import java.util.ArrayList;
 
@@ -42,40 +43,50 @@ public class KCFNodeConverter {
             KCFNotationToIUPACNotation kcf2iupac = new KCFNotationToIUPACNotation();
             IUPACNotationParser inp = new IUPACNotationParser();
             node = inp.parseMonosaccharide(kcf2iupac.start(notation));
+
             modifyMonosaccharide(node);
+            modifyHeadAtom(node);
         }
-        
+
         return node;
     }
 
-
     private Node makeSubstituent (String _notation) throws GlycanException {
-        String unit = kcfUtil.splitNotation(_notation).get(1);
+        String unit = this.modifyNotation(kcfUtil.splitNotation(_notation).get(1));
 
-        /* modify methyl */
-        unit = unit.equalsIgnoreCase("Me") ? "O" + unit : unit;
-        unit = unit.equals("PP") ? "PyrP" : unit;
-        unit = unit.equals("EtN") ? SubstituentTemplate.ETHANOLAMINE.getIUPACnotation() : unit;
-        unit = unit.equals("EtnP") ? SubstituentTemplate.PHOSPHOETHANOLAMINE.getIUPACnotation() : unit;
-        
         if (!isSubstituent(unit)) return null;
 
+        Substituent ret = null;
+
         if (haveChild(_notation)) {
-        		if (isPyrophosphate (_notation)) {
-        			 return modifyLinkageType(new Substituent(SubstituentTemplate.PYROPHOSPHATE));
-        		}
-        		if (isPhosphoEthanolamine(_notation)) {
-        			 return modifyLinkageType(new Substituent(SubstituentTemplate.PHOSPHOETHANOLAMINE));
-        		}
-            return modifyLinkageType((Substituent) makeCrossLinkedSubstituent(unit));
+            if (isPyrophosphate (_notation)) {
+                if (isCrossLinkedSubstituent(_notation))
+                    return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PYROPHOSPHATE);
+                else
+                    return this.makeSubstituentNotation(BaseSubstituentTemplate.PYROPHOSPHATE);
+            }
+            if (isPhosphoEthanolamine(_notation)) {
+                if (isCrossLinkedSubstituent(_notation))
+                    return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PHOSPHO_ETHANOLAMINE);
+                else
+                    return this.makeSubstituentNotation(BaseSubstituentTemplate.PHOSPHOETHANOLAMINE);
+            }
+            if (unit.equals("P")) {
+                if (isCrossLinkedSubstituent(_notation))
+                    return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PHOSPHATE);
+                else
+                    return this.makeSubstituentNotation(BaseSubstituentTemplate.PHOSPHATE);
+            }
         } else {
-            return modifyLinkageType((Substituent) makeSimpleSubstituent(unit));
+            return this.makeSubstituentNotation(BaseSubstituentTemplate.forIUPACNotationWithIgnore(unit));
         }
+
+        return ret;
     }
 
     private boolean isSubstituent (String _notation) {
-        CrossLinkedTemplate crossT = CrossLinkedTemplate.forIUPACNotationWithIgnore(_notation);
-        SubstituentTemplate subT = SubstituentTemplate.forIUPACNotationWithIgnore(_notation);
+        BaseCrossLinkedTemplate crossT = BaseCrossLinkedTemplate.forIUPACNotationWithIgnore(_notation);
+        BaseSubstituentTemplate subT = BaseSubstituentTemplate.forIUPACNotationWithIgnore(_notation);
 
         return (crossT != null || subT != null);
     }
@@ -110,22 +121,7 @@ public class KCFNodeConverter {
         mono.removeStereo(tempStereo);
         mono.addStereo(modifiedStereo);
 
-
         return _node;
-    }
-
-    private Node modifyLinkageType (Substituent _sub) throws GlycanException {
-        SubstituentUtility subUtil = new SubstituentUtility();
-
-        /* define first linkage */
-        _sub.setFirstPosition(new Linkage());
-
-        /* define second linkage */
-        if (_sub.getSubstituent() instanceof CrossLinkedTemplate) {
-            _sub.setSecondPosition(new Linkage());
-        }
-
-        return _sub;//subUtil.modifyLinkageType(_sub);
     }
 
     private boolean haveChild (String _notation) {
@@ -137,7 +133,21 @@ public class KCFNodeConverter {
         return (!childSideNotation.equals("") && !parentSideNotation.equals(""));
     }
 
+    private boolean isCrossLinkedSubstituent (String _notation) {
+        String linkage = kcfUtil.getEdgeByID(kcfUtil.splitNotation(_notation).get(0), true);
+
+        String id = kcfUtil.extractID(kcfUtil.splitNotation(linkage).get(1));
+
+        String nodeString = kcfUtil.getNodeByID(id);
+
+        if (nodeString.equals("")) return false;
+
+        return (MonosaccharideNotationAnalyzer.start(kcfUtil.splitNotation(nodeString).get(1)));
+    }
+
     private boolean isPyrophosphate (String _notation) {
+        if (kcfUtil.splitNotation(_notation).get(1).equals("PP")) return true;
+
         String currentID = kcfUtil.splitNotation(_notation).get(0);
         String childSideNotation = kcfUtil.extractEdgeByID(currentID, true);
 
@@ -147,45 +157,45 @@ public class KCFNodeConverter {
 
             if (childNode.equals("") || parentNode.equals("")) return false;
 
-            SubstituentTemplate parentT =
-                    SubstituentTemplate.forIUPACNotationWithIgnore(kcfUtil.splitNotation(parentNode).get(1));
-            SubstituentTemplate childT =
-                    SubstituentTemplate.forIUPACNotationWithIgnore(kcfUtil.splitNotation(childNode).get(1));
+            BaseSubstituentTemplate parentT =
+                    BaseSubstituentTemplate.forIUPACNotationWithIgnore(kcfUtil.splitNotation(parentNode).get(1));
+            BaseSubstituentTemplate childT =
+                    BaseSubstituentTemplate.forIUPACNotationWithIgnore(kcfUtil.splitNotation(childNode).get(1));
 
             if (parentT == null || childT == null) return false;
-            if (parentT.equals(SubstituentTemplate.PHOSPHATE) && childT.equals(SubstituentTemplate.PHOSPHATE)) return true;
+            if (parentT.equals(BaseSubstituentTemplate.PHOSPHATE) && childT.equals(BaseSubstituentTemplate.PHOSPHATE)) return true;
         }
 
         return false;
     }
 
     private boolean isPhosphoEthanolamine (String _notation) {
-	    	String currentID = kcfUtil.splitNotation(_notation).get(0);
-	    	String childNotation = kcfUtil.extractEdgeByID(currentID, true);
-	
-	    	if (!childNotation.equals("")) {
-	    		String childNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(childNotation).get(1));
-	    		String parentNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(childNotation).get(2));
+        String currentID = kcfUtil.splitNotation(_notation).get(0);
+        String childNotation = kcfUtil.extractEdgeByID(currentID, true);
 
-	    		if (childNode.equals("") || parentNode.equals("")) return false;
+        if (!childNotation.equals("")) {
+            String childNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(childNotation).get(1));
+            String parentNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(childNotation).get(2));
 
-	    		childNode = kcfUtil.splitNotation(childNode).get(1);
-	    		parentNode = kcfUtil.splitNotation(parentNode).get(1);
-	    		
-	    		if (childNode.equals("EtN"))
-	    			childNode = SubstituentTemplate.ETHANOLAMINE.getIUPACnotation();
-	
-	    		SubstituentTemplate parentT =
-	    				SubstituentTemplate.forIUPACNotationWithIgnore(parentNode);
-	    		SubstituentTemplate childT =
-	    				SubstituentTemplate.forIUPACNotationWithIgnore(childNode);
-	    		
-	    		if (parentT == null || childT == null) return false;
-	    		if (parentT.equals(SubstituentTemplate.PHOSPHATE) && childT.equals(SubstituentTemplate.ETHANOLAMINE)) return true;
-	    	}
-	
-	
-	    	return false;
+            if (childNode.equals("") || parentNode.equals("")) return false;
+
+            childNode = kcfUtil.splitNotation(childNode).get(1);
+            parentNode = kcfUtil.splitNotation(parentNode).get(1);
+
+            if (childNode.equals("EtN"))
+                childNode = BaseSubstituentTemplate.ETHANOLAMINE.getIUPACnotation();
+
+            BaseSubstituentTemplate parentT =
+                    BaseSubstituentTemplate.forIUPACNotationWithIgnore(parentNode);
+            BaseSubstituentTemplate childT =
+                    BaseSubstituentTemplate.forIUPACNotationWithIgnore(childNode);
+
+            if (parentT == null || childT == null) return false;
+            if (parentT.equals(BaseSubstituentTemplate.PHOSPHATE) && childT.equals(BaseSubstituentTemplate.ETHANOLAMINE))
+                return true;
+        }
+
+        return false;
     }
     
     private boolean isLinkageSubstituents (String _notation) {
@@ -212,18 +222,42 @@ public class KCFNodeConverter {
         return false;
     }
 
-    private Node makeSimpleSubstituent (String _unit) {
-        SubstituentTemplate subT = SubstituentTemplate.forIUPACNotation(_unit);
+    private Node makeSubstituentNotation (SubstituentInterface _subInf) throws GlycanException {
+        Substituent ret = new Substituent(_subInf);
 
-        if (subT == null) return null;
+        /* define first linkage */
+        ret.setFirstPosition(new Linkage());
 
-        return new Substituent(subT);
+        /* define second linkage */
+        if (ret.getSubstituent() instanceof BaseCrossLinkedTemplate) {
+            ret.setSecondPosition(new Linkage());
+        }
+
+        if (!SubstituentUtility.isNLinkedSubstituent(ret)) {
+            ret.setHeadAtom("O");
+        }
+
+        return ret;
     }
 
-    private Node makeCrossLinkedSubstituent (String _unit) {
-        CrossLinkedTemplate crossT = CrossLinkedTemplate.forIUPACNotation(_unit);
+    private String modifyNotation (String _notation) {
+        /* modify methyl */
+        //unit = unit.equalsIgnoreCase("Me") ? "O" + unit : unit;
+        if (_notation.equals("PP")) _notation = "PyrP";
+        if (_notation.equals("EtN")) _notation = BaseSubstituentTemplate.ETHANOLAMINE.getIUPACnotation();
+        if (_notation.equals("EtnP")) _notation = BaseSubstituentTemplate.PHOSPHOETHANOLAMINE.getIUPACnotation();
 
-        if (crossT == null) return null;
-        return new Substituent(crossT);
+        return _notation;
+    }
+
+    private void modifyHeadAtom (Node _node) {
+        for (Edge donorEdge : _node.getChildEdges()) {
+            if (donorEdge.getSubstituent() == null) continue;
+            Substituent sub = (Substituent) donorEdge.getSubstituent();
+
+            if (sub instanceof GlycanRepeatModification) continue;
+        }
+
+        return;
     }
 }

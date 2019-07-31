@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class KCFNotationToIUPACNotation {
 
     public String start (String _input) throws GlyCoImporterException, GlycanException, TrivialNameException {
-    		String ulosonic = "";
+        String ulosonic = "";
         String ringSize = "";
         String tailStatus = "";
 
@@ -43,13 +43,14 @@ public class KCFNotationToIUPACNotation {
         /* extract prefix annotation */
         Matcher prefixSub = Pattern.compile("(\\d)-([CO])-([Ff]ormyl|[Mm]ethyl)").matcher(_input);
         if (prefixSub.find()) {
+            //TODO : Modify head atom in O-linkage
             if (prefixSub.group(3).equalsIgnoreCase("formyl")) {
-                SubstituentTemplate subT = SubstituentTemplate.C_FORMYL;
+                BaseSubstituentTemplate subT = BaseSubstituentTemplate.FORMYL;
                 subs.add(prefixSub.group(1) + subT.getIUPACnotation());
                 _input = _input.replace(prefixSub.group(), "");
             }
             if (prefixSub.group(3).equalsIgnoreCase("methyl")) {
-                SubstituentTemplate subT = SubstituentTemplate.C_METHYL;
+                BaseSubstituentTemplate subT = BaseSubstituentTemplate.METHYL;
                 subs.add(prefixSub.group(1) + subT.getIUPACnotation());
                 _input = _input.replace(prefixSub.group(), "");
             }
@@ -216,37 +217,8 @@ public class KCFNotationToIUPACNotation {
 
         /* append tail modification */
         notation.append(tailStatus);
-        
+
         return notation.toString();
-    }
-
-    private boolean haveDeoxy (ArrayList<String> _mods) {
-        boolean ret = false;
-        for (String unit : _mods) {
-            if (unit.contains("deoxy")) ret = true;
-        }
-        return ret;
-    }
-
-    private boolean haveUnsaturation (ArrayList<String> _subs) {
-        for (String unit : _subs) {
-            if (unit.contains("en")) return true;
-        }
-
-        return false;
-    }
-
-    private boolean haveMultipleDeoxy(ArrayList<String> _mods, SuperClass _superClass) {
-        if (_superClass == null) return false;
-
-        int count = 0;
-
-        for (String unit : _mods) {
-            if (!unit.contains("deoxy")) continue;
-            count = unit.substring(0, unit.indexOf("-")).split(",").length;
-        }
-
-        return (count > 1);
     }
 
     //TODO : NAcA -> 2NAc, NFoA -> 2NFo,
@@ -383,23 +355,25 @@ public class KCFNotationToIUPACNotation {
     }
 
     private String modifySubstituentNotation (String _subNotation) throws GlyCoImporterException {
-        SubstituentTemplate subT = SubstituentTemplate.forIUPACNotationWithIgnore(_subNotation);
+        if (_subNotation.matches("N?diMe")) _subNotation = _subNotation.replaceFirst("di", "Di");
+
+        BaseSubstituentTemplate subT = BaseSubstituentTemplate.forIUPACNotationWithIgnore(_subNotation);
 
         if (subT == null) {
-            subT = SubstituentTemplate.forGlycoCTNotationWithIgnore(_subNotation);
+            subT = BaseSubstituentTemplate.forGlycoCTNotationWithIgnore(_subNotation);
         }
         if (subT == null && _subNotation.startsWith("N")) {
             _subNotation = _subNotation.replaceFirst("N", "N-");
-            subT = SubstituentTemplate.forGlycoCTNotationWithIgnore(_subNotation);
+            subT = BaseSubstituentTemplate.forGlycoCTNotationWithIgnore(_subNotation);
         }
         if (subT == null) {
             if (_subNotation.equals("Me")) {
-                subT = SubstituentTemplate.METHYL;
+                subT = BaseSubstituentTemplate.METHYL;
             }
             if (_subNotation.contains("Pyr") || _subNotation.contains("pyr")) {
-                if (_subNotation.startsWith("(R")) subT = SubstituentTemplate.R_PYRUVATE;
-                if (_subNotation.startsWith("(S")) subT = SubstituentTemplate.S_PYRUVATE;
-                if (_subNotation.startsWith("Pyr") || _subNotation.startsWith("pyr")) subT = SubstituentTemplate.X_PYRUVATE; //TODO :pyrも
+                if (_subNotation.startsWith("(R")) subT = BaseSubstituentTemplate.R_PYRUVATE;
+                if (_subNotation.startsWith("(S")) subT = BaseSubstituentTemplate.S_PYRUVATE;
+                if (_subNotation.startsWith("Pyr") || _subNotation.startsWith("pyr")) subT = BaseSubstituentTemplate.X_PYRUVATE; //TODO :pyrも
             }
         }
 
