@@ -19,8 +19,8 @@ public class KCFToGlyContainer {
 
     public static void main(String[] args) throws Exception {
         String directory =
-                "src/test/resources/KCFSample";
-                //"src/test/resources/sampleKCF";
+                //"src/test/resources/KCFSample";
+                "src/test/resources/kcf.txt";
 
         if (directory == null || directory.equals("")) throw new Exception("File could not found!");
 
@@ -42,6 +42,8 @@ public class KCFToGlyContainer {
 
                     String kcfi = ie.getExtendedWithGreek();
 
+                    System.out.println(key + "\t" + kcfi);
+                    /*
                     IUPACExtendedImporter iei = new IUPACExtendedImporter();
 
                     glyco = iei.start(kcfi);
@@ -58,10 +60,15 @@ public class KCFToGlyContainer {
                     }
 
                     System.out.println(results);
+                    */
                 } catch (Exception e) {
+                    error.append(key + "\t" + e.getMessage() + "\n");
                     e.printStackTrace();
                 }
             }
+
+            System.out.println(error);
+
         }
     }
 
@@ -77,6 +84,7 @@ public class KCFToGlyContainer {
         String line = "";
         LinkedHashMap<String, String> ret = new LinkedHashMap<String, String>();
         int count = 0;
+        String index = "";
 
         StringBuilder kcfUnit = new StringBuilder();
         boolean isSkip = false;
@@ -85,18 +93,32 @@ public class KCFToGlyContainer {
             line.trim();
             if (line.equals("")) continue;
             if (line.startsWith("%")) isSkip = true;
-            if (line.startsWith("ENTRY")) count++;
+            if (line.startsWith("ENTRY")) {
+                index = extractGnumber(line);
+            }
 
             kcfUnit.append(line + "\n");
 
             if (line.equals("///")) {
-                if (!isSkip) ret.put(String.valueOf(count), kcfUnit.toString());
+                if (!isSkip) {
+                    ret.put(index, kcfUnit.toString());
+                    index = "";
+                }
                 kcfUnit = new StringBuilder();
                 isSkip = false;
             }
         }
 
         _bf.close();
+
+        return ret;
+    }
+
+    public static String extractGnumber (String _entries) {
+        String ret = "";
+        for (String s : _entries.split("\\s")) {
+            if (s.matches("G\\d{5}")) ret = s;
+        }
 
         return ret;
     }
