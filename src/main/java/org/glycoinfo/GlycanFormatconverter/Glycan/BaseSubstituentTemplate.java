@@ -22,6 +22,7 @@ public enum BaseSubstituentTemplate implements SubstituentInterface {
     SUCCINATE			("CCCCO/5=O/2=O", "succinate", "Suc"),
     NSUCCINATE          ("NCCCCO/6=O/3=O", "n-succinate", "NSuc"),
     DIMETHYL			("C/1C", "dimethyl", "DiMe"),
+    NDIMETHYL			("NC/2C", "n-dimethyl", "NDiMe"),
     PHOSPHATE			("PO/2O/2=O", "phosphate", "P"),
     PHOSPHOCHOLINE		("P^XOCCNC/6C/6C/2O/2=O", "phospho-choline", "PCho"),
     ETHANOLAMINE        ("NCCO", "ethanolamine", "Etn"),
