@@ -65,6 +65,7 @@ public enum SubstituentTemplate {
 	IMINO_b				("*=N*", "imino", "", "bridge"),
 	PHOSPHATE_b			("*OPO*/3O/3=O", "phosphate", "P", "bridge"),
 	PYROPHOSPHATE_b		("*OP^XOP^X*/5O/5=O/3O/3=O", "pyrophosphate", "PyrP", "bridge"),
+	PYROPHOSPHATE_o		("*OP^XOP^XO*/5O/5=O/3O/3=O", "pyrophosphate", "PyrP", "bridge"),
 	P_bridge_un			("*1OP^X*2/3O/3=O", "phosphate", "P", "bridge"),
 	SULFATE_b			("*OSO*/3=O/3=O", "sulfate", "S", "bridge"),
 	N_SULFATE_b			("*NS*/3=O/3=O", "n_sulfate", "NS", "bridge"),
