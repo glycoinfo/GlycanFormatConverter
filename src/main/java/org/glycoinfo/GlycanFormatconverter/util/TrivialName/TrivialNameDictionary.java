@@ -62,26 +62,26 @@ public enum TrivialNameDictionary {
 	DHA("Dha", "dlyx", "1*A_2*O_3*d_7*A", "", 7);
 	//NON("Non", "", "1*A_2*O_3*d_9*m", "5*N_7*N", 9);
 	
-	private String threeLetter;
+	private String trivialName;
 	private String stereos;
-	private String modification;
-	private String substituent;
+	private String modifications;
+	private String substituents;
 	private int size;
 	
 	public String getStereos() {
 		return this.stereos;
 	}
 	
-	public String getModificationNotation() {
-		return this.modification;
+	public String getModifications() {
+		return this.modifications;
 	}
 	
-	public String getSubstituentNotation() {
-		return this.substituent;
+	public String getSubstituents() {
+		return this.substituents;
 	}
 	
 	public String getThreeLetterCode() {
-		return this.threeLetter;
+		return this.trivialName;
 	}
 	
 	public int getSize() {
@@ -89,16 +89,16 @@ public enum TrivialNameDictionary {
 	}
 	
 	TrivialNameDictionary(String _code, String _stereos, String _modification, String _substituent, int _size) {
-		this.threeLetter = _code;
+		this.trivialName = _code;
 		this.stereos = _stereos;
-		this.modification = _modification;
-		this.substituent = _substituent;
+		this.modifications = _modification;
+		this.substituents = _substituent;
 		this.size = _size;
 	}
 	
 	public static TrivialNameDictionary forThreeLetterCode (String _code) {
 		for(TrivialNameDictionary tiv : TrivialNameDictionary.values()) {
-			if(tiv.threeLetter.equalsIgnoreCase(_code)) return tiv;
+			if(tiv.trivialName.equalsIgnoreCase(_code)) return tiv;
 		}
 		
 		return null;

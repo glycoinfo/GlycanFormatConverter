@@ -6,7 +6,6 @@ import java.util.LinkedList;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
-import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameDictionary;
 
 public class ThreeLetterCodeConverter {
 
@@ -102,10 +101,10 @@ public class ThreeLetterCodeConverter {
 		}
 
 		// extract modifications
-		ArrayList<GlyCoModification> mods = extractModifications(_dict.getModificationNotation());
+		ArrayList<GlyCoModification> mods = extractModifications(_dict.getModifications());
 
 		// extract substituents
-		ArrayList<Substituent> subs = extractSubstituents(_dict.getSubstituentNotation());
+		ArrayList<Substituent> subs = extractSubstituents(_dict.getSubstituents());
 
 		// compare substituents
 		int subPoint = 0;
@@ -149,10 +148,10 @@ public class ThreeLetterCodeConverter {
 		Monosaccharide mono = ((Monosaccharide) _node);
 		
 		// extract modifications
-		ArrayList<GlyCoModification> mods = extractModifications(_dict.getModificationNotation());
+		ArrayList<GlyCoModification> mods = extractModifications(_dict.getModifications());
 		
 		// extract substituents
-		ArrayList<Substituent> subs = extractSubstituents(_dict.getSubstituentNotation());
+		ArrayList<Substituent> subs = extractSubstituents(_dict.getSubstituents());
 		
 		// modify substituent
 		for(Edge childEdge : _node.getChildEdges()) {

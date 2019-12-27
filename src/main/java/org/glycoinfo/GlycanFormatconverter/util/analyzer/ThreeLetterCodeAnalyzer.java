@@ -68,8 +68,8 @@ public class ThreeLetterCodeAnalyzer {
 
 			if(trivDict != null) {
 				stereo = trivDict.getStereos();
-				extractModifications(trivDict.getModificationNotation());
-				extractSubstituents(trivDict.getSubstituentNotation());
+				extractModifications(trivDict.getModifications());
+				extractSubstituents(trivDict.getSubstituents());
 			} else {
 				bsi = BaseStereoIndex.forCode(sugarName);
 				if(bsi != null) stereo = matTriv.group(2);
@@ -87,8 +87,8 @@ public class ThreeLetterCodeAnalyzer {
 			if(trivDict != null) {
 				stereo = trivDict.getStereos();
 				superclass = SuperClass.forSize(trivDict.getSize());
-				extractModifications(trivDict.getModificationNotation());
-				extractSubstituents(trivDict.getSubstituentNotation());
+				extractModifications(trivDict.getModifications());
+				extractSubstituents(trivDict.getSubstituents());
 			} else {
 				stereo = _trivialName;
 
