@@ -32,6 +32,8 @@ public enum ModifiedMonosaccharideDescriptor {
 	FUCNAC("FucNAc", "gal", "6*m", "2*NAc"),
 	RHANAC("RhaNAc", "man", "6*m", "2*NAc"),
 	QUINAC("QuiNAc", "glc", "6*m", "2*NAc"),
+	DEOXYALTNAC("6dAltNAc", "alt", "6*m", "2*NAc"),
+	DEOXYTALNAC("6dTalNAc", "tal", "6*m", "2*NAc"),
 	//MURNAC_XLAC("MurNAc", "glc", "", "2*NAc_3*(X)Lac"),
 	MURNAC_SLAC("iMurNAc", "glc", "", "2*NAc_3*(S)OLac"),
 	MURNAC_RLAC("MurNAc", "glc", "", "2*NAc_3*(R)OLac"),
@@ -39,10 +41,10 @@ public enum ModifiedMonosaccharideDescriptor {
 	MURNGC_SLAC("iMurNGc", "glc", "", "2*NGc_3*(S)OLac"),
 	MURNGC_RLAC("MurNGc", "glc", "", "2*NGc_3*(R)OLac"),
 	//MURNGC_XLAC("MurNGc", "glc", "", "2*NGc_3*(X)Lac"),
-	NEUGC("NeuGc", "gro_gal", "1*A_2*O_3*d", "5*NGc"), //always d configuration
-	NEUAC("NeuAc", "gro_gal", "1*A_2*O_3*d", "5*NAc"), //always d configuration
-	NEU5GC("Neu5Gc", "gro_gal", "1*A_2*O_3*d", "5*NGc"), //always d configuraiton
-	NEU5AC("Neu5Ac", "gro_gal", "1*A_2*O_3*d", "5*NAc"); //always d configuration
+	NEUGC("NeuGc", "dgro_dgal", "1*A_2*O_3*d", "5*NGc"), //always d configuration
+	NEUAC("NeuAc", "dgro_dgal", "1*A_2*O_3*d", "5*NAc"), //always d configuration
+	NEU5GC("Neu5Gc", "dgro_dgal", "1*A_2*O_3*d", "5*NGc"), //always d configuraiton
+	NEU5AC("Neu5Ac", "dgro_dgal", "1*A_2*O_3*d", "5*NAc"); //always d configuration
 	
 	private String trivialName;
 	private String stereos;
