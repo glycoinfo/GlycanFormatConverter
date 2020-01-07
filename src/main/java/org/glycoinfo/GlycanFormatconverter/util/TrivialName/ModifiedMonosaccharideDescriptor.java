@@ -34,6 +34,7 @@ public enum ModifiedMonosaccharideDescriptor {
 	QUINAC("QuiNAc", "glc", "6*m", "2*NAc"),
 	DEOXYALTNAC("6dAltNAc", "alt", "6*m", "2*NAc"),
 	DEOXYTALNAC("6dTalNAc", "tal", "6*m", "2*NAc"),
+	DEOXYHEXNAC("dHexNAc", "hex", "6*m", "2*NAc"),
 	//MURNAC_XLAC("MurNAc", "glc", "", "2*NAc_3*(X)Lac"),
 	MURNAC_SLAC("iMurNAc", "glc", "", "2*NAc_3*(S)OLac"),
 	MURNAC_RLAC("MurNAc", "glc", "", "2*NAc_3*(R)OLac"),
@@ -44,8 +45,10 @@ public enum ModifiedMonosaccharideDescriptor {
 	NEUGC("NeuGc", "dgro_dgal", "1*A_2*O_3*d", "5*NGc"), //always d configuration
 	NEUAC("NeuAc", "dgro_dgal", "1*A_2*O_3*d", "5*NAc"), //always d configuration
 	NEU5GC("Neu5Gc", "dgro_dgal", "1*A_2*O_3*d", "5*NGc"), //always d configuraiton
-	NEU5AC("Neu5Ac", "dgro_dgal", "1*A_2*O_3*d", "5*NAc"); //always d configuration
-	
+	NEU5AC("Neu5Ac", "dgro_dgal", "1*A_2*O_3*d", "5*NAc"), //always d configuration
+	NON("Non", "non", "1*A_2*O_3*d", ""),
+	DIDEOXYNON("ddNon", "non", "1*A_2*O_3*d_9*m", "5*N_7*N");
+
 	private String trivialName;
 	private String stereos;
 	private String modifications;
