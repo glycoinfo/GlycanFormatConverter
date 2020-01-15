@@ -1,11 +1,9 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.Glycan.BaseCrossLinkedTemplate;
+import org.glycoinfo.GlycanFormatconverter.Glycan.BaseSubstituentTemplate;
+import org.glycoinfo.GlycanFormatconverter.Glycan.LinkageType;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
-import org.glycoinfo.WURCSFramework.util.map.MAPGraphImporter;
-import org.glycoinfo.WURCSFramework.util.map.analysis.MAPGraphAnalyzer;
-import org.glycoinfo.WURCSFramework.wurcs.map.MAPGraph;
-import org.glycoinfo.WURCSFramework.wurcs.map.MAPStar;
 
 import java.util.ArrayList;
 import java.util.Collections;

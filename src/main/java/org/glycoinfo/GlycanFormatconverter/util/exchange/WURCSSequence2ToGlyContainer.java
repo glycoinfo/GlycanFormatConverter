@@ -1,27 +1,7 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.GlyCoModificationComparater;
-import org.glycoinfo.GlycanFormatconverter.Glycan.AnomericStateDescriptor;
-import org.glycoinfo.GlycanFormatconverter.Glycan.CrossLinkedTemplate;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanRepeatModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanUndefinedUnit;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Linkage;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyCoModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.ModificationTemplate;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
-import org.glycoinfo.GlycanFormatconverter.Glycan.SubstituentInterface;
-import org.glycoinfo.GlycanFormatconverter.Glycan.SubstituentTemplate;
-import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.array.WURCSImporter;
 import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
@@ -31,11 +11,12 @@ import org.glycoinfo.WURCSFramework.wurcs.array.LIP;
 import org.glycoinfo.WURCSFramework.wurcs.array.LIPs;
 import org.glycoinfo.WURCSFramework.wurcs.array.MOD;
 import org.glycoinfo.WURCSFramework.wurcs.array.MS;
-import org.glycoinfo.WURCSFramework.wurcs.sequence2.BRIDGE;
-import org.glycoinfo.WURCSFramework.wurcs.sequence2.GLIN;
-import org.glycoinfo.WURCSFramework.wurcs.sequence2.GRES;
-import org.glycoinfo.WURCSFramework.wurcs.sequence2.SUBST;
-import org.glycoinfo.WURCSFramework.wurcs.sequence2.WURCSSequence2;
+import org.glycoinfo.WURCSFramework.wurcs.sequence2.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 public class WURCSSequence2ToGlyContainer {
 	

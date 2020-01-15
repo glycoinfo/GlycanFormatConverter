@@ -10,7 +10,10 @@ import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.TreeMap;
 
 /**
  * Created by e15d5605 on 2017/09/19.

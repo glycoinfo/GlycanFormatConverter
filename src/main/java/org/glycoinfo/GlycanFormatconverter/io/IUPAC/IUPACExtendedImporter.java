@@ -1,14 +1,17 @@
 package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class IUPACExtendedImporter {
 
@@ -35,7 +38,7 @@ public class IUPACExtendedImporter {
 		
 		if (notations.isEmpty()) notations.add(_iupac);
 
-		/**/
+		//
 		for (String subst : notations) {
 			IUPACStacker stacker = new IUPACStacker();
 
@@ -110,7 +113,7 @@ public class IUPACExtendedImporter {
 				isbisect = false;
 			}
 
-			/* for end of multiple parent */
+			// for end of multiple parent
 			if (isMultipleParent && _iupac.charAt(i) == ')') {
 				if (_iupac.charAt(i + 1) == ']' && _iupac.charAt(i + 2) != '-') {
 					isbisect = true;
@@ -122,7 +125,7 @@ public class IUPACExtendedImporter {
 				isMultipleParent = false;
 			}
 
-			/* for linkage */
+			// for linkage
 			if (isLinkage && _iupac.charAt(i) == ')') {
 				if (_iupac.charAt(i + 1) == '=') {
 					isLinkage = false;
@@ -139,18 +142,18 @@ public class IUPACExtendedImporter {
 				mono = "";
 				isLinkage = false;
 			}
-			/* for repeating */
+			// for repeating
 			if (isLinkage && _iupac.charAt(i) == ']') {
 				isLinkage = false;
 				isRepeat = true;
 				continue;
 			}
-			/* for root */
+			// for root
 			if ((_iupac.length() - 1) == i) {
 				ret.add(mono);
 				break;
 			}
-			/* for repeating count */
+			// for repeating count
 			if (isRepeat) {
 				if (String.valueOf(_iupac.charAt(i)).matches("[\\dn]")) {
 					if (String.valueOf(_iupac.charAt(i + 1)).matches("\\d")) continue;

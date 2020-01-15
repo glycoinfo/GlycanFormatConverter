@@ -8,7 +8,10 @@ import org.glycoinfo.GlycanFormatconverter.util.comparater.LCNodeComparater;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.NodeDescendingComparator;
 import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.TreeMap;
 
 /**
  * Created by e15d5605 on 2017/10/06.

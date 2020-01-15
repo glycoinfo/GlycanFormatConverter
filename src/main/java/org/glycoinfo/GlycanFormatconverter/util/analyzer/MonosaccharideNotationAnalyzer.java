@@ -2,7 +2,6 @@ package org.glycoinfo.GlycanFormatconverter.util.analyzer;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
-import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 /**
  * Created by e15d5605 on 2017/08/24.

@@ -1,23 +1,14 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.SugarToWURCSGraph;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-
-import org.eurocarbdb.MolecularFramework.sugar.GlycoEdge;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoNode;
-import org.eurocarbdb.MolecularFramework.sugar.Linkage;
-import org.eurocarbdb.MolecularFramework.sugar.LinkageType;
 import org.eurocarbdb.MolecularFramework.sugar.Monosaccharide;
-import org.eurocarbdb.MolecularFramework.sugar.Substituent;
-import org.eurocarbdb.MolecularFramework.sugar.SugarUnitRepeat;
+import org.eurocarbdb.MolecularFramework.sugar.*;
 import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
 import org.glycoinfo.WURCSFramework.util.property.AtomicProperties;
-import org.glycoinfo.WURCSFramework.wurcs.graph.Backbone;
-import org.glycoinfo.WURCSFramework.wurcs.graph.BackboneCarbon;
-import org.glycoinfo.WURCSFramework.wurcs.graph.BackboneUnknown_TBD;
-import org.glycoinfo.WURCSFramework.wurcs.graph.Backbone_TBD;
-import org.glycoinfo.WURCSFramework.wurcs.graph.CarbonDescriptor_TBD;
 import org.glycoinfo.WURCSFramework.wurcs.graph.Modification;
+import org.glycoinfo.WURCSFramework.wurcs.graph.*;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class MonosaccharideToBackbone {
 

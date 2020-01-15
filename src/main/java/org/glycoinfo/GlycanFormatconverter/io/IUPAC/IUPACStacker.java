@@ -1,10 +1,10 @@
 package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class IUPACStacker {
 

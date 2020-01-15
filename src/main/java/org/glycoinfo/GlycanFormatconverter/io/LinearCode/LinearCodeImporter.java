@@ -1,10 +1,16 @@
 package org.glycoinfo.GlycanFormatconverter.io.LinearCode;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.Glycan.Aglycone;
+import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
+import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
+import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

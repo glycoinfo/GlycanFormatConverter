@@ -3,7 +3,6 @@ package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
-import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 public class IUPACExporter {
 

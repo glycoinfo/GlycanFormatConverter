@@ -1,16 +1,11 @@
 package org.glycoinfo.WURCSFramework.util.oldUtil.IUPAC;
 
+import org.glycoinfo.WURCSFramework.util.oldUtil.WURCSSequence2ToResidueContainer;
+import org.glycoinfo.WURCSFramework.util.residuecontainer.*;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import org.glycoinfo.WURCSFramework.util.oldUtil.WURCSSequence2ToResidueContainer;
-import org.glycoinfo.WURCSFramework.util.residuecontainer.LinkageBlock;
-import org.glycoinfo.WURCSFramework.util.residuecontainer.RepeatingBlock;
-import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainer;
-import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainerException;
-import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainerUtility;
-import org.glycoinfo.WURCSFramework.util.residuecontainer.RootStatusDescriptor;
 
 public class WURCSToIUPAC {
 

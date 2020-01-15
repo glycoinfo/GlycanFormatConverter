@@ -1,10 +1,15 @@
 package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
+import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
+import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Created by e15d5605 on 2017/07/31.
@@ -13,11 +18,13 @@ public class IUPACCondensedImporter {
 
     private GlyContainer glyCo = new GlyContainer();
 
+    /*
     public GlyContainer getGlyContainer () {
         return glyCo;
     }
+     */
 
-    public void start (String _iupac) throws GlyCoImporterException, GlycanException {
+    public GlyContainer start (String _iupac) throws GlyCoImporterException, GlycanException {
         _iupac = _iupac.replaceAll("[\\xc2\\xa0]", "");
         _iupac = _iupac.replaceAll(" ", "");
         _iupac = _iupac.trim();
@@ -63,7 +70,8 @@ public class IUPACCondensedImporter {
 
         //
         GlyContainerOptimizer gcOpt = new GlyContainerOptimizer();
-        gcOpt.start(glyCo);
+        //gcOpt.start(glyCo);
+        return gcOpt.start(glyCo);
     }
 
     private ArrayList<String> parseNotation (String _iupac) {

@@ -1,7 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.io.JSON;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.json.JSONObject;
 
 import java.util.HashMap;

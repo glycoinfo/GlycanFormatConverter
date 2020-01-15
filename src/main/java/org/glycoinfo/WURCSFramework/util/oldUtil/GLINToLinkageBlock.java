@@ -1,7 +1,5 @@
 package org.glycoinfo.WURCSFramework.util.oldUtil;
 
-import java.util.LinkedList;
-
 import org.glycoinfo.WURCSFramework.util.WURCSDataConverter;
 import org.glycoinfo.WURCSFramework.util.residuecontainer.LinkageBlock;
 import org.glycoinfo.WURCSFramework.util.residuecontainer.RepeatingBlock;
@@ -10,6 +8,8 @@ import org.glycoinfo.WURCSFramework.wurcs.array.GLIPs;
 import org.glycoinfo.WURCSFramework.wurcs.array.LIN;
 import org.glycoinfo.WURCSFramework.wurcs.sequence2.GLIN;
 import org.glycoinfo.WURCSFramework.wurcs.sequence2.GRES;
+
+import java.util.LinkedList;
 
 public class GLINToLinkageBlock {
 	

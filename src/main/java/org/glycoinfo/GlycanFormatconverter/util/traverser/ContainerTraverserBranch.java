@@ -1,15 +1,11 @@
 package org.glycoinfo.GlycanFormatconverter.util.traverser;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanGraph;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanRepeatModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.visitor.ContainerVisitor;
 import org.glycoinfo.GlycanFormatconverter.util.visitor.VisitorException;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class ContainerTraverserBranch extends FormatTraverser {
 

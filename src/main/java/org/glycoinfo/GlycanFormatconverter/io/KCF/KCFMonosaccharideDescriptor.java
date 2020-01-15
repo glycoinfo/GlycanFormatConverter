@@ -1,8 +1,5 @@
 package org.glycoinfo.GlycanFormatconverter.io.KCF;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 /**
  * Created by e15d5605 on 2017/12/25.
  */

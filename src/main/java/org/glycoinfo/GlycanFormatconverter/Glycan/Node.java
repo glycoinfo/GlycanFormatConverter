@@ -1,9 +1,9 @@
 package org.glycoinfo.GlycanFormatconverter.Glycan;
 
+import org.glycoinfo.GlycanFormatconverter.util.visitor.Visitable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import org.glycoinfo.GlycanFormatconverter.util.visitor.Visitable;
 
 public abstract class Node implements Visitable {
 	protected ArrayList<Edge> parentLinkages = new ArrayList<Edge>();

@@ -1,11 +1,11 @@
 package org.glycoinfo.GlycanFormatconverter.Glycan;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.glycoinfo.GlycanFormatconverter.util.visitor.ContainerVisitor;
 import org.glycoinfo.GlycanFormatconverter.util.visitor.Visitable;
 import org.glycoinfo.GlycanFormatconverter.util.visitor.VisitorException;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Edge implements Visitable {
 	private Node parent = null;

@@ -1,10 +1,10 @@
 package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.*;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class IUPACNotationConverter {
 

@@ -1,6 +1,5 @@
 package org.glycoinfo.GlycanFormatconverter.io.LinearCode;
 
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

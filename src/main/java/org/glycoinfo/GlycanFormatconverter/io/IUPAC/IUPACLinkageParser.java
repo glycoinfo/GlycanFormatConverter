@@ -1,11 +1,11 @@
 package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 
 
 //TODO : 結合位置のパース処理を統合する

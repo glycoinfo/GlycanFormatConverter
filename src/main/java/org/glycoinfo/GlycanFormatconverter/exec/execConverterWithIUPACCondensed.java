@@ -20,8 +20,7 @@ public class execConverterWithIUPACCondensed {
         if (args.length == 1) {
             try {
                 System.out.println(args[0]);
-                ici.start(args[0]);
-                ee = new ExporterEntrance(ici.getGlyContainer());
+                ee = new ExporterEntrance(ici.start(args[0]));
                 System.out.println(ee.toWURCS());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -31,8 +30,8 @@ public class execConverterWithIUPACCondensed {
                 for (int i = 0; i < args.length; i++) {
                     if (i % 2 != 0) {
                         System.out.println(args[i]);
-                        ici.start(args[i]);
-                        ee = new ExporterEntrance(ici.getGlyContainer());
+                        //ici.start(args[i]);
+                        ee = new ExporterEntrance(ici.start(args[i]));
                         System.out.println(ee.toWURCS());
                     }
                 }

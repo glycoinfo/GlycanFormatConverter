@@ -1,17 +1,11 @@
 package org.glycoinfo.GlycanFormatconverter.io.GlycoCT;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Linkage;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
+
+import java.util.*;
 
 /**
  * Class for extracting repeating units from GlyContainer.

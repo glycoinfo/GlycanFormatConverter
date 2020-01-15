@@ -4,8 +4,8 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerEdgeAnalyzer;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
-import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparatorSimple;
+import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 import org.glycoinfo.WURCSFramework.wurcs.graph.*;
 
 import java.util.ArrayList;
@@ -50,8 +50,8 @@ public class WURCSEdgeToLinkage {
         if (und != null) und = null;
 
         // define parent linkage
-        for (Backbone antennae : antennae) {
-            if (antennae.equals(_backbone)) backboneToUndefinedUnit(_backbone);
+        for (Backbone unit : antennae) {
+            if (unit.equals(_backbone)) backboneToUndefinedUnit(_backbone);
         }
 
         for (WURCSEdge cEdge : _backbone.getChildEdges()) {

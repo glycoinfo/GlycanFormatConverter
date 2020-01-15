@@ -9,7 +9,6 @@ import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotatio
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.ThreeLetterCodeAnalyzer;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

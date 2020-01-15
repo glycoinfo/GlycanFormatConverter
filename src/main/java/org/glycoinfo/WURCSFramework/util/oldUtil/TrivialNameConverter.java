@@ -1,9 +1,9 @@
 package org.glycoinfo.WURCSFramework.util.oldUtil;
 
+import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainer;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainer;
 
 public class TrivialNameConverter {
 	

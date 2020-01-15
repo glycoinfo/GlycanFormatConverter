@@ -1,25 +1,13 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.SugarToWURCSGraph;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.eurocarbdb.MolecularFramework.io.GlycoCT.GlycoCTTraverser;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoEdge;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoGraph;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoNode;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoconjugateException;
-import org.eurocarbdb.MolecularFramework.sugar.Monosaccharide;
-import org.eurocarbdb.MolecularFramework.sugar.NonMonosaccharide;
-import org.eurocarbdb.MolecularFramework.sugar.Substituent;
-import org.eurocarbdb.MolecularFramework.sugar.Sugar;
-import org.eurocarbdb.MolecularFramework.sugar.SugarUnitAlternative;
-import org.eurocarbdb.MolecularFramework.sugar.SugarUnitCyclic;
-import org.eurocarbdb.MolecularFramework.sugar.SugarUnitRepeat;
-import org.eurocarbdb.MolecularFramework.sugar.UnderdeterminedSubTree;
-import org.eurocarbdb.MolecularFramework.sugar.UnvalidatedGlycoNode;
+import org.eurocarbdb.MolecularFramework.sugar.*;
 import org.eurocarbdb.MolecularFramework.util.traverser.GlycoTraverser;
 import org.eurocarbdb.MolecularFramework.util.visitor.GlycoVisitor;
 import org.eurocarbdb.MolecularFramework.util.visitor.GlycoVisitorException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Class for analyzing sugar and collecting elements which be required for WURCSGraph

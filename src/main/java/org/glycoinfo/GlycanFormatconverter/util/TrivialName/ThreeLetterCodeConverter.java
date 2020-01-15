@@ -1,11 +1,11 @@
 package org.glycoinfo.GlycanFormatconverter.util.TrivialName;
 
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 
 public class ThreeLetterCodeConverter {
 

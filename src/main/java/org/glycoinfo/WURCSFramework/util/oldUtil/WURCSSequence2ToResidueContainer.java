@@ -1,8 +1,5 @@
 package org.glycoinfo.WURCSFramework.util.oldUtil;
 
-import java.util.Collections;
-import java.util.LinkedList;
-
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.WURCSFramework.util.WURCSDataConverter;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
@@ -17,6 +14,9 @@ import org.glycoinfo.WURCSFramework.util.residuecontainer.RootStatusDescriptor;
 import org.glycoinfo.WURCSFramework.wurcs.sequence2.BRIDGE;
 import org.glycoinfo.WURCSFramework.wurcs.sequence2.GRES;
 import org.glycoinfo.WURCSFramework.wurcs.sequence2.SUBST;
+
+import java.util.Collections;
+import java.util.LinkedList;
 
 /**
  * Class for output JSON style string from WURCS 

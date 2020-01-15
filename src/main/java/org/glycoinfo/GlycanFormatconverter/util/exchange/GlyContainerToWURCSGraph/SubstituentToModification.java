@@ -1,15 +1,14 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-
 import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Linkage;
 import org.glycoinfo.GlycanFormatconverter.Glycan.LinkageType;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.SugarToWURCSGraph.SubstituentTypeToMAP;
 import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 
 public class SubstituentToModification {
 

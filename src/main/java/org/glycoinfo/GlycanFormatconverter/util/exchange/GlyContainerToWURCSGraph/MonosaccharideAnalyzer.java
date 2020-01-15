@@ -1,17 +1,10 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
+
 import java.util.LinkedList;
 import java.util.TreeMap;
-
-import org.glycoinfo.GlycanFormatconverter.Glycan.BaseTypeDictionary;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyCoModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.Glycan.ModificationTemplate;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
-import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
 
 public class MonosaccharideAnalyzer {
 	

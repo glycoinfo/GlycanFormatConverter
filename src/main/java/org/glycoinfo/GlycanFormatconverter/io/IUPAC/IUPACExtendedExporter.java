@@ -1,14 +1,14 @@
 package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.ExporterInterface;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 public class IUPACExtendedExporter extends IUPACExporterUtility implements ExporterInterface{
 

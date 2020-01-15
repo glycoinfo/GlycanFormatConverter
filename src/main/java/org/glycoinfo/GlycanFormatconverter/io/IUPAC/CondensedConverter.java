@@ -5,7 +5,6 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
-import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 /**
  * Created by e15d5605 on 2017/11/15.

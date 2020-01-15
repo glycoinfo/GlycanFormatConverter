@@ -1,9 +1,9 @@
 package org.glycoinfo.WURCSFramework.util.residuecontainer;
 
-import java.util.LinkedList;
-
 import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 import org.glycoinfo.WURCSFramework.util.oldUtil.SubstituentTemplate;
+
+import java.util.LinkedList;
 
 public class RepeatingBlock {
 	/**

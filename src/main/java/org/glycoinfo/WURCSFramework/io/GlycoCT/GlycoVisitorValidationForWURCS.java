@@ -1,28 +1,14 @@
 package org.glycoinfo.WURCSFramework.io.GlycoCT;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-
-import org.eurocarbdb.MolecularFramework.sugar.Anomer;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoEdge;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoconjugateException;
-import org.eurocarbdb.MolecularFramework.sugar.Modification;
-import org.eurocarbdb.MolecularFramework.sugar.ModificationType;
-import org.eurocarbdb.MolecularFramework.sugar.Monosaccharide;
-import org.eurocarbdb.MolecularFramework.sugar.NonMonosaccharide;
-import org.eurocarbdb.MolecularFramework.sugar.Substituent;
-import org.eurocarbdb.MolecularFramework.sugar.SubstituentType;
-import org.eurocarbdb.MolecularFramework.sugar.Sugar;
-import org.eurocarbdb.MolecularFramework.sugar.SugarUnitAlternative;
-import org.eurocarbdb.MolecularFramework.sugar.SugarUnitCyclic;
-import org.eurocarbdb.MolecularFramework.sugar.SugarUnitRepeat;
-import org.eurocarbdb.MolecularFramework.sugar.UnderdeterminedSubTree;
-import org.eurocarbdb.MolecularFramework.sugar.UnvalidatedGlycoNode;
+import org.eurocarbdb.MolecularFramework.sugar.*;
 import org.eurocarbdb.MolecularFramework.util.traverser.GlycoTraverser;
 import org.eurocarbdb.MolecularFramework.util.traverser.GlycoTraverserValdidation;
 import org.eurocarbdb.MolecularFramework.util.visitor.GlycoVisitor;
 import org.eurocarbdb.MolecularFramework.util.visitor.GlycoVisitorException;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class GlycoVisitorValidationForWURCS  implements GlycoVisitor
 {

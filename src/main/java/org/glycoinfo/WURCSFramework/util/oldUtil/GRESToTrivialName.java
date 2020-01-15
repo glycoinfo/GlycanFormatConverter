@@ -1,7 +1,5 @@
 package org.glycoinfo.WURCSFramework.util.oldUtil;
 
-import java.util.ArrayList;
-
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
@@ -9,6 +7,8 @@ import org.glycoinfo.WURCSFramework.util.oldUtil.Carbbank.CarbBankNameConverter;
 import org.glycoinfo.WURCSFramework.util.oldUtil.Carbbank.ConverterCarbBankException;
 import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainer;
 import org.glycoinfo.WURCSFramework.wurcs.sequence2.GRES;
+
+import java.util.ArrayList;
 
 public class GRESToTrivialName {
 	

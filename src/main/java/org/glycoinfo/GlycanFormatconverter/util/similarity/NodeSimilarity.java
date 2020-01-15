@@ -1,17 +1,12 @@
 package org.glycoinfo.GlycanFormatconverter.util.similarity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanRepeatModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.ThreeLetterCodeConverter;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameDictionary;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.EdgeComparator;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class NodeSimilarity {
 

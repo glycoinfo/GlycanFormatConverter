@@ -1,11 +1,8 @@
 package org.glycoinfo.WURCSFramework.io.GlycoCT;
 
-import java.util.ArrayList;
-import java.util.TreeSet;
-
+import org.eurocarbdb.MolecularFramework.io.GlycoCT.SugarImporterGlycoCTCondensed;
 import org.eurocarbdb.MolecularFramework.io.SugarImporter;
 import org.eurocarbdb.MolecularFramework.io.SugarImporterException;
-import org.eurocarbdb.MolecularFramework.io.GlycoCT.SugarImporterGlycoCTCondensed;
 import org.eurocarbdb.MolecularFramework.io.namespace.GlycoVisitorToGlycoCT;
 import org.eurocarbdb.MolecularFramework.sugar.Sugar;
 import org.eurocarbdb.MolecularFramework.util.validation.GlycoVisitorValidation;
@@ -13,11 +10,13 @@ import org.eurocarbdb.MolecularFramework.util.visitor.GlycoVisitorException;
 import org.eurocarbdb.resourcesdb.Config;
 import org.eurocarbdb.resourcesdb.io.MonosaccharideConverter;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.SugarToWURCSGraph.SugarToWURCSGraph;
-import org.glycoinfo.WURCSFramework.io.GlycoCT.GlycoVisitorValidationForWURCS;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
 import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSGraphExporterUniqueMonosaccharides;
 import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSGraph;
+
+import java.util.ArrayList;
+import java.util.TreeSet;
 
 public class WURCSExporterGlycoCT {
 

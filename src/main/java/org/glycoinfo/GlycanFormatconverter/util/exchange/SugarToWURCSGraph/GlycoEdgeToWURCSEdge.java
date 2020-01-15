@@ -1,18 +1,14 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.SugarToWURCSGraph;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-
-import org.eurocarbdb.MolecularFramework.sugar.GlycoEdge;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoNode;
-import org.eurocarbdb.MolecularFramework.sugar.Linkage;
-import org.eurocarbdb.MolecularFramework.sugar.Monosaccharide;
-import org.eurocarbdb.MolecularFramework.sugar.Substituent;
+import org.eurocarbdb.MolecularFramework.sugar.*;
 import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
 import org.glycoinfo.WURCSFramework.wurcs.graph.DirectionDescriptor;
 import org.glycoinfo.WURCSFramework.wurcs.graph.LinkagePosition;
 import org.glycoinfo.WURCSFramework.wurcs.graph.Modification;
 import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSEdge;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class GlycoEdgeToWURCSEdge {
 

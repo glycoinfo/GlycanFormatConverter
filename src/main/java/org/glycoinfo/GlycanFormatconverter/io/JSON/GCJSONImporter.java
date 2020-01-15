@@ -1,11 +1,11 @@
 package org.glycoinfo.GlycanFormatconverter.io.JSON;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * Created by e15d5605 on 2017/09/19.

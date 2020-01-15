@@ -1,21 +1,16 @@
 package org.glycoinfo.GlycanFormatconverter.io.GlycoCT;
 
+import org.glycoinfo.GlycanFormatconverter.Glycan.CrossLinkedTemplate;
+import org.glycoinfo.GlycanFormatconverter.Glycan.SubstituentTemplate;
+import org.glycoinfo.WURCSFramework.util.WURCSException;
+import org.glycoinfo.WURCSFramework.util.WURCSFactory;
+import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSVisitorCollectConnectingBackboneGroups;
+import org.glycoinfo.WURCSFramework.wurcs.graph.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import org.glycoinfo.GlycanFormatconverter.Glycan.SubstituentTemplate;
-import org.glycoinfo.GlycanFormatconverter.Glycan.CrossLinkedTemplate;
-import org.glycoinfo.WURCSFramework.util.WURCSException;
-import org.glycoinfo.WURCSFramework.util.WURCSFactory;
-import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSVisitorCollectConnectingBackboneGroups;
-import org.glycoinfo.WURCSFramework.wurcs.graph.Backbone;
-import org.glycoinfo.WURCSFramework.wurcs.graph.BackboneCarbon;
-import org.glycoinfo.WURCSFramework.wurcs.graph.LinkagePosition;
-import org.glycoinfo.WURCSFramework.wurcs.graph.Modification;
-import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSEdge;
-import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSGraph;
 
 /**
  * Class for validating WURCS to be converted to GlycoCT.

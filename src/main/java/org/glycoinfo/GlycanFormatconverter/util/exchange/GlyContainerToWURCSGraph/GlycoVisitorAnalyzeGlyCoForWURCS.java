@@ -1,21 +1,13 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyCoModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanGraph;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanRepeatModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanUndefinedUnit;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.traverser.ContainerTraverserBranch;
 import org.glycoinfo.GlycanFormatconverter.util.traverser.FormatTraverser;
 import org.glycoinfo.GlycanFormatconverter.util.visitor.ContainerVisitor;
 import org.glycoinfo.GlycanFormatconverter.util.visitor.VisitorException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GlycoVisitorAnalyzeGlyCoForWURCS implements ContainerVisitor {
 

@@ -1,11 +1,11 @@
 package org.glycoinfo.WURCSFramework.io.GlycoCT;
 
-import java.util.TreeMap;
-import java.util.TreeSet;
-
 import org.eurocarbdb.MolecularFramework.io.SugarImporterException;
 import org.eurocarbdb.MolecularFramework.util.visitor.GlycoVisitorException;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
+
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class WURCSExporterGlycoCTList {
 

@@ -1,8 +1,5 @@
 package org.glycoinfo.WURCSFramework.util.oldUtil.Carbbank;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import org.glycoinfo.GlycanFormatconverter.Glycan.AnomericStateDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
@@ -11,6 +8,9 @@ import org.glycoinfo.WURCSFramework.util.oldUtil.SubstituentConverter;
 import org.glycoinfo.WURCSFramework.util.oldUtil.TrivialNameConverter;
 import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainer;
 import org.glycoinfo.WURCSFramework.util.residuecontainer.SuperClass;
+
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class CarbBankNameConverter {
 

@@ -1,10 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.util.visitor;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyCoModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.traverser.FormatTraverser;
 
 public interface ContainerVisitor {

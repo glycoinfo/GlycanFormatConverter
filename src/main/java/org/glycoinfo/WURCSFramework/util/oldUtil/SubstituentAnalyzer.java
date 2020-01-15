@@ -1,8 +1,5 @@
 package org.glycoinfo.WURCSFramework.util.oldUtil;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainer;
 import org.glycoinfo.WURCSFramework.wurcs.array.LIP;
 import org.glycoinfo.WURCSFramework.wurcs.array.MOD;
@@ -11,6 +8,9 @@ import org.glycoinfo.WURCSFramework.wurcs.sequence2.BRIDGE;
 import org.glycoinfo.WURCSFramework.wurcs.sequence2.GRES;
 import org.glycoinfo.WURCSFramework.wurcs.sequence2.MSPERI;
 import org.glycoinfo.WURCSFramework.wurcs.sequence2.SUBST;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class SubstituentAnalyzer {
 

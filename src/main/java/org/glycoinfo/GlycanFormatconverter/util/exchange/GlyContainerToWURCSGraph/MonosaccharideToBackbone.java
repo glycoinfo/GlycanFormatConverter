@@ -1,17 +1,13 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-
+import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.WURCSFramework.util.array.mass.AtomicPropatiesOld;
 import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
-import org.glycoinfo.WURCSFramework.wurcs.graph.Backbone;
-import org.glycoinfo.WURCSFramework.wurcs.graph.BackboneCarbon;
-import org.glycoinfo.WURCSFramework.wurcs.graph.BackboneUnknown_TBD;
-import org.glycoinfo.WURCSFramework.wurcs.graph.Backbone_TBD;
-import org.glycoinfo.WURCSFramework.wurcs.graph.CarbonDescriptor_TBD;
-import org.glycoinfo.WURCSFramework.wurcs.graph.Modification;
+import org.glycoinfo.WURCSFramework.wurcs.graph.*;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class MonosaccharideToBackbone {
 

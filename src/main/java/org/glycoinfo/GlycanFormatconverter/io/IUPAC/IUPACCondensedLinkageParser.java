@@ -1,6 +1,5 @@
 package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
-import org.apache.xerces.impl.xpath.regex.Match;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 
 import java.util.HashMap;

@@ -1,40 +1,16 @@
 package org.glycoinfo.GlycanFormatconverter.io.GlycoCT;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import org.eurocarbdb.MolecularFramework.sugar.Anomer;
-import org.eurocarbdb.MolecularFramework.sugar.BaseType;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoEdge;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoGraph;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoNode;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoconjugateException;
-import org.eurocarbdb.MolecularFramework.sugar.Modification;
-import org.eurocarbdb.MolecularFramework.sugar.SubstituentType;
-import org.eurocarbdb.MolecularFramework.sugar.Sugar;
-import org.eurocarbdb.MolecularFramework.sugar.SugarUnitRepeat;
-import org.eurocarbdb.MolecularFramework.sugar.Superclass;
-import org.eurocarbdb.MolecularFramework.sugar.UnderdeterminedSubTree;
-import org.glycoinfo.GlycanFormatconverter.Glycan.AnomericStateDescriptor;
-import org.glycoinfo.GlycanFormatconverter.Glycan.CrossLinkedTemplate;
+import org.eurocarbdb.MolecularFramework.sugar.*;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyCoModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanRepeatModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanUndefinedUnit;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Linkage;
 import org.glycoinfo.GlycanFormatconverter.Glycan.LinkageType;
-import org.glycoinfo.GlycanFormatconverter.Glycan.ModificationTemplate;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
-import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 
 /**
  * Class for exchanging GlycoContainer to Sugar.

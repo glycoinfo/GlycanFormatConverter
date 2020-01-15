@@ -4,8 +4,6 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-
 /**
  * Created by e15d5605 on 2017/10/24.
  */

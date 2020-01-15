@@ -1,22 +1,13 @@
 package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.io.ExporterInterface;
+import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-
-import org.glycoinfo.GlycanFormatconverter.Glycan.AnomericStateDescriptor;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanRepeatModification;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanUndefinedUnit;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Substituent;
-import org.glycoinfo.GlycanFormatconverter.io.ExporterInterface;
-import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
-import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
 public class IUPACCondensedExporter extends IUPACExporterUtility implements ExporterInterface {
 

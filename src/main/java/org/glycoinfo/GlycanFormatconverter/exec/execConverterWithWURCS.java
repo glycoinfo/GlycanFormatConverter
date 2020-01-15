@@ -28,8 +28,8 @@ public class execConverterWithWURCS {
                         return;
                     } else {
                         System.out.println(args[0]);
-                        wi.start(args[0]);
-                        ee = new ExporterEntrance(wi.getGlyContainer());
+                        //ee = new ExporterEntrance(wi.getGlyContainer());
+                        ee = new ExporterEntrance(wi.start(args[0]));
                         System.out.println("Short\t" + ee.toIUPAC(IUPACStyleDescriptor.SHORT));
                         System.out.println("Condensed\t" + ee.toIUPAC(IUPACStyleDescriptor.CONDENSED));
                         System.out.println("Extended\t" + ee.toIUPAC(IUPACStyleDescriptor.EXTENDED));
@@ -44,8 +44,8 @@ public class execConverterWithWURCS {
                     for (int i = 0; i < args.length; i++) {
                         if (i % 2 != 0) {
                             System.out.println(args[0]);
-                            wi.start(args[1]);
-                            ee = new ExporterEntrance(wi.getGlyContainer());
+                            //ee = new ExporterEntrance(wi.getGlyContainer());
+                            ee = new ExporterEntrance(wi.start(args[1]));
                             System.out.println("Short\t" + ee.toIUPAC(IUPACStyleDescriptor.SHORT));
                             System.out.println("Condensed\t" + ee.toIUPAC(IUPACStyleDescriptor.CONDENSED));
                             System.out.println("Extended\t" + ee.toIUPAC(IUPACStyleDescriptor.EXTENDED));

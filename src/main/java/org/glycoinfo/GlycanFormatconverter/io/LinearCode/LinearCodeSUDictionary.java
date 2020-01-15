@@ -1,7 +1,5 @@
 package org.glycoinfo.GlycanFormatconverter.io.LinearCode;
 
-import org.eurocarbdb.MolecularFramework.sugar.Sugar;
-
 /**
  * Created by e15d5605 on 2017/08/28.
  */

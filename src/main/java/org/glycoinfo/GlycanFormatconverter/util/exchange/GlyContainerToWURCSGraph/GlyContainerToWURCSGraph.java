@@ -1,18 +1,16 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph;
 
+import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.util.visitor.VisitorException;
+import org.glycoinfo.WURCSFramework.util.WURCSException;
+import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
+import org.glycoinfo.WURCSFramework.util.graph.WURCSGraphNormalizer;
+import org.glycoinfo.WURCSFramework.wurcs.graph.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-
-import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.util.visitor.VisitorException;
-import org.glycoinfo.WURCSFramework.util.WURCSException;
-import org.glycoinfo.WURCSFramework.util.WURCSFactory;
-import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
-import org.glycoinfo.WURCSFramework.util.graph.WURCSGraphNormalizer;
-import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSVisitorCollectSequence;
-import org.glycoinfo.WURCSFramework.wurcs.graph.*;
 
 public class GlyContainerToWURCSGraph {
 

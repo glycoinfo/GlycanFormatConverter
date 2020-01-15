@@ -1,16 +1,12 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.SugarToWURCSGraph;
 
-import java.util.ArrayList;
-
-import org.eurocarbdb.MolecularFramework.sugar.GlycoNode;
-import org.eurocarbdb.MolecularFramework.sugar.GlycoconjugateException;
-import org.eurocarbdb.MolecularFramework.sugar.Monosaccharide;
-import org.eurocarbdb.MolecularFramework.sugar.Substituent;
-import org.eurocarbdb.MolecularFramework.sugar.UnderdeterminedSubTree;
+import org.eurocarbdb.MolecularFramework.sugar.*;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
 import org.glycoinfo.WURCSFramework.wurcs.graph.LinkagePosition;
 import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSEdge;
+
+import java.util.ArrayList;
 
 /**
  * Class for converting UnderdeterminedSubTree to WURCSEdge and Modification

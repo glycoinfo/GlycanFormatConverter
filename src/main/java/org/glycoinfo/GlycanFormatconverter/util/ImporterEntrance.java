@@ -54,8 +54,9 @@ public class ImporterEntrance {
 
             case "Condensed" :
                 IUPACCondensedImporter icImporter = new IUPACCondensedImporter();
-                icImporter.start(_input);
-                ret = icImporter.getGlyContainer();
+                ret = icImporter.start(_input);
+                //icImporter.start(_input);
+                //ret = icImporter.getGlyContainer();
                 break;
 
             case "Short" :

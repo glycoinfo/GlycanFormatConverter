@@ -1,12 +1,12 @@
 package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanRepeatModification;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public abstract class IUPACExporterUtility {
 

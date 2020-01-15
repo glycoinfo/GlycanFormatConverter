@@ -1,16 +1,12 @@
 package org.glycoinfo.WURCSFramework.util.oldUtil.Carbbank;
 
+import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
+import org.glycoinfo.WURCSFramework.util.oldUtil.WURCSSequence2ToResidueContainer;
+import org.glycoinfo.WURCSFramework.util.residuecontainer.*;
+
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-
-import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
-import org.glycoinfo.WURCSFramework.util.oldUtil.WURCSSequence2ToResidueContainer;
-import org.glycoinfo.WURCSFramework.util.residuecontainer.LinkageBlock;
-import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainer;
-import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainerException;
-import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainerUtility;
-import org.glycoinfo.WURCSFramework.util.residuecontainer.RootStatusDescriptor;
 
 public class WURCSToCarbBank {
 

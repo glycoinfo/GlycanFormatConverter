@@ -1,11 +1,11 @@
 package org.glycoinfo.GlycanFormatconverter.Glycan;
 
+import org.glycoinfo.GlycanFormatconverter.util.visitor.ContainerVisitor;
+import org.glycoinfo.GlycanFormatconverter.util.visitor.VisitorException;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import org.glycoinfo.GlycanFormatconverter.util.visitor.ContainerVisitor;
-import org.glycoinfo.GlycanFormatconverter.util.visitor.VisitorException;
 
 public class Monosaccharide extends Node {
 	private AnomericStateDescriptor enumAnomer;

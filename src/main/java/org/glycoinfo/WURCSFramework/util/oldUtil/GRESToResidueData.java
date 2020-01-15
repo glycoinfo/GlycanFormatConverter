@@ -1,8 +1,5 @@
 package org.glycoinfo.WURCSFramework.util.oldUtil;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.array.WURCSImporter;
 import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainer;
@@ -12,6 +9,9 @@ import org.glycoinfo.WURCSFramework.util.subsumption.WURCSSubsumptionConverter;
 import org.glycoinfo.WURCSFramework.wurcs.array.MOD;
 import org.glycoinfo.WURCSFramework.wurcs.array.MS;
 import org.glycoinfo.WURCSFramework.wurcs.sequence2.GRES;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class GRESToResidueData {
 

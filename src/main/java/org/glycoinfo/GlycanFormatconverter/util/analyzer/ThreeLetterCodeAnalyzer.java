@@ -1,14 +1,14 @@
 package org.glycoinfo.GlycanFormatconverter.util.analyzer;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.BaseStereoIndex;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameDictionary;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ThreeLetterCodeAnalyzer {
 

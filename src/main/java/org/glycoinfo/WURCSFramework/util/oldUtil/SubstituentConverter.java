@@ -1,16 +1,11 @@
 package org.glycoinfo.WURCSFramework.util.oldUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.HexoseDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.PrefixDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainer;
+
+import java.util.*;
 
 public class SubstituentConverter {
 

@@ -1,26 +1,16 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.SugarToWURCSGraph;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-
-import org.eurocarbdb.MolecularFramework.sugar.GlycoEdge;
 import org.eurocarbdb.MolecularFramework.sugar.Monosaccharide;
-import org.eurocarbdb.MolecularFramework.sugar.Sugar;
-import org.eurocarbdb.MolecularFramework.sugar.SugarUnitRepeat;
-import org.eurocarbdb.MolecularFramework.sugar.UnderdeterminedSubTree;
+import org.eurocarbdb.MolecularFramework.sugar.*;
 import org.eurocarbdb.MolecularFramework.util.visitor.GlycoVisitorException;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
 import org.glycoinfo.WURCSFramework.util.graph.WURCSGraphNormalizer;
-import org.glycoinfo.WURCSFramework.wurcs.graph.Backbone;
-import org.glycoinfo.WURCSFramework.wurcs.graph.BackboneUnknown;
-import org.glycoinfo.WURCSFramework.wurcs.graph.DirectionDescriptor;
-import org.glycoinfo.WURCSFramework.wurcs.graph.LinkagePosition;
 import org.glycoinfo.WURCSFramework.wurcs.graph.Modification;
-import org.glycoinfo.WURCSFramework.wurcs.graph.ModificationAlternative;
-import org.glycoinfo.WURCSFramework.wurcs.graph.ModificationRepeat;
-import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSEdge;
-import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSGraph;
+import org.glycoinfo.WURCSFramework.wurcs.graph.*;
+
+import java.util.HashMap;
+import java.util.LinkedList;
 
 public class SugarToWURCSGraph {
 
