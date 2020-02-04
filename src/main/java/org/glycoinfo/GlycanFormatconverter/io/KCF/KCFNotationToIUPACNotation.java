@@ -1,9 +1,11 @@
 package org.glycoinfo.GlycanFormatconverter.io.KCF;
 
+import org.eurocarbdb.resourcesdb.template.MonosaccharideDictionary;
 import org.glycoinfo.GlycanFormatconverter.Glycan.BaseSubstituentTemplate;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.BaseStereoIndex;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.HexoseDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.PrefixDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
@@ -17,41 +19,46 @@ import java.util.regex.Pattern;
 /**
  * Created by e15d5605 on 2017/08/01.
  */
+
 public class KCFNotationToIUPACNotation {
 
-    public String start (String _input) throws GlyCoImporterException, GlycanException, TrivialNameException {
-        String ulosonic = "";
-        String ringSize = "";
-        String tailStatus = "";
+    public String start(String _input) throws GlyCoImporterException, GlycanException, TrivialNameException {
+        KCFNodeStateStacker kcfStacker = new KCFNodeStateStacker();
 
+        String ringSize = "";
         boolean haveMod = false;
 
         KCFMonosaccharideDescriptor firstUnit = null;
-        String firstConfig = "";
         KCFMonosaccharideDescriptor secondUnit = null;
-        String secondConfig = "";
-
-        SuperClass superClass = null;
 
         ArrayList<String> subs = new ArrayList<>();
         ArrayList<String> mods = new ArrayList<>();
 
-        /* check monosaccharide notation */
+        // check monosaccharide notation
         if (MonosaccharideNotationAnalyzer.start(_input) == false)
             throw new GlyCoImporterException(_input + " is not found!");
 
-        /* extract prefix annotation */
+        // extract prefix annotation
         Matcher prefixSub = Pattern.compile("(\\d)-([CO])-([Ff]ormyl|[Mm]ethyl)").matcher(_input);
         if (prefixSub.find()) {
-            //TODO : Modify head atom in O-linkage
+            String atomType = "";
+            if (prefixSub.group(2) != null && prefixSub.group(2).equals("C")) {
+                if (prefixSub.group(2).equals("C")) {
+                    atomType = "C";
+                }
+                if (prefixSub.group(2).equals("O")) {
+                    atomType = "O";
+                }
+            }
+
             if (prefixSub.group(3).equalsIgnoreCase("formyl")) {
                 BaseSubstituentTemplate subT = BaseSubstituentTemplate.FORMYL;
-                subs.add(prefixSub.group(1) + subT.getIUPACnotation());
+                subs.add(prefixSub.group(1) + atomType + subT.getIUPACnotation());
                 _input = _input.replace(prefixSub.group(), "");
             }
             if (prefixSub.group(3).equalsIgnoreCase("methyl")) {
                 BaseSubstituentTemplate subT = BaseSubstituentTemplate.METHYL;
-                subs.add(prefixSub.group(1) + subT.getIUPACnotation());
+                subs.add(prefixSub.group(1) + atomType + subT.getIUPACnotation());
                 _input = _input.replace(prefixSub.group(), "");
             }
         }
@@ -62,15 +69,15 @@ public class KCFNotationToIUPACNotation {
             _input = _input.replace(matAnhydro.group(), "");
         }
 
-        /* extract unsaturation */
+        // extract unsaturation
         Matcher unsat = Pattern.compile("-?(\\d)-?(enx|en)-").matcher(_input);
         if (unsat.find()) {
             haveMod = true;
-            subs.add(unsat.group(1) + unsat.group(2));
+            subs.add(unsat.group(1) + "(X)" + unsat.group(2));
             _input = _input.replace(unsat.group(), "");
         }
 
-        /* extract deoxy notation */
+        // extract deoxy notation
         Matcher matDeoxy = Pattern.compile("([\\d,]+)+(d|-deoxy-)+").matcher(_input);
         if (matDeoxy.find()) {
             haveMod = true;
@@ -78,24 +85,25 @@ public class KCFNotationToIUPACNotation {
             _input = _input.replace(matDeoxy.group(), "");
         }
 
-        /* extract ulosonation */
+        // extract ulosonation
         Matcher matUlo = Pattern.compile("-?([\\d,]+)-?(.*ulo)").matcher(_input);
         if (matUlo.find()) {
             haveMod = true;
             for (String unit : matUlo.group(1).split(",")) {
-                ulosonic = ulosonic + (unit + "ulo");
+                kcfStacker.setUlosonic(unit + "ulo");
             }
             _input = _input.replace(matUlo.group(), "");
         }
 
-        /* extract head modification */
+        // extract head modification
         Matcher matHead = Pattern.compile("(-(ol|onic|aric|uronic))").matcher(_input);
         if (matHead.find()) {
-            tailStatus = matHead.group(1);
+            kcfStacker.setTailStatus(matHead.group(1));
+            //tailStatus = matHead.group(1);
             _input = _input.replace(matHead.group(), "");
         }
 
-        /* extract monosaccharide notation */
+        // extract monosaccharide notation
         int count = 0;
         for (KCFMonosaccharideDescriptor values : KCFMonosaccharideDescriptor.values()) {
             String code = "";
@@ -136,37 +144,79 @@ public class KCFNotationToIUPACNotation {
                 else secondUnit = values;
             }
             if (!config.equals("")) {
-                if (count == 1) firstConfig = config;
-                else secondConfig = config;
+                if (count == 1) kcfStacker.setFisrtConfig(config);// firstConfig = config;
+                else kcfStacker.setSecondConfig(config);
             }
         }
 
-        /* extract supar class */
+        // extract supar class
         for (SuperClass values : SuperClass.values()) {
             if (_input.contains(values.getSuperClass())) {
                 ringSize = extractRingSize(_input, values.getSuperClass());
                 String config = extractConfiguration(_input, values.getSuperClass());
 
-                superClass = values;
+                kcfStacker.setSuperClass(values);
 
                 if (firstUnit == null && secondUnit == null) {
-                    firstConfig = config;
+                    kcfStacker.setFisrtConfig(config);
                 }
 
                 _input = _input.replace(config + values.getSuperClass() + ringSize, "");
             }
         }
 
-        /* parse substituents */
+        // define a name of anonymous monosaccharide
+        if (kcfStacker.getFisrtConfig().length() == 2) {
+            // modify configurations
+            kcfStacker.setSecondConfig(String.valueOf(kcfStacker.getFisrtConfig().charAt(1)));
+            kcfStacker.setFisrtConfig(String.valueOf(kcfStacker.getFisrtConfig().charAt(0)));
+
+            // modify unit type
+            secondUnit = firstUnit;
+
+            // define anonymous monosaccharide
+            String anonymousCode = secondUnit.getCode().toLowerCase();
+            int anonymousCarbonSize = kcfStacker.getSuperClass().getSize();
+            BaseStereoIndex baseInd = BaseStereoIndex.forCode(anonymousCode);
+            anonymousCarbonSize = anonymousCarbonSize - baseInd.getSize();
+
+            if (anonymousCarbonSize == 1) {
+                secondUnit = KCFMonosaccharideDescriptor.GRO;
+            } else {
+                throw new TrivialNameException ("This anonymous monosaccharide size has more than 1 carbon backbone.");
+            }
+
+        }
+
+        // parse substituents
         SubstituentIUPACNotationAnalyzer subAna = new SubstituentIUPACNotationAnalyzer();
         subs.addAll(subAna.resolveSubstituents(trimHyphen(_input), true));
 
+        // modified substituent notations
+        //subs = modifySubstituentNotation(subs);
+
+        kcfStacker.setRingSize(ringSize);
+        kcfStacker.setFisrtUnit(firstUnit);
+        kcfStacker.setSecondUnit(secondUnit);
+        kcfStacker.setSubstituents(subs);
+        kcfStacker.setModifications(mods);
+
+        return remodelMonosaccharideNotation(kcfStacker).toString();
+    }
+
+    private StringBuilder remodelMonosaccharideNotation (KCFNodeStateStacker _kcfStacker) throws GlyCoImporterException {
         StringBuilder notation = new StringBuilder();
 
-        /* append prefix substituents */
-        notation = appendPrefixAnnotations(notation, mods);
+        SuperClass superClass = _kcfStacker.getSuperClass();
+        String firstConfig = _kcfStacker.getFisrtConfig();
+        String secondConfig = _kcfStacker.getSecondConfig();
+        KCFMonosaccharideDescriptor firstUnit = _kcfStacker.getFirstUnit();
+        KCFMonosaccharideDescriptor secondUnit = _kcfStacker.getSecondUnit();
 
-        /* append core notation */
+        // append prefix substituents
+        notation = appendPrefixAnnotations(notation, _kcfStacker.getModifications());
+
+        // append core notation
         if (firstUnit != null) {
             notation = appendCoreNotation(notation, modifyConfiguration(firstConfig, firstUnit.getCode()), firstUnit, (superClass != null));
         }
@@ -174,31 +224,32 @@ public class KCFNotationToIUPACNotation {
             notation.append(((firstConfig.equals("D/L") || firstConfig.equals("")) ? "?" : firstConfig) + "-");
         }
 
-        /* anomeric status */
+        // anomeric status
         if (secondUnit != null) {
             notation.append("-?-");
             if (secondConfig.equals("")) secondConfig = modifyConfiguration(firstConfig, secondUnit.getCode());
             notation = appendCoreNotation(notation, secondConfig, secondUnit, true);
         }
 
-        /* append super class */
+        // append super class
         if (superClass != null) notation.append(superClass.getSuperClass());
 
-        /* append ulosonic status */
-        notation.append(ulosonic);
+        // append ulosonic status
+        notation.append(_kcfStacker.getUlosonic());
 
-        /* append ring size */
+        // append ring size
+        String ringSize = _kcfStacker.getRingSize();
         if (secondUnit != null) {
             //if (!haveMod) ringSize = "?";
-            //else 
-            	ringSize = modifyRingSize(ringSize, secondConfig, secondUnit);
+            //else
+            ringSize = modifyRingSize(ringSize, secondConfig, secondUnit);
         }
         if (firstUnit != null && secondUnit == null) {
             ringSize = modifyRingSize(ringSize, firstConfig, firstUnit);
             //if (!haveDeoxy(mods) && haveUnsaturation(subs)) ringSize = "?";
             //if (haveDeoxy(mods)) {
-             //   if (!haveMultipleDeoxy(mods, superClass)) ringSize = "?";
-             //   if (firstUnit.equals(KCFMonosaccharideDescriptor.ARA)) ringSize = "p";
+            //   if (!haveMultipleDeoxy(mods, superClass)) ringSize = "?";
+            //   if (firstUnit.equals(KCFMonosaccharideDescriptor.ARA)) ringSize = "p";
             //}
         }
         if (firstUnit == null && secondUnit == null && superClass != null) {
@@ -206,19 +257,19 @@ public class KCFNotationToIUPACNotation {
 
             //if (!firstConfig.equals("") && !haveDeoxy(mods)) ringSize = "?";
         }
-        
+
         notation.append(ringSize);
 
-        /* append substituents */
+        // append substituents
         String code = "";
         if (firstUnit != null && secondUnit == null) code = firstUnit.getCode();
         if (secondUnit != null) code = secondUnit.getCode();
-        notation = appendAcidicStatus(notation, subs, code);
+        notation = appendAcidicStatus(notation, _kcfStacker.getSubstituents(), code);
 
-        /* append tail modification */
-        notation.append(tailStatus);
+        // append tail modification
+        notation.append(_kcfStacker.getTailStatus());
 
-        return notation.toString();
+        return notation;
     }
 
     //TODO : NAcA -> 2NAc, NFoA -> 2NFo,
@@ -227,7 +278,7 @@ public class KCFNotationToIUPACNotation {
 
         HexoseDescriptor hexDesc = HexoseDescriptor.forTrivialName(_code);
 
-        /* append acidic status */
+        // append acidic status
         for (String unit : _subs) {
             if (unit.matches("\\d.*")) continue;
             nativeSub = unit;
@@ -247,7 +298,7 @@ public class KCFNotationToIUPACNotation {
 
         String modifiedSub = modifySubstituentNotation(nativeSub);
 
-        /* modify core substituents */
+        // modify core substituents
         if (hexDesc != null) {
             if (nativeSub.matches ("[GA]c") && hexDesc.equals(HexoseDescriptor.NEU)) {
                 _subs.remove(nativeSub);
@@ -275,7 +326,7 @@ public class KCFNotationToIUPACNotation {
 
                 } else {
                 */
-                    _subs.add(2 + modifiedSub);
+                _subs.add(2 + modifiedSub);
                 //}
             }
             if ((nativeSub.equals("N") || nativeSub.equals("NAc")) && !hexDesc.equals(HexoseDescriptor.NEU)) {
@@ -341,7 +392,7 @@ public class KCFNotationToIUPACNotation {
     private StringBuilder appendPrefixAnnotations (StringBuilder _sb, ArrayList<String> _mods) {
         TreeMap<String, String> sorted = new TreeMap<>();
 
-        /* sort modifications */
+        // sort modifications
         for (String unit : _mods) {
             String[] items = unit.split("-");
             sorted.put(items[1], items[0]);
@@ -355,6 +406,7 @@ public class KCFNotationToIUPACNotation {
     }
 
     private String modifySubstituentNotation (String _subNotation) throws GlyCoImporterException {
+        if (_subNotation.equals("")) return "";
         if (_subNotation.matches("N?diMe")) _subNotation = _subNotation.replaceFirst("di", "Di");
 
         BaseSubstituentTemplate subT = BaseSubstituentTemplate.forIUPACNotationWithIgnore(_subNotation);
@@ -375,19 +427,22 @@ public class KCFNotationToIUPACNotation {
                 if (_subNotation.startsWith("(S")) subT = BaseSubstituentTemplate.S_PYRUVATE;
                 if (_subNotation.startsWith("Pyr") || _subNotation.startsWith("pyr")) subT = BaseSubstituentTemplate.X_PYRUVATE; //TODO :pyrも
             }
+            if (_subNotation.equals("Formyl")) subT = BaseSubstituentTemplate.FORMYL;
         }
 
-        if (subT == null) return _subNotation;
+        if (subT == null) return this.appendHeadAtom(_subNotation);
 
         /*
-        if (subT.equals(SubstituentTemplate.ACETYL) && matNode.group(1) == null) {
-            ret = ret + "2" + subT.getIUPACnotation();
-        } else {
-            ret = ret + ((matNode.group(1) != null) ? matNode.group(1) : "") + subT.getIUPACnotation();
-        }
-        */
 
-        return subT.getIUPACnotation();
+          if (matSub.group(2).startsWith("C") || matSub.group(2).startsWith("O") || matSub.group(2).startsWith("N") ||
+                        matSub.group(2).startsWith("(") || matSub.group(2).equals("A") || matSub.group(2).equals("N")) {
+                    ret.add(sub);
+                    continue;
+                }
+
+         */
+
+        return this.appendHeadAtom(subT.getIUPACnotation());
     }
 
     private String modifyConfiguration (String _configuration, String _notation) {
@@ -410,7 +465,7 @@ public class KCFNotationToIUPACNotation {
 
         //Api, Ery, Tho, Thr 
         if (_kcfDesc.equals(KCFMonosaccharideDescriptor.THR) ||
-                _kcfDesc.equals(KCFMonosaccharideDescriptor.ERY) || 
+                _kcfDesc.equals(KCFMonosaccharideDescriptor.ERY) ||
                 _kcfDesc.equals(KCFMonosaccharideDescriptor.API) ||
                 _kcfDesc.equals(KCFMonosaccharideDescriptor.THO)) {
             return "f";
@@ -450,5 +505,13 @@ public class KCFNotationToIUPACNotation {
         _notation = _notation.replaceAll("-", "");
 
         return _notation;
+    }
+
+    private String appendHeadAtom (String _subNode) {
+        if (_subNode.startsWith("C") || _subNode.startsWith("O") || _subNode.startsWith("N") ||
+                _subNode.startsWith("(") || _subNode.equals("A") || _subNode.equals("N")) {
+            return _subNode;
+        }
+        return "O" + _subNode;
     }
 }

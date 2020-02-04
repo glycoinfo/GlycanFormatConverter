@@ -105,7 +105,7 @@ public class KCFImporter {
         String parentLin;
         String anomericState;
 
-        /* extract donor and acceptor monosaccharides */
+        // extract donor and acceptor monosaccharides
         if ((nodeIndex.get(pID) instanceof Substituent &&
                 !(((Substituent) nodeIndex.get(pID)).getSubstituent() instanceof BaseCrossLinkedTemplate))) {
             childNode = nodeIndex.get(pID);
@@ -129,17 +129,17 @@ public class KCFImporter {
         Edge edge = new Edge();
 
         if (parentNode == null) {
-            /* define anomeric status for child node */             
+            // define anomeric status for child node
             defineAnomericStatus(anomericState, parentLin, childNode);
             glyco.addNode(childNode);
             return;
         }
 
-        /* define edge with monosaccharides */
+        // define edge with monosaccharides
         if (childNode instanceof Monosaccharide) {
             String childPos = childLin.length() == 1 ? String.valueOf(childLin.charAt(0)) : String.valueOf(childLin.charAt(1));
 
-            /* define anomeric status for child node */
+            // define anomeric status for child node
             if (parentNode instanceof Substituent) {
                 defineAnomericStatus(anomericState.length() == 1 ? "?" : anomericState, parentLin, childNode);
             } else {
@@ -150,7 +150,7 @@ public class KCFImporter {
 
             String parentPos = "?";
             if (parentLin != null) {
-                /* define anomeric status for parent node */
+                // define anomeric status for parent node
                 if (kcfUtil.extractAnomerixState(units.get(2)).length() == 2) {
                     defineAnomericStatus(kcfUtil.extractAnomerixState(units.get(2)), null, parentNode);
                 }
@@ -158,7 +158,7 @@ public class KCFImporter {
                         parentLin.contains("/") ? parentLin : String.valueOf(parentLin.charAt(1));
             }
 
-            /* make edge */
+            // make edge
             Linkage lin = new Linkage();
             lin.setParentLinkages(makeLinkages(parentPos));
             lin.setChildLinkages(makeLinkages(childPos));
@@ -167,7 +167,7 @@ public class KCFImporter {
             glyco.addNode(parentNode, edge, childNode);
         }
 
-        /* define edge with substituent */
+        // define edge with substituent
         if (childNode instanceof Substituent) {
             String bridgeChild = kcfUtil.extractEdgeByID(units.get(1), true);
 
@@ -177,7 +177,7 @@ public class KCFImporter {
 
                 if (nodeIndex.get(childID) == null) {
                     if (!isRepeat(kcfUtil.extractEdgeByID(units.get(1), true))) {
-                        /* check pyrophoshate */
+                        // check pyrophoshate
                         Linkage first = ((Substituent) childNode).getFirstPosition();
                         first.setParentLinkages(makeLinkages(parentLin));
                         ((Substituent) childNode).setFirstPosition(first);
@@ -236,14 +236,14 @@ public class KCFImporter {
             pos = _childLin.length() == 1 ? charToint(_childLin.charAt(0)) : charToint(_childLin.charAt(1));
         }
         
-        /* define anomeric information for child node */
+        // define anomeric information for child node
         mono.setAnomericPosition(pos);
         AnomericStateDescriptor anomState = AnomericStateDescriptor.forAnomericState(anomericSymbol);
         mono.setAnomer(anomState);
         
         if (mono.getRingStart() != -1 && mono.getRingEnd() != -1) return;
 
-        /* modify ring size */
+        // modify ring size
         if (pos == 0 || pos == -1) {
             mono.setRing(Monosaccharide.UNKNOWN_RING, Monosaccharide.UNKNOWN_RING);
         }
@@ -291,10 +291,10 @@ public class KCFImporter {
     }
 
     private void extractRepeatation(ArrayList<String> _repeatsUnit) throws GlycanException, GlyCoImporterException {
-        /* extract start */
+        // extract start
         Node start = extractRepeatation(_repeatsUnit.get(1), null);
 
-        /* extract end */
+        // extract end
         Node end = extractRepeatation(_repeatsUnit.get(0), _repeatsUnit.get(2));
 
         if (start instanceof Monosaccharide && end instanceof Monosaccharide)
@@ -321,23 +321,23 @@ public class KCFImporter {
     private Node extractNodeFromPosition (BigDecimal _x, BigDecimal _y, boolean _isStart) throws GlyCoImporterException {
         String picked = "";
 
-        /* extract start side from EDGE */
+        // extract start side from EDGE
         for (String s : kcfUtil.getEdges()) {
             ArrayList<String> notations = kcfUtil.splitNotation(s);
             String child = kcfUtil.getNodeByID(kcfUtil.extractID(notations.get(1)));
             String parent = kcfUtil.getNodeByID(kcfUtil.extractID(notations.get(2)));
 
-            /* child side coordinate */
+            // child side coordinate
             BigDecimal cx = new BigDecimal(kcfUtil.splitNotation(child).get(2)).setScale(1, BigDecimal.ROUND_DOWN);
             BigDecimal cy = new BigDecimal(kcfUtil.splitNotation(child).get(3)).setScale(1, BigDecimal.ROUND_DOWN);
 
             if (cx.doubleValue() > _x.doubleValue()) continue;
 
-            /* parent side coordinate */
+            // parent side coordinate
             BigDecimal px = new BigDecimal(kcfUtil.splitNotation(parent).get(2)).setScale(1, BigDecimal.ROUND_DOWN);
             BigDecimal py = new BigDecimal(kcfUtil.splitNotation(parent).get(3)).setScale(1, BigDecimal.ROUND_DOWN);
 
-            /* middle side coordinate */
+            // middle side coordinate
             BigDecimal mx = (cx.add(px)).multiply(new BigDecimal(".5")).setScale(1, BigDecimal.ROUND_DOWN);
             BigDecimal my = (cy.add(py)).multiply(new BigDecimal(".5")).setScale(1, BigDecimal.ROUND_DOWN);
 
@@ -379,13 +379,13 @@ public class KCFImporter {
     }
 
     private void makeRepeatingUnitWithSubstituent (Node _start, Node _cross, Node _end, String _count) throws GlycanException {
-        /* for start side */
+        // for start side
         if (_start == null) {
             String startSide = kcfUtil.extractEdgeByID(extractNodeID(_cross), true);
             _start = nodeIndex.get(kcfUtil.extractID(kcfUtil.splitNotation(startSide).get(1)));
         }
 
-        /* for end side*/
+        // for end side
         if (_end == null) {
             String endSide = kcfUtil.extractEdgeByID(extractNodeID(_cross), false);
             _end = nodeIndex.get(kcfUtil.extractID(kcfUtil.splitNotation(endSide).get(2)));
