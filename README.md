@@ -18,7 +18,7 @@ $ java -jar target/glycanformatconverter.jar -i <FORMAT> -e <FORMAT> -seq <SEQUE
 ## Options
 |Option|Argument|Description|
 | ---- |  ----  |    ----   |
-|-e, --export|FORMAT=<br>[IUPAC-Short\|IUPAC-Condensed\|IUPAC-Extended\|GlycoCT\|WURCS]|export format|
+|-e, --export|FORMAT=<br>[IUPAC-Short\|IUPAC-Condensed\|IUPAC-Extended\|GlycoCT\|WURCS\|GlycanWeb]|export format|
 |-h, --help||Show usage help|
 |-i, --import|FORMAT=<br>[IUPAC-Condensed\|IUPAC-Extended\|GlycoCT\|KCF\|LinearCode\|WURCS]|import format|
 |-seq, --sequence|SEQUENCE|Glycan text format|
