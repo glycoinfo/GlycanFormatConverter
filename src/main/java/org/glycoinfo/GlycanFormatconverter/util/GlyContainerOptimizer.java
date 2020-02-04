@@ -61,13 +61,15 @@ public class GlyContainerOptimizer {
                 String oldNotation = sub2.getSubstituent().getIUPACnotation();
                 BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotationWithIgnore("N" + oldNotation);
                 sub2.setTemplate(bsubT);
+                sub2.setHeadAtom("N");
 
                 _mono.removeChildEdge(edges.get(0));
             }
             if (sub2.getSubstituent().equals(BaseSubstituentTemplate.AMINE)) {
-                String oldNotation = sub2.getSubstituent().getIUPACnotation();
+                String oldNotation = sub1.getSubstituent().getIUPACnotation();
                 BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotationWithIgnore("N" + oldNotation);
                 sub1.setTemplate(bsubT);
+                sub2.setHeadAtom("N");
 
                 _mono.removeChildEdge(edges.get(1));
             }
@@ -279,6 +281,8 @@ public class GlyContainerOptimizer {
             _sub.setTailAtom("");
         }
 
+        //TODO: 修飾の種類に応じてHeadAtomを最適化する処理が必要
+       //System.out.println(_sub.getSubstituent() + " " + _sub.getHeadAtom());
         return;
     }
 

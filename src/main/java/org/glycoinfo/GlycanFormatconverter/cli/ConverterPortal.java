@@ -105,6 +105,8 @@ public class ConverterPortal {
                 this.outputSequence = ee.toIUPAC(IUPACStyleDescriptor.GREEK);
             } else if (this.outputFormat == OutputFormat.IUPAC_SHORT) {
                 this.outputSequence = ee.toIUPAC(IUPACStyleDescriptor.SHORT);
+            } else if (this.outputFormat == OutputFormat.GLYCANWEB) {
+                this.outputSequence = ee.toIUPAC(IUPACStyleDescriptor.GLYCANWEB);
             } else if (this.outputFormat == OutputFormat.WURCS) {
                 this.outputSequence = ee.toWURCS();
             }

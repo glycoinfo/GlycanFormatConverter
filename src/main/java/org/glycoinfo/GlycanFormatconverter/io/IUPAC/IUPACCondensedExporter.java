@@ -184,12 +184,17 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 				}
 			}
 
+			if (this.isGlycanWeb) {
+				linkagePos = linkagePos.replace(0, 1, "")
+						.replace(linkagePos.length() - 1, linkagePos.length(), "");
+			}
+
 			notation.append(linkagePos);
 		}
 			
 		// for root node
 		if(mono.getParentEdges().isEmpty() && !mono.getAnomer().equals(AnomericStateDescriptor.OPEN) && !isFacingAnoms(mono.getChildEdges())) {
-			notation.append("(");
+			if (!this.isGlycanWeb) notation.append("(");
 			char parentAnom = mono.getAnomer().getAnomericState();
 			notation.append(parentAnom == 'x' ? '?' : parentAnom == 'o' ? '?' : parentAnom);
 			
@@ -210,7 +215,7 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 				
 				if(!edge.isCyclic()) endReppos.append("[");
 				
-				/* append cross linked substituent */
+				// append cross linked substituent
 				if(sub.getSubstituent() != null) {
 					endReppos.append("-");
 					endReppos.append(sub.getFirstPosition() == null ? "" : extractPosition(sub.getFirstPosition().getChildLinkages()));

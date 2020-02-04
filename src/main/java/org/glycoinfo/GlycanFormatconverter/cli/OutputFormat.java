@@ -6,7 +6,8 @@ public enum OutputFormat {
     IUPAC_CONDENSED,
     IUPAC_EXTENDED,
     GLYCOCT,
-    WURCS;
+    WURCS,
+    GLYCANWEB;
 
     public static OutputFormat forOutputFormat (String _output) throws Exception {
         switch (_output.toLowerCase()) {
@@ -20,6 +21,8 @@ public enum OutputFormat {
                 return GLYCOCT;
             case "wurcs":
                 return WURCS;
+            case "glycanweb":
+                return GLYCANWEB;
             default:
                 throw new Exception("This format is unknown format : " + _output);
         }

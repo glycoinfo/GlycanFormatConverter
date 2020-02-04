@@ -35,7 +35,7 @@ public class CondensedConverter extends IUPACNotationConverter{
 
         StringBuilder ret = new StringBuilder(threeLetter);
 
-		/* append configuration */
+        // append configuration
         MonosaccharideIndex monoInd = MonosaccharideIndex.forTrivialNameWithIgnore(threeLetter);
         if (_iswebStyle) {
             if (monoInd != null || mono.getStereos().size() == 1) ret.insert(0, configuration);
@@ -52,17 +52,17 @@ public class CondensedConverter extends IUPACNotationConverter{
             }
         }
 
-		/* append deoxy */
+		// append deoxy
         //String deoxyNotation = makeDeoxyPosition(mono);
         //if(!ret.toString().contains(deoxyNotation)) ret.insert(0, deoxyNotation);
 
-		/* append anhydro */
+        // append anhydro
         ret.insert(0, getSubConv().getPrefixSubstituent());
 
-		/* append ulonic notation */
+        // append ulonic notation
         ret.append(extractUlonic(mono));
 
-		/* make ring size */
+        // make ring size
         String ringSize = defineRingSize(_copy);
         if (_iswebStyle) {
             ret.append(ringSize);
@@ -74,22 +74,22 @@ public class CondensedConverter extends IUPACNotationConverter{
             }
         }
 
-		/* append core substituent */
+        // append core substituent
         ret.append(getSubConv().getCoreSubstituentNotaiton());
 
-		/* make acidic tail */
+        // make acidic tail
         String acidicStatus = makeAcidicStatus(_copy);
         if(acidicStatus.equals("A")) {
             ret.append(acidicStatus);
         }
 
-		/* make substituent notation */
+        // make substituent notation
         ret.append(getSubConv().getSubstituentNotation());
 
-		/* append onic */
+        // append onic
         if(!acidicStatus.equals("A") && !containUlonicAcid(getThreeLetterCode())) ret.append(acidicStatus);
 
-		/* make modification with head */
+        // make modification with head
         if(isAlditol(_copy)) ret.append("-ol");
         if(isAldehyde(_copy)) ret.insert(0, "aldehyde-");
 

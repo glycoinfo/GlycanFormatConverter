@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 public class App {
 
     static final String APP_NAME = "glycanformatconverter";
-    static final String APP_VERSION = "2.3.2";
+    static final String APP_VERSION = "2.4.0";
 
     private static final String OPTION_SEQUENCE_SHORT = "seq";
     private static final String OPTION_SEQUENCE_LONG = "sequence";
@@ -73,20 +73,20 @@ public class App {
 
         opt.addOption(Option.builder(OPTION_IMPORT_SHORT)
                 .longOpt(OPTION_IMPORT_LONG)
-                .desc("import format: IUPAC-Condensed, IUPAC-Extended, KCF, GlycoCT, LinearCode, WURCS")
+                .desc("import format.")
                 .hasArg(true)
                 .argName("IMPORT")
-                .argName("IMPORT=[IUPAC-Condensed|IUPAC-Extended|GlycoCT|KCF|LinearCode|WURCS]")
+                .argName("FORMAT=[IUPAC-Condensed|IUPAC-Extended|GlycoCT|KCF|LinearCode|WURCS]")
                 .required()
                 .build()
         );
 
         opt.addOption(Option.builder(OPTION_EXPORT_SHORT)
                 .longOpt(OPTION_EXPORT_LONG)
-                .desc("export format: IUPAC-Short, IUPAC-Condensed, IUPAC-Extended, GlycoCT, WURCS")
+                .desc("export format.")
                 .hasArg(true)
                 .argName("EXPORT")
-                .argName("EXPORT=[IUPAC-Short|IUPAC-Condensed|IUPAC-Extended|GlycoCT|WURCS]")
+                .argName("FORMAT=[IUPAC-Short|IUPAC-Condensed|IUPAC-Extended|GlycoCT|WURCS|GlycanWeb]")
                 .required()
                 .build()
         );
