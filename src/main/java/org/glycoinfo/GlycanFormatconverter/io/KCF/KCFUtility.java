@@ -105,17 +105,40 @@ public class KCFUtility {
         return units[0];
     }
 
-    public String extractEdgeByID (String _currentID, boolean _isParent) {
+    public ArrayList<String> extractAcceptorEdgeByID (String _currentID) {
+        ArrayList<String> ret = new ArrayList<>();
+        boolean isEdge = false;
+        for (String unit : edges) {
+            String acceptorID = extractID(splitNotation(unit).get(2));
+            if (acceptorID.equals(_currentID)) {
+                ret.add(unit);
+            }
+        }
+
+        return ret;
+    }
+
+    public String extractDonorEdgeByID (String _currentID) {
         String ret = "";
         boolean isEdge = false;
         for (String unit : edges) {
-            String childID = (_isParent) ? extractID(splitNotation(unit).get(2)) : extractID(splitNotation(unit).get(1));
-            if (childID.equals(_currentID)) {
+            String donorID = extractID(splitNotation(unit).get(1));
+            if (donorID.equals(_currentID)) {
                 ret = unit;
                 break;
             }
         }
+
         return ret;
+    }
+
+    public String extractEdgeByID (String _currentID, boolean _isParent) {
+        if (_isParent) {
+            ArrayList<String> acceptors = this.extractAcceptorEdgeByID(_currentID);
+            if (!acceptors.isEmpty()) return acceptors.get(0);
+        } else return this.extractDonorEdgeByID(_currentID);
+
+        return "";
     }
 
     public ArrayList<String> extractEdgesByID (String _currentID, boolean _isParent) {

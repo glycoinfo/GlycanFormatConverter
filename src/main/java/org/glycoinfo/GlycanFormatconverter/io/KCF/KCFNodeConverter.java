@@ -58,30 +58,38 @@ public class KCFNodeConverter {
 
         Substituent ret = null;
 
-        if (haveChild(_notation)) {
-            if (isPyrophosphate (_notation)) {
-                if (isCrossLinkedSubstituent(_notation))
-                    return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PYROPHOSPHATE);
-                else
-                    return this.makeSubstituentNotation(BaseSubstituentTemplate.PYROPHOSPHATE);
-            }
-            if (isPhosphoEthanolamine(_notation)) {
-                if (isCrossLinkedSubstituent(_notation))
-                    return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PHOSPHO_ETHANOLAMINE);
-                else
-                    return this.makeSubstituentNotation(BaseSubstituentTemplate.PHOSPHOETHANOLAMINE);
-            }
-            if (unit.equals("P")) {
-                if (isCrossLinkedSubstituent(_notation))
-                    return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PHOSPHATE);
-                else
-                    return this.makeSubstituentNotation(BaseSubstituentTemplate.PHOSPHATE);
-            }
+        if (isBridge(_notation)) {
+            return this.makeLinkedSubstituent(_notation);
+        } else if (isBranches(_notation)) {
+            return this.makeLinkedSubstituent(_notation);
         } else {
             return this.makeSubstituentNotation(BaseSubstituentTemplate.forIUPACNotationWithIgnore(unit));
         }
+    }
 
-        return ret;
+    private Node makeLinkedSubstituent (String _notation) throws GlycanException {
+        String unit = this.modifyNotation(kcfUtil.splitNotation(_notation).get(1));
+
+        if (isPyrophosphate (_notation)) {
+            if (isCrossLinkedSubstituent(_notation))
+                return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PYROPHOSPHATE);
+            else
+                return this.makeSubstituentNotation(BaseSubstituentTemplate.PYROPHOSPHATE);
+        }
+        if (isPhosphoEthanolamine(_notation)) {
+            if (isCrossLinkedSubstituent(_notation))
+                return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PHOSPHO_ETHANOLAMINE);
+            else
+                return this.makeSubstituentNotation(BaseSubstituentTemplate.PHOSPHOETHANOLAMINE);
+        }
+        if (unit.equals("P")) {
+            if (isCrossLinkedSubstituent(_notation))
+                return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PHOSPHATE);
+            else
+                return this.makeSubstituentNotation(BaseSubstituentTemplate.PHOSPHATE);
+        }
+
+        return null;
     }
 
     private boolean isSubstituent (String _notation) {
@@ -124,12 +132,20 @@ public class KCFNodeConverter {
         return _node;
     }
 
-    private boolean haveChild (String _notation) {
+    private boolean isBridge(String _notation) {
         String currentID = kcfUtil.splitNotation(_notation).get(0);
-        String donorEdge = kcfUtil.extractEdgeByID(currentID, true);
-        String acceptorEdge = kcfUtil.extractEdgeByID(currentID, false);
+        //String donorEdge = kcfUtil.extractEdgeByID(currentID, false);
+        String donorEdge = kcfUtil.extractDonorEdgeByID(currentID);
+        String acceptorEdge = kcfUtil.extractEdgeByID(currentID, true);
 
         return (!donorEdge.equals("") && !acceptorEdge.equals(""));
+    }
+
+    private boolean isBranches (String _notation) {
+        String currentID = kcfUtil.splitNotation(_notation).get(0);
+        ArrayList<String> acceptorEdge = kcfUtil.extractAcceptorEdgeByID(currentID);
+
+        return (acceptorEdge.size() > 1);
     }
 
     private boolean isCrossLinkedSubstituent (String _notation) {
@@ -142,6 +158,9 @@ public class KCFNodeConverter {
 
         //acceptor side
         String acceptorEdge = kcfUtil.getEdgeByID(kcfUtil.splitNotation(linkage).get(2), false);
+
+        if (acceptorEdge.equals("")) return false;
+
         String acceptorNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(acceptorEdge).get(2));
 
         if (donorNode.equals("")) return false;
@@ -190,19 +209,22 @@ public class KCFNodeConverter {
     }
 
     private boolean isPhosphoEthanolamineForDonorSide (String _currentID) {
-        String donorEdge = kcfUtil.extractEdgeByID(_currentID, true);
+        ArrayList<String> donorEdges = kcfUtil.extractAcceptorEdgeByID(_currentID);
 
-        if (donorEdge.equals("")) return false;
+        boolean ret = false;
+        for (String edge : donorEdges) {
+            String donorNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(edge).get(1));
+            String acceptorNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(edge).get(2));
+            if (donorNode.equals("") || acceptorNode.equals("")) continue;
 
-        String donorNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(donorEdge).get(1));
-        String acceptorNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(donorEdge).get(2));
+            if (kcfUtil.splitNotation(donorNode).get(1).equals("EtN") &&
+                    kcfUtil.splitNotation(acceptorNode).get(1).equals("P")) {
+                ret = true;
+                break;
+            }
+        }
 
-        if (donorNode.equals("") || acceptorNode.equals("")) return false;
-
-        donorNode = kcfUtil.splitNotation(donorNode).get(1);
-        acceptorNode = kcfUtil.splitNotation(acceptorNode).get(1);
-
-        return (donorNode.equals("EtN") && acceptorNode.equals("P"));
+        return ret;
     }
 
     private boolean isPhosphoEthanolamineForAcceptorSide (String _currentID) {
@@ -224,7 +246,7 @@ public class KCFNodeConverter {
     
     private boolean isLinkageSubstituents (String _notation) {
         String currentID = kcfUtil.splitNotation(_notation).get(0);
-        String parentSideNotation = kcfUtil.extractEdgeByID(currentID, false);
+        String parentSideNotation = kcfUtil.extractDonorEdgeByID(currentID);//extractEdgeByID(currentID, false);
 
         if (parentSideNotation.equals("")) return false;
 
@@ -236,7 +258,7 @@ public class KCFNodeConverter {
         //Phospho-ethanolamine
         if (kcfUtil.splitNotation(kcfUtil.getNodeByID(childID)).get(1).equals("EtN") &&
         			kcfUtil.splitNotation(kcfUtil.getNodeByID(parentID)).get(1).equals("P")) return true;
-    
+
         //Di-phosphate
         if (kcfUtil.splitNotation(kcfUtil.getNodeByID(childID)).get(1).equals("P") &&
                 kcfUtil.splitNotation(kcfUtil.getNodeByID(parentID)).get(1).equals("P")) return true;

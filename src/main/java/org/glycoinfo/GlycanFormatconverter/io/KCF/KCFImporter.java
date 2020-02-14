@@ -169,12 +169,12 @@ public class KCFImporter {
 
         // define edge with substituent
         if (childNode instanceof Substituent) {
-            String bridgeChild = kcfUtil.extractEdgeByID(units.get(1), true);
+            //TODO: 親を持っているかの確認が必要
+            String bridgeChild = kcfUtil.extractEdgeByID(kcfUtil.extractID(units.get(1)), true);
 
             if (!bridgeChild.equals("")) {
                 String childID = kcfUtil.extractID(kcfUtil.splitNotation(bridgeChild).get(1));
-
-
+                System.out.println(nodeIndex.get(childID) + " " + childID + " " + kcfUtil.extractAcceptorEdgeByID(kcfUtil.extractID(units.get(1))));
                 if (nodeIndex.get(childID) == null) {
                     if (!isRepeat(kcfUtil.extractEdgeByID(units.get(1), true))) {
                         // check pyrophoshate
@@ -194,7 +194,8 @@ public class KCFImporter {
                 Node bridge = childNode;
                 childNode = nodeIndex.get(childID);
 
-                childLin = kcfUtil.extractLinkagePosition(kcfUtil.splitNotation(kcfUtil.extractEdgeByID(childID, false)).get(1));
+                //childLin = kcfUtil.extractLinkagePosition(kcfUtil.splitNotation(kcfUtil.extractEdgeByID(childID, false)).get(1));
+                childLin = kcfUtil.extractLinkagePosition(kcfUtil.splitNotation(kcfUtil.extractDonorEdgeByID(childID)).get(1));
                 String childPos = childLin.length() == 1 ? String.valueOf(childLin.charAt(0)) : String.valueOf(childLin.charAt(1));
 
                 Linkage first = new Linkage();
@@ -387,7 +388,7 @@ public class KCFImporter {
 
         // for end side
         if (_end == null) {
-            String endSide = kcfUtil.extractEdgeByID(extractNodeID(_cross), false);
+            String endSide = kcfUtil.extractDonorEdgeByID(extractNodeID(_cross));//extractEdgeByID(extractNodeID(_cross), false);
             _end = nodeIndex.get(kcfUtil.extractID(kcfUtil.splitNotation(endSide).get(2)));
         }
 
