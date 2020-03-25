@@ -6,11 +6,11 @@ import java.util.Iterator;
 
 public class GlyContainer implements GlycanGraph {
 
-	private ArrayList<Node> nodes = new ArrayList<Node>();
-	private ArrayList<GlycanUndefinedUnit> antennae = new ArrayList<GlycanUndefinedUnit>();
+	private ArrayList<Node> nodes = new ArrayList<>();
+	private ArrayList<GlycanUndefinedUnit> antennae = new ArrayList<>();
 	private Node aglycone;
 
-	private ArrayList<GlycanUndefinedUnit> undefinedSubstituent = new ArrayList<GlycanUndefinedUnit>(); // 2018/09/25 Masaaki added
+	private ArrayList<GlycanUndefinedUnit> undefinedSubstituent = new ArrayList<>(); // 2018/09/25 Masaaki added
 	private int nUndefinedLinkage = 0; // 2018/09/24 Masaaki added
 
 	public void setNumberOfUndefinedLinkages(int _nUndefinedLinkages) {
@@ -22,7 +22,7 @@ public class GlyContainer implements GlycanGraph {
 	}
 
 	public ArrayList<Node> getRootNodes() throws GlycanException {
-		ArrayList<Node> ret = new ArrayList<Node>();
+		ArrayList<Node> ret = new ArrayList<>();
 		Node root;
 
 		for(Node unit : getNodes()) {
@@ -57,9 +57,7 @@ public class GlyContainer implements GlycanGraph {
 	
 	public boolean isConnected() throws GlycanException {
 		ArrayList<Node> roots = this.getRootNodes();
-		if(roots.size() > 1) return false;
-
-		return true;
+		return roots.size() <= 1;
 	}
 	
 	public boolean removeNode(Node _node) throws GlycanException {
@@ -73,11 +71,11 @@ public class GlyContainer implements GlycanGraph {
 			if(residue == null) throw new GlycanException ("A linkage with a null parent exists.");
 			residue.removeChildEdge(linkage);
 		}
-		
-		for(Iterator<Edge> iterEdges = _node.getChildEdges().iterator(); iterEdges.hasNext();) {
-			linkage = iterEdges.next();
+
+		for (Edge edge : _node.getChildEdges()) {
+			linkage = edge;
 			residue = linkage.getChild();
-			if(residue == null) throw new GlycanException ("A linkage with a null child exists.");
+			if (residue == null) throw new GlycanException("A linkage with a null child exists.");
 			residue.removeParentEdge(linkage);
 		}
 		
@@ -85,8 +83,7 @@ public class GlyContainer implements GlycanGraph {
 	}
 	
 	public ArrayList<Node> getAllNodes () {
-		ArrayList<Node> ret = new ArrayList<Node>();
-		ret.addAll(getNodes());
+		ArrayList<Node> ret = new ArrayList<>(getNodes());
 		for(GlycanUndefinedUnit und : this.antennae) {
 			for(Node root : und.getNodes()) {
 				if (!(root instanceof Monosaccharide)) continue;
@@ -115,24 +112,19 @@ public class GlyContainer implements GlycanGraph {
 
 		while(iterNode.hasNext()) {
 			Node node = iterNode.next();
-			for (Edge edge : node.getChildEdges()) {
-				ret.add(edge);
-			}
+			ret.addAll(node.getChildEdges());
 		}
 		return ret;
 	}
 
-	public boolean addNode(Node _node) throws GlycanException {
+	public void addNode(Node _node) throws GlycanException {
 		if(_node == null) throw new GlycanException ("Invalid residue.");
 		if(!this.nodes.contains(_node)) {
-			//_node.removeAllEdges();
-			return this.nodes.add(_node);
+			this.nodes.add(_node);
 		}
-		
-		return false;
 	}
 	
-	public boolean addNode(Node _parent, Edge _linkage, Node _child) throws GlycanException {
+	public void addNode(Node _parent, Edge _linkage, Node _child) throws GlycanException {
 		if(_parent == null || _child == null) throw new GlycanException ("Invalid residue");
 		if(_linkage == null) throw new GlycanException ("Invalid linkage");
 		
@@ -147,11 +139,9 @@ public class GlyContainer implements GlycanGraph {
 		_parent.addChildEdge(_linkage);
 		_linkage.setChild(_child);
 		_linkage.setParent(_parent);
-
-		return true;
 	}
 	
-	public boolean addNodeWithSubstituent(Node _parent, Edge _linkage, Substituent _child) throws GlycanException {
+	public void addNodeWithSubstituent(Node _parent, Edge _linkage, Substituent _child) throws GlycanException {
 		if(_parent == null || _child == null) throw new GlycanException ("Invalid residue");
 		if(_linkage == null) throw new GlycanException ("Invalid residue");
 		
@@ -163,11 +153,10 @@ public class GlyContainer implements GlycanGraph {
 		
 		_parent.addChildEdge(_linkage);
 		_linkage.setSubstituent(_child);
-		return true;
 	}
 	
-	public boolean addEdge(Node _parent, Node _child, Edge _linkage) throws GlycanException {
-		return this.addNode(_parent, _linkage, _child);
+	public void addEdge(Node _parent, Node _child, Edge _linkage) throws GlycanException {
+		this.addNode(_parent, _linkage, _child);
 	}
 
 	public boolean containsNode(Node _node) {
@@ -193,8 +182,8 @@ public class GlyContainer implements GlycanGraph {
 		return this.isParent(_parent, parent);
 	}
 	
-	public boolean removeEdge(Edge _edge) throws GlycanException {
-		if(_edge == null) return false;
+	public void removeEdge(Edge _edge) throws GlycanException {
+		if(_edge == null) return;
 		
 		Node child = _edge.getChild();
 		Node parent = _edge.getParent();
@@ -212,7 +201,6 @@ public class GlyContainer implements GlycanGraph {
 		
 		child.removeParentEdge(_edge);
 		parent.removeChildEdge(_edge);
-		return true;
 	}
 	
 	private boolean containsCyclicBelow(Edge _edge) throws GlycanException {
@@ -224,7 +212,7 @@ public class GlyContainer implements GlycanGraph {
 		Substituent sub = (Substituent) _edge.getSubstituent();
 		
 		if(!(sub instanceof GlycanRepeatModification)) return false;
-		if(((GlycanRepeatModification) sub).getMaxRepeatCount() == 1 && 
+		if(((GlycanRepeatModification) sub).getMaxRepeatCount() == 1 &&
 				((GlycanRepeatModification) sub).getMinRepeatCount() == 1) return true;
 
 		return false;
@@ -235,8 +223,8 @@ public class GlyContainer implements GlycanGraph {
 			throw new GlycanException ("null is not a validate set of antennae");
 		}
 		this.antennae.clear();
-		for(Iterator<GlycanUndefinedUnit> iterUnd = _und.iterator(); iterUnd.hasNext();) {
-			this.addGlycanUndefinedUnit(iterUnd.next());
+		for (GlycanUndefinedUnit glycanUndefinedUnit : _und) {
+			this.addGlycanUndefinedUnit(glycanUndefinedUnit);
 		}
 	}
 	

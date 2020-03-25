@@ -4,7 +4,7 @@ public class GlycanRepeatModification extends Substituent implements RepeatInter
 
 	private GlycanRepeat repeat;
 	
-	public GlycanRepeatModification(SubstituentInterface _subface) throws GlycanException { 
+	public GlycanRepeatModification(SubstituentInterface _subface) throws GlycanException {
 		super(_subface);
 		this.repeat = new GlycanRepeat();
 	}
@@ -18,7 +18,7 @@ public class GlycanRepeatModification extends Substituent implements RepeatInter
 	}
 	
 	public void setMinRepeatCount(int _count) {
-		this.repeat.setMinRepeatCount(_count);;
+		this.repeat.setMinRepeatCount(_count);
 	}
 	
 	public void setMaxRepeatCount(int _count) {
@@ -26,7 +26,6 @@ public class GlycanRepeatModification extends Substituent implements RepeatInter
 	}
 
 	public GlycanRepeatModification copy() {
-		//CrossLinkedTemplate subT = (CrossLinkedTemplate) this.getSubstituent();
 		BaseCrossLinkedTemplate subT = (BaseCrossLinkedTemplate) this.getSubstituent();
 		GlycanRepeatModification copy;
 		try {
@@ -36,7 +35,7 @@ public class GlycanRepeatModification extends Substituent implements RepeatInter
 		} catch (GlycanException e) {
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
 }

@@ -82,7 +82,6 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 				notation = "";
 				isNotation = false;
 				isLink = false;
-				continue;
 			}
 		}
 
@@ -134,7 +133,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 			//TODO :辞書の更新が必要
 			for(String position : positions.split(":")) {
 				//Dual linkages
-				if((positions.indexOf(":") != -1 && position.contains(",")) || (position.contains(",") && number == 1)) {
+				if((positions.contains(":") && position.contains(",")) || (position.contains(",") && number == 1)) {
 					//subT = CrossLinkedTemplate.forIUPACNotation(notation);
 					String plane = this.makePlaneNotation(notation);
 
@@ -197,7 +196,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 		if (_notation.equals("N")) return _notation;
 		if (_notation.equals("Cl")) return _notation;
 		if (_notation.startsWith("O") || _notation.startsWith("C")) {
-			return _notation.substring(1,_notation.length());
+			return _notation.substring(1);
 		}
 		if (_notation.startsWith("(")) {
 			String bracket = _notation.substring(0, _notation.indexOf(")") + 1);
@@ -205,7 +204,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 			_notation = _notation.replaceFirst(regex, "");
 
 			if ((_notation.startsWith("C") && _notation.length() == 3) || (!_notation.startsWith("C") && _notation.length() > 2)) {
-				_notation = _notation.substring(1, _notation.length());
+				_notation = _notation.substring(1);
 			}
 
 			return bracket + _notation;
@@ -219,7 +218,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 	 * _childPos 2 : second linkage
 	 * @param _parentPos
 	 * @param _childPos
-	 * @throws GlycanException 
+	 * @throws GlycanException
 	 * @return
 	 */
 	private Linkage makeLinkage (String _parentPos, String _childPos, double _probabilityLow, double _probabilityHigh) throws GlycanException {
@@ -253,7 +252,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 		ret[0] = "1.0D";
 		ret[1] = "1.0D";
 
-		if (_linkagepos.indexOf("(") == -1) return ret;
+		if (!_linkagepos.contains("(")) return ret;
 
 		String probability = _linkagepos.substring(_linkagepos.indexOf("(") + 1, _linkagepos.indexOf(")"));
 
@@ -270,9 +269,9 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 	private String[] extractPos (String _position) {
 		String[] ret = new String[2];
 		if (_position == null) return null;
-		if (_position.indexOf("(") != -1) _position = _position.substring(0, _position.indexOf("("));
+		if (_position.contains("(")) _position = _position.substring(0, _position.indexOf("("));
 
-		if (_position.indexOf("-") != -1) {
+		if (_position.contains("-")) {
 			ret = _position.split("-");
 		} else {
 			ret[0] = _position;
@@ -295,10 +294,8 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 			_notation = _notation.replaceFirst(regex, "");
 			_planeNotaiton = _planeNotaiton.replaceFirst(regex, "");
 
-			ret = _notation.replaceFirst(_planeNotaiton, "");
-		} else {
-			ret = _notation.replaceFirst(_planeNotaiton, "");
 		}
+		ret = _notation.replaceFirst(_planeNotaiton, "");
 
 		return ret;
 	}

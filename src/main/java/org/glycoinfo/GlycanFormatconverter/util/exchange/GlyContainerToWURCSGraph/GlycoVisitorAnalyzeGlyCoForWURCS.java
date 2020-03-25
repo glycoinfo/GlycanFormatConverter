@@ -11,19 +11,31 @@ import java.util.HashMap;
 
 public class GlycoVisitorAnalyzeGlyCoForWURCS implements ContainerVisitor {
 
-	private ArrayList<Edge> substituentLinkages = new ArrayList<Edge>();
-	private ArrayList<Edge> linkages = new ArrayList<Edge>();
-	private HashMap<Edge, Substituent> linkageToRepeat = new HashMap<Edge, Substituent>();
+	private ArrayList<Edge> substituentLinkages;
+	private ArrayList<Edge> linkages;
+	private HashMap<Edge, Substituent> linkageToRepeat;
 	
 	private GlycanGraph graph;
 	private GlycanGraph fragment;
 	
-	private ArrayList<Node> nodes = new ArrayList<Node>();
-	private ArrayList<Node> subGraph = new ArrayList<Node>();
+	private ArrayList<Node> nodes;
+	private ArrayList<Node> subGraph;
 	
-	private ArrayList<Substituent> repeats = new ArrayList<Substituent>();
-	private ArrayList<GlycanUndefinedUnit> fragments = new ArrayList<GlycanUndefinedUnit>();
-	
+	private ArrayList<Substituent> repeats;
+	private ArrayList<GlycanUndefinedUnit> fragments;
+
+	public GlycoVisitorAnalyzeGlyCoForWURCS () {
+		this.linkages = new ArrayList<>();
+		this.linkageToRepeat = new HashMap<>();
+		this.substituentLinkages = new ArrayList<>();
+
+		this.nodes = new ArrayList<>();
+		this.subGraph = new ArrayList<>();
+
+		this.repeats = new ArrayList<>();
+		this.fragments = new ArrayList<>();
+	}
+
 	public ArrayList<Node> getMonosaccharides() {
 		return this.nodes;
 	}
@@ -33,7 +45,7 @@ public class GlycoVisitorAnalyzeGlyCoForWURCS implements ContainerVisitor {
 	}
 	
 	public ArrayList<Edge> getLinkages() {
-		ArrayList<Edge> ret = new ArrayList<Edge>();
+		ArrayList<Edge> ret = new ArrayList<>();
 		ret.addAll(linkages);
 		ret.addAll(substituentLinkages);
 		return ret;
@@ -63,7 +75,6 @@ public class GlycoVisitorAnalyzeGlyCoForWURCS implements ContainerVisitor {
 
 	@Override
 	public void visit(Edge _edge) throws VisitorException {
-		Node child = _edge.getChild();
 		if(_edge.getSubstituent() != null) {
 			Substituent sub = (Substituent) _edge.getSubstituent();
 			
@@ -85,12 +96,8 @@ public class GlycoVisitorAnalyzeGlyCoForWURCS implements ContainerVisitor {
 	
 	@Override
 	public void start(GlyContainer _glyCo) throws VisitorException {
-		this.clear();
-		
 		if(!_glyCo.getUndefinedUnit().isEmpty()) {
-			for(GlycanUndefinedUnit und : _glyCo.getUndefinedUnit()) {
-				fragments.add(und);
-			}
+			fragments.addAll(_glyCo.getUndefinedUnit());
 		}
 
 		this.graph = _glyCo;
@@ -108,18 +115,4 @@ public class GlycoVisitorAnalyzeGlyCoForWURCS implements ContainerVisitor {
 	public FormatTraverser getTraverser(ContainerVisitor _visitor) throws VisitorException {
 		return new ContainerTraverserBranch(_visitor);
 	}
-	
-	@Override
-	public void clear() {
-		this.linkages = new ArrayList<>();
-		this.linkageToRepeat = new HashMap<>();
-		
-		this.nodes = new ArrayList<>();
-		this.subGraph = new ArrayList<>();
-		
-		this.repeats = new ArrayList<>();
-		this.fragments = new ArrayList<>();
-	}
-
-
 }

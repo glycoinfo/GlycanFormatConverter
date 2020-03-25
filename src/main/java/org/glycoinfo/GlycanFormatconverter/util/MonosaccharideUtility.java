@@ -1,7 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.util;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.ModifiedMonosaccharideDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
@@ -20,7 +19,7 @@ import java.util.regex.Pattern;
 public class MonosaccharideUtility {
 
     public ArrayList<String> resolveNotation (String _temp) {
-        ArrayList<String> ret = new ArrayList<String>();
+        ArrayList<String> ret = new ArrayList<>();
 
         Matcher matMod = Pattern.compile("([\\d,?:]+)-?(\\D+)").matcher(_temp);
         if(!matMod.find()) return ret;
@@ -43,7 +42,7 @@ public class MonosaccharideUtility {
         return ret;
     }
 
-    public Monosaccharide appendSubstituents (Node _node,  ArrayList<String> _substituents) throws GlycanException, GlyCoImporterException {
+    public Monosaccharide appendSubstituents (Node _node,  ArrayList<String> _substituents) throws GlycanException {
         // make substituents for GlyContainer
         SubstituentIUPACNotationAnalyzer subAna = new SubstituentIUPACNotationAnalyzer();
         subAna.start((Monosaccharide) _node, _substituents);
@@ -67,7 +66,7 @@ public class MonosaccharideUtility {
         int pos = _mono.getAnomericPosition();
         boolean haveKetose = this.haveKetoneAtAnomer(_mono, _modifications);
         
-		/* Modify anomeric position */
+		// Modify anomeric position
         if (pos == 0) {
             MonosaccharideIndex monoIndex = MonosaccharideIndex.forTrivialNameWithIgnore(_code);
             if (monoIndex != null) {
@@ -116,7 +115,7 @@ public class MonosaccharideUtility {
     private int extractAnomeriKetone (ArrayList<String> _modifications) {
         int ret = -1;
         for (String mod : _modifications) {
-            if (mod.indexOf("ulo") != -1) {
+            if (mod.contains("ulo")) {
                 ret = Integer.parseInt(mod.substring(0, 1));
                 break;
             }
@@ -126,7 +125,7 @@ public class MonosaccharideUtility {
     }
 
     public Monosaccharide appendModifications (Monosaccharide _mono, ArrayList<String> _modifications) throws GlycanException {
-        HashMap<Integer, ModificationTemplate> hashMod = new HashMap<Integer, ModificationTemplate>();
+        HashMap<Integer, ModificationTemplate> hashMod = new HashMap<>();
         
         for( String unit : _modifications) {
             // parse single notation
@@ -255,7 +254,7 @@ public class MonosaccharideUtility {
         String firstConfig = _configurations.isEmpty() ? "" : _configurations.getFirst().equals("?") ? "" : _configurations.getFirst();
         String secondConfig = _configurations.isEmpty() ? "" : _configurations.getLast().equals("?") ? "" : _configurations.getLast();
 
-        LinkedList<String> stereos = new LinkedList<String>();
+        LinkedList<String> stereos = new LinkedList<>();
         
         for(String stereo : _mono.getStereos()) {
             if (stereo.equals("Sugar") || stereo.length() == 4) {
@@ -400,34 +399,32 @@ public class MonosaccharideUtility {
 
     private void modifyNsubstituent (Node _node) {
         Monosaccharide mono = (Monosaccharide) _node;
-        SubstituentUtility subUtil = new SubstituentUtility();
+        //SubstituentUtility subUtil = new SubstituentUtility();
 
         for (Edge edge : mono.getChildEdges()) {
             if (edge.getSubstituent() == null) continue;
             if (edge.getSubstituent() != null && edge.getChild() != null) continue;
 
-            Substituent sub = (Substituent) edge.getSubstituent();
+            //Substituent sub = (Substituent) edge.getSubstituent();
 
             //if (subUtil.isNLinkedSubstituent(sub) && sub.getFirstPosition().getParentLinkages().contains(2)) {
             //    sub.setTemplate(subUtil.convertNTypeToOType(sub.getSubstituent()));
             //}
         }
-
-        return;
     }
 
     private void removeSubstituents (String _notation, Node _node) throws GlycanException {
         if (_notation.equals("")) return;
 
         String[] posNot = _notation.split("\\*");
-        BaseSubstituentTemplate subTemp = BaseSubstituentTemplate.forIUPACNotationWithIgnore(posNot[1]);
-        SubstituentUtility subUtil = new SubstituentUtility();
+        //BaseSubstituentTemplate subTemp = BaseSubstituentTemplate.forIUPACNotationWithIgnore(posNot[1]);
+        //SubstituentUtility subUtil = new SubstituentUtility();
 
         for (Edge edge : _node.getChildEdges()) {
             if (edge.getSubstituent() == null) continue;
             if (edge.getSubstituent() != null && edge.getChild() != null) continue;
 
-            Substituent sub = (Substituent) edge.getSubstituent();
+            //Substituent sub = (Substituent) edge.getSubstituent();
             //TODO: convert O-link to N-link
 
             //SubstituentTemplate convSub = subUtil.convertOTypeToNType(sub.getSubstituent());
@@ -436,8 +433,6 @@ public class MonosaccharideUtility {
             //    _node.removeChildEdge(edge);
             //}
         }
-
-        return;
     }
 
     private void remomveModifications (String _mod, Node _node) {
@@ -445,7 +440,7 @@ public class MonosaccharideUtility {
 
         String[] posNot = _mod.split("\\*");
         ModificationTemplate modTemp = ModificationTemplate.forCarbon(posNot[1].charAt(0));
-        if (modTemp.equals(ModificationTemplate.ALDONICACID) && posNot[0] != "1") {
+        if (modTemp.equals(ModificationTemplate.ALDONICACID) && !posNot[0].equals("1")) {
             modTemp = ModificationTemplate.URONICACID;
         }
         Monosaccharide mono = (Monosaccharide) _node;
@@ -453,8 +448,6 @@ public class MonosaccharideUtility {
         for (GlyCoModification gMod : mono.getModifications()) {
             if (gMod.getModificationTemplate().equals(modTemp)) mono.removeModification(gMod);
         }
-
-        return;
     }
 
     private boolean isHexosamine (ModifiedMonosaccharideDescriptor _modMonoDesc) {

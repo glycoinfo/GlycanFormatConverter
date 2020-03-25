@@ -19,7 +19,7 @@ public enum AnomericStateDescriptor {
 		return this.a_cNotation;
 	}
 	
-	private AnomericStateDescriptor (char _a_cNotation, String _a_sIUPACNotation) {
+	AnomericStateDescriptor(char _a_cNotation, String _a_sIUPACNotation) {
 		this.a_cNotation = _a_cNotation;
 		this.a_sIUPACNotaiton = _a_sIUPACNotation;
 	}

@@ -13,6 +13,4 @@ public interface ContainerVisitor {
 	void start (GlyContainer _glyCo) throws VisitorException;
 	
 	FormatTraverser getTraverser (ContainerVisitor _visitor) throws VisitorException;
-	
-	void clear();
 }

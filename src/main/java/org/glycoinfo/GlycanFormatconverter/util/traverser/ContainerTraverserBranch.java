@@ -5,7 +5,6 @@ import org.glycoinfo.GlycanFormatconverter.util.visitor.ContainerVisitor;
 import org.glycoinfo.GlycanFormatconverter.util.visitor.VisitorException;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class ContainerTraverserBranch extends FormatTraverser {
 
@@ -28,7 +27,7 @@ public class ContainerTraverserBranch extends FormatTraverser {
 	public void traverse(Edge _edge) throws VisitorException {
 		this.state = FormatTraverser.ENTER;
 		_edge.accept(this.visitor);
-		ArrayList<Node> children = new ArrayList<Node>();
+		ArrayList<Node> children = new ArrayList<>();
 		if (_edge.getChild() != null) children.add(_edge.getChild());
 		if (_edge.getSubstituent() != null) {
 			children.add(_edge.getSubstituent());
@@ -47,9 +46,8 @@ public class ContainerTraverserBranch extends FormatTraverser {
 			if (_glycanGraph.isComposition()) roots =_glycanGraph.getNodes();
 			else roots = _glycanGraph.getRootNodes();
 			//TODO : compareterが必要か検討
-			Iterator<Node> iterNode = roots.iterator();
-			while (iterNode.hasNext()) {
-				this.traverse(iterNode.next());
+			for (Node root : roots) {
+				this.traverse(root);
 			}
 		} catch (GlycanException e) {
 			throw new VisitorException (e.getMessage(), e);

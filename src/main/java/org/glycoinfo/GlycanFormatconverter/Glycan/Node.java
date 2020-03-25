@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public abstract class Node implements Visitable {
-	protected ArrayList<Edge> parentLinkages = new ArrayList<Edge>();
-	protected ArrayList<Edge> childLinkages = new ArrayList<Edge>();
+	protected ArrayList<Edge> parentLinkages = new ArrayList<>();
+	protected ArrayList<Edge> childLinkages = new ArrayList<>();
 	
 	public abstract Node copy() throws GlycanException;
 	
@@ -16,8 +16,8 @@ public abstract class Node implements Visitable {
 			throw new GlycanException ("Children are Null");
 		}
 		this.childLinkages.clear();
-		for(Iterator<Edge> iterEdge = children.iterator(); iterEdge.hasNext();) {
-			this.addChildEdge(iterEdge.next());
+		for (Edge child : children) {
+			this.addChildEdge(child);
 		}
 	}
 	
@@ -67,11 +67,11 @@ public abstract class Node implements Visitable {
 	}
 
 	public ArrayList<Node> getChildNodes() {
-		ArrayList<Node> ret = new ArrayList<Node>();
-		for (Iterator<Edge> linkages = this.childLinkages.iterator(); linkages.hasNext();) {
-			Node n_ret = linkages.next().getChild();
-			if(n_ret == null) continue;
-			if(!ret.contains(n_ret)) {
+		ArrayList<Node> ret = new ArrayList<>();
+		for (Edge childLinkage : this.childLinkages) {
+			Node n_ret = childLinkage.getChild();
+			if (n_ret == null) continue;
+			if (!ret.contains(n_ret)) {
 				ret.add(n_ret);
 			}
 		}
@@ -84,7 +84,7 @@ public abstract class Node implements Visitable {
 	}
 
 	public ArrayList<Node> getParents () {
-		ArrayList<Node> ret = new ArrayList<Node>();
+		ArrayList<Node> ret = new ArrayList<>();
 		for (Edge edge : parentLinkages) {
 			ret.add(edge.getParent());
 		}
@@ -92,33 +92,32 @@ public abstract class Node implements Visitable {
 		return ret;
 	}
 
-	public boolean addChildEdge(Edge _linkSubstructure) throws GlycanException {
+	public void addChildEdge(Edge _linkSubstructure) throws GlycanException {
 		if (_linkSubstructure == null) {
 			throw new GlycanException ("Substructure is Null");
 		}
 		if(!this.childLinkages.contains(_linkSubstructure)) {
-			return this.childLinkages.add(_linkSubstructure);
+			this.childLinkages.add(_linkSubstructure);
 		}
-		return false;
 	}
 	
-	public boolean removeParentEdge(Edge _edge) throws GlycanException { 
+	public void removeParentEdge(Edge _edge) throws GlycanException {
 		if(!this.parentLinkages.contains(_edge)) {
 			throw new GlycanException ("This parent edge can not remove");
 		}
-		return this.parentLinkages.remove(_edge);
+		this.parentLinkages.remove(_edge);
 		//this.parentLinkage = null;
 		//return true;
 	}
 	
-	public boolean removeChildEdge (Edge _linkage) throws GlycanException {
+	public void removeChildEdge (Edge _linkage) throws GlycanException {
 		if(_linkage == null) {
 			throw new GlycanException ("This child edge can not remove");
 		}
 		if(!this.childLinkages.contains(_linkage)) {
-			return false;
+			return;
 		}
-		return this.childLinkages.remove(_linkage);
+		this.childLinkages.remove(_linkage);
 	}
 	
 	public void removeAllEdges() {

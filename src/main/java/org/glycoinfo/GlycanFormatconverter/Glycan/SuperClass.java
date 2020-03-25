@@ -15,7 +15,7 @@ public enum SuperClass {
 	int size;
 	String superclass;
 	
-	private SuperClass(int _size, String _superclass) {
+	SuperClass(int _size, String _superclass) {
 		size = _size;
 		superclass = _superclass;
 	}

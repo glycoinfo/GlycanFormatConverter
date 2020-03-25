@@ -74,8 +74,6 @@ public class GlyContainerOptimizer {
                 _mono.removeChildEdge(edges.get(1));
             }
         }
-
-        return;
     }
 
     private HashMap<Integer, ArrayList<Edge>> extractDupeSubstituents (Node _node) {
@@ -202,8 +200,6 @@ public class GlyContainerOptimizer {
             lin.setChildLinkageType(first.getParentLinkageType());
             lin.setParentLinkageType(second.getChildLinkageType());
         }
-
-        return;
     }
 
     public void optimizeGlycoSidicLinkage (Monosaccharide _mono) throws GlycanException {
@@ -245,8 +241,6 @@ public class GlyContainerOptimizer {
                 this.optimizeCrossLinkedSubstituent(edge, sub);
             }
         }
-
-        return;
     }
 
     public void optimizeUndefinedUnit (GlycanUndefinedUnit _und) throws GlycanException {
@@ -283,7 +277,6 @@ public class GlyContainerOptimizer {
 
         //TODO: 修飾の種類に応じてHeadAtomを最適化する処理が必要
        //System.out.println(_sub.getSubstituent() + " " + _sub.getHeadAtom());
-        return;
     }
 
     public boolean withH_LOSE (Monosaccharide _mono, Substituent _sub) {
@@ -337,7 +330,6 @@ public class GlyContainerOptimizer {
                     System.out.println(sub.getSubstituent());
 
                     System.out.println("head atom : " + sub.getHeadAtom() + "/ tail atom : " + sub.getTailAtom());
-                    System.out.println("");
                 }
             }
         }

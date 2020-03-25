@@ -46,7 +46,7 @@ public enum ModificationTemplate {
 	}
 	
 	//monosaccharide construct
-	private ModificationTemplate(char _carbon, String _glycoCTnotation, String _IUPACnotation) {
+	ModificationTemplate(char _carbon, String _glycoCTnotation, String _IUPACnotation) {
 		this.carbon = _carbon;
 		this.glycoCTNotation = _glycoCTnotation;
 		this.iupacNotation = _IUPACnotation;
@@ -62,7 +62,7 @@ public enum ModificationTemplate {
 	
 	public static ModificationTemplate forIUPACNotation(String str_canvasName) {
 				for(ModificationTemplate s : ModificationTemplate.values())
-			if (str_canvasName.equals(s.iupacNotation.toString())) return s;
+			if (str_canvasName.equals(s.iupacNotation)) return s;
 	
 		return null;
 	}	

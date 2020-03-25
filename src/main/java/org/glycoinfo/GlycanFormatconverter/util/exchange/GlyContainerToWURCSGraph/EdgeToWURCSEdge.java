@@ -19,8 +19,8 @@ public class EdgeToWURCSEdge {
 	private Monosaccharide child;
 	private Substituent sub;
 	
-	private LinkedList<WURCSEdge> parentEdges = new LinkedList<WURCSEdge>();
-	private LinkedList<WURCSEdge> childEdges = new LinkedList<WURCSEdge>();
+	private LinkedList<WURCSEdge> parentEdges = new LinkedList<>();
+	private LinkedList<WURCSEdge> childEdges = new LinkedList<>();
 	private Modification mod;
 	private int parentSidePos = 0;
 	private int childSidePos = 0;
@@ -57,9 +57,11 @@ public class EdgeToWURCSEdge {
 		return this.mod;
 	}
 	
+	/*
 	public int getMAPPositionParentSide () {
 		return this.parentSidePos;
 	}
+	 */
 
 	public void start (Edge _edge) throws WURCSException {
 		this.setLinkage(_edge);
@@ -80,14 +82,14 @@ public class EdgeToWURCSEdge {
 	
 	protected void setWURCSEdge (boolean _isParent) throws WURCSException {
 		if (_isParent) {
-			this.parentEdges = this.makeWURCSEdges(parentEdge, _isParent);
+			this.parentEdges = this.makeWURCSEdges(parentEdge, true);
 		} else {
-			this.childEdges = this.makeWURCSEdges(childEdge, _isParent);
+			this.childEdges = this.makeWURCSEdges(childEdge, false);
 		}
 	}
 	
 	protected LinkedList<WURCSEdge> makeWURCSEdges (Edge _edge, boolean _isParent) throws WURCSException {
-		LinkedList<WURCSEdge> wedges = new LinkedList<WURCSEdge>();
+		LinkedList<WURCSEdge> wedges = new LinkedList<>();
 		
 		Linkage parentLinkage = _edge.getGlycosidicLinkages().get(0);
 
@@ -176,9 +178,11 @@ public class EdgeToWURCSEdge {
 			}
 			subst2mod.setParentEdge(this.parentEdge);
 			
+			/*
 			if (this.childEdge != this.parentEdge) {
 				subst2mod.setChildEdge(this.childEdge);
 			}
+			 */
 
 			subst2mod.start(this.sub);
 			String map = subst2mod.getMAPCode();

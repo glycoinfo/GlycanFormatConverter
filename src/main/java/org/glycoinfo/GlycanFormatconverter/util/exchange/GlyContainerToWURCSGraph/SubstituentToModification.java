@@ -8,13 +8,11 @@ import org.glycoinfo.WURCSFramework.util.exchange.WURCSExchangeException;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 
 public class SubstituentToModification {
 
-	private Substituent substituent;
 	private Edge parentEdge = null;
-	private Edge childEdge = null;
+	//private Edge childEdge = null;
 	private LinkageType parentType;
 	private LinkageType childType;
 	
@@ -49,14 +47,15 @@ public class SubstituentToModification {
 	public void setParentEdge (Edge _edge) {
 		this.parentEdge = _edge;
 	}
-	
+
+	/*
 	public void setChildEdge (Edge _edge) { 
 		this.childEdge = _edge;
 	}
+	 */
 	
 	public void start (Substituent _sub) throws WURCSExchangeException {
-		this.substituent = _sub;
-		
+
 		if (_sub.getSubstituent() == null) return;
 		
 		this.subTypeToMap = SubstituentTypeToMAP.forName(_sub.getSubstituent().getglycoCTnotation());
@@ -64,22 +63,24 @@ public class SubstituentToModification {
 		this.headAtom = this.subTypeToMap.getHeadAtom();
 		this.tailAtom = this.subTypeToMap.getTailAtom();
 		
-		ArrayList<LinkageType> linkageTypes = new ArrayList<LinkageType>();
-		if (this.substituent.getParentEdge() != null) {
-			this.parentEdge = this.substituent.getParentEdge();
+		ArrayList<LinkageType> linkageTypes = new ArrayList<>();
+		if (_sub.getParentEdge() != null) {
+			this.parentEdge = _sub.getParentEdge();
 		}
 		if (this.parentEdge == null) {
 			throw new WURCSExchangeException("Substituent must have parent linkage.");
 		}
-		if (!this.substituent.getChildEdges().isEmpty()) {
-			this.childEdge = this.substituent.getChildEdges().get(0);
+		/*
+		if (!_sub.getChildEdges().isEmpty()) {
+			this.childEdge = _sub.getChildEdges().get(0);
 		}
+		 */
 
-		if (this.substituent.getFirstPosition() != null) {
-			linkageTypes.add(this.substituent.getFirstPosition().getParentLinkageType());
+		if (_sub.getFirstPosition() != null) {
+			linkageTypes.add(_sub.getFirstPosition().getParentLinkageType());
 		}
-		if (this.substituent.getSecondPosition() != null) {
-			linkageTypes.add(this.substituent.getSecondPosition().getChildLinkageType());
+		if (_sub.getSecondPosition() != null) {
+			linkageTypes.add(_sub.getSecondPosition().getChildLinkageType());
 		}
 
 		if (linkageTypes.isEmpty()) {
@@ -165,7 +166,7 @@ public class SubstituentToModification {
 		sb.insert(pos, 'O');
 		_map = sb.toString();
 		
-		int posO = 1;
+		//int posO = 1;
 		for (int i=0; i < pos; i++) {
 			char c = _map.charAt(i);
 			if (c == '^' || c == '/') {
@@ -176,39 +177,22 @@ public class SubstituentToModification {
 			} else if (c == '*') {
 				break;
 			}
-			posO++;
+			//posO++;
 		}
-		
-		ArrayList<Integer> nums = new ArrayList<Integer>();
-		String num = "";
-		for (int i = 0; i < _map.length(); i++) {
-			char c = _map.charAt(i);
-			if (Character.isDigit(c)) {
-				num += c;
-				continue;
-			}
-			if (num.equals("")) continue;
-			if (nums.contains(Integer.parseInt(num))) continue;
-			nums.add(Integer.parseInt(num));
-			num = "";
-		}
-		Collections.sort(nums);
-		Collections.reverse(nums);
-		
-		String newMAP = _map;
-		for (Iterator<Integer> iterNum = nums.iterator(); iterNum.hasNext();) {
-			Integer num1 = iterNum.next();
-			if (num1 <= posO) continue;
-			Integer num2 = num1 + 1;
-			newMAP = newMAP.replaceAll(num1.toString(), num2.toString());
-		}
-		return newMAP;
+
+		return this.checkConformationOfNotation(_map);
 	}
 	
 	private String addOxygenToHead (String _map) {
 		if (_map.startsWith("NCCOP")) return _map;
 
-		ArrayList<Integer> nums = new ArrayList<Integer>();
+		String newMAP = this.checkConformationOfNotation(_map);
+
+		return "O" + newMAP;
+	}
+
+	private String checkConformationOfNotation (String _map) {
+		ArrayList<Integer> nums = new ArrayList<>();
 		String num = "";
 		for (int i = 0; i < _map.length(); i++) {
 			char c = _map.charAt(i);
@@ -225,14 +209,13 @@ public class SubstituentToModification {
 		Collections.reverse(nums);
 
 		String newMAP = _map;
-		for (Iterator<Integer> iterNum = nums.iterator(); iterNum.hasNext();) {
-			Integer num1 = iterNum.next();
-			Integer num2 = num1 + 1;
-			newMAP = newMAP.replaceAll(num1.toString(), num2.toString());
+		for (Integer num1 : nums) {
+			int num2 = num1 + 1;
+			newMAP = newMAP.replaceAll(num1.toString(), Integer.toString(num2));
 		}
-		return "O" + newMAP;
+		return newMAP;
 	}
-	
+
 	private String addMAPStarIndex (String _map) {
 		StringBuilder sb = new StringBuilder(_map);
 		int pos2 = _map.indexOf("*");

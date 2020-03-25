@@ -17,19 +17,19 @@ public interface GlycanGraph {
 
 	ArrayList<Edge> getEdges();
 
-	boolean addEdge(Node _parent, Node _child, Edge _linkage) throws GlycanException;
+	void addEdge(Node _parent, Node _child, Edge _linkage) throws GlycanException;
 	
-	boolean addNode(Node _node) throws GlycanException;
+	void addNode(Node _node) throws GlycanException;
 
-	boolean addNode(Node _parent, Edge _linkage, Node _child) throws GlycanException;
+	void addNode(Node _parent, Edge _linkage, Node _child) throws GlycanException;
 	
-	boolean addNodeWithSubstituent(Node _parent, Edge _linkage, Substituent _child) throws GlycanException;
+	void addNodeWithSubstituent(Node _parent, Edge _linkage, Substituent _child) throws GlycanException;
 	
 	boolean containsNode(Node _node);
 	
 	boolean isParent(Node _parent, Node _current);
 	
-	boolean removeEdge(Edge _edge) throws GlycanException;
+	void removeEdge(Edge _edge) throws GlycanException;
 
 	boolean isComposition ();
 }

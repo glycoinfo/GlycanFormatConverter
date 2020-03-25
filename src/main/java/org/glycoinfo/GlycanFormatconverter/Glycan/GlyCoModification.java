@@ -68,13 +68,11 @@ public class GlyCoModification implements Visitable {
 	}
 	
 	public boolean hasPositionOne() {
-		if(this.positionOne == null) return false;
-		else return true;
+		return this.positionOne != null;
 	}
 	
 	public boolean hasPositionTwo() {
-		if(this.positionTwo == null) return false;
-		else return true;
+		return this.positionTwo != null;
 	}
 	
 	public GlyCoModification copy() throws GlycanException {
@@ -85,11 +83,6 @@ public class GlyCoModification implements Visitable {
 		}
 		
 		return ret;
-		/*if(!hasPositionTwo()) {
-			return new GlyCoModification(this.enumModificaiton, this.positionOne);
-		}else {
-			return new GlyCoModification(this.enumModificaiton, this.positionOne, this.positionTwo);
-		}*/
 	}
 
 	@Override

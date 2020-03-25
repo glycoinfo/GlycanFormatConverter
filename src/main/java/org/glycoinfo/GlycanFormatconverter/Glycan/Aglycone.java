@@ -19,13 +19,12 @@ public class Aglycone extends Node {
     }
 
     @Override
-    public void accept(ContainerVisitor _visitor) throws VisitorException {
+    public void accept(ContainerVisitor _visitor) {
 
     }
 
     @Override
     public Node copy() throws GlycanException {
-        Aglycone copy = new Aglycone(this.getName());
-        return copy;
+        return new Aglycone(this.getName());
     }
 }

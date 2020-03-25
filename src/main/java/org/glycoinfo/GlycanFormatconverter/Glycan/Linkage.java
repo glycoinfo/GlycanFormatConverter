@@ -2,17 +2,15 @@ package org.glycoinfo.GlycanFormatconverter.Glycan;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Linkage {
 
-	private ArrayList<Integer> childLinkages = new ArrayList<Integer>();
-	private ArrayList<Integer> parentLinkages = new ArrayList<Integer>();
+	private ArrayList<Integer> childLinkages;
+	private ArrayList<Integer> parentLinkages;
 	
 	private LinkageType parentType = LinkageType.UNVALIDATED;
 	private LinkageType childType = LinkageType.UNVALIDATED;
-
 
 	private double parentProbabilityLower = 1.0D;
 	private double parentProbabilityUpper = 1.0D;
@@ -23,37 +21,29 @@ public class Linkage {
 	public static final int UNKNOWN_POSITION = -1;
 	
 	public Linkage() {
-		this.clear();
+		this.childLinkages = new ArrayList<>();
+		this.parentLinkages = new ArrayList<>();
 	}
 	
 	public Linkage (LinkedList<Integer> _child) {
-		this.clear();
 		this.setChildLinkages(_child);
 	}
 	
 	public Linkage (LinkedList<Integer> _child, LinkedList<Integer> _parent) {
-		this.clear();
 		this.setChildLinkages(_child);
 		this.setParentLinkages(_parent);
 	}
 	
-	public void clear() {
-		this.childLinkages.clear();
-		this.parentLinkages.clear();
-	}
-	
-	public boolean addChildLinkage(int _position) {
+	public void addChildLinkage(int _position) {
 		if(!this.childLinkages.contains(_position)) {
-			return this.childLinkages.add(_position);
+			this.childLinkages.add(_position);
 		}
-		return false;
 	}
 	
-	public boolean addParentLinkage(int _position) {
+	public void addParentLinkage(int _position) {
 		if(!this.parentLinkages.contains(_position)) {
-			return this.parentLinkages.add(_position);
+			this.parentLinkages.add(_position);
 		}
-		return false;
 	}
 	
 	public ArrayList<Integer> getChildLinkages() {
@@ -65,22 +55,16 @@ public class Linkage {
 	}
 	
 	public void setChildLinkages(Collection<Integer> linkedList) {
-		if(linkedList == null) {
-			
-		}
 		this.childLinkages.clear();
-		for(Iterator<Integer> iterPosition = linkedList.iterator(); iterPosition.hasNext();) {
-			this.addChildLinkage(iterPosition.next());
+		for (Integer integer : linkedList) {
+			this.addChildLinkage(integer);
 		}
 	}
 	
 	public void setParentLinkages(Collection<Integer> linkedList) {
-		if(linkedList == null) {
-			
-		}
 		this.parentLinkages.clear();
-		for(Iterator<Integer> iterPosition = linkedList.iterator(); iterPosition.hasNext();) {
-			this.addParentLinkage(iterPosition.next());
+		for (Integer integer : linkedList) {
+			this.addParentLinkage(integer);
 		}
 	}
 	

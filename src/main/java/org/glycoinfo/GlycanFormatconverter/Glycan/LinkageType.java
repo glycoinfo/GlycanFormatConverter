@@ -14,7 +14,7 @@ public enum LinkageType {
 	
 	private char symbol;
 	
-	private LinkageType(char _symbol) {
+	LinkageType(char _symbol) {
 		this.symbol = _symbol;
 	}
 	

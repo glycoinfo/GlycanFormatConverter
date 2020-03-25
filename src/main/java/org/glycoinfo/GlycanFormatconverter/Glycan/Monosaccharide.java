@@ -4,30 +4,32 @@ import org.glycoinfo.GlycanFormatconverter.util.visitor.ContainerVisitor;
 import org.glycoinfo.GlycanFormatconverter.util.visitor.VisitorException;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Monosaccharide extends Node {
 	private AnomericStateDescriptor enumAnomer;
-	private int anomerPosition;
-	private LinkedList<String> stereos = new LinkedList<String>();
 	private SuperClass enumSuperClass;
 
-	public static final int UNKNOWN_RING = -1;
-	public static final int OPEN_CHAIN = 0;
-	
 	private int ringStart;
 	private int ringEnd;
-	private ArrayList<GlyCoModification> modifications = new ArrayList<GlyCoModification>();
-	
+	private int anomerPosition;
+
+	private LinkedList<String> stereos;
+	private ArrayList<GlyCoModification> modifications;
+
+	public static final int OPEN_CHAIN = 0;
+	public static final int UNKNOWN_RING = -1;
+
 	public Monosaccharide() {
 		super();
 		this.ringStart = -1;
 		this.ringEnd = -1;
-		this.modifications.clear();
-		this.stereos.clear();
+		this.anomerPosition = -1;
+		this.stereos = new LinkedList<>();
+		this.modifications = new ArrayList<>();
 	}
-	
+
+	/*
 	public Monosaccharide(AnomericStateDescriptor _anomer, SuperClass _superclass) throws GlycanException {
 		if (_anomer == null) {
 			throw new GlycanException ("Invalid nomeric state");
@@ -37,11 +39,8 @@ public class Monosaccharide extends Node {
 			throw new GlycanException ("Invalid superclass");
 		}
 		this.enumSuperClass = _superclass;
-		this.ringStart = -1;
-		this.ringEnd = -1;
-		this.modifications.clear();
-		this.stereos.clear();
 	}
+	 */
 	
 	public void setAnomer(AnomericStateDescriptor _anomer) throws GlycanException {
 		if(_anomer == null) {
@@ -74,9 +73,6 @@ public class Monosaccharide extends Node {
 	}
 	
 	public void setRing(int _start, int _end) throws GlycanException {
-		if( (_start == 0 || _end == 0) && ((_start + _end) > 0)) {
-			
-		}
 		if(_start > _end && _end > Monosaccharide.UNKNOWN_RING) {
 			throw new GlycanException("start point bigger than end point");
 		}
@@ -119,25 +115,18 @@ public class Monosaccharide extends Node {
 	}
 	
 	public ArrayList<GlyCoModification> getModifications() {
-		ArrayList<GlyCoModification> ret = new ArrayList<>();
-		ret.addAll(this.modifications);
-		return ret;
+		return new ArrayList<>(this.modifications);
 	}
 	
-	//public ArrayList<Substituent> getSubstituent() {
-	//	return this.substituents;
-	//}
-	
-	public boolean addModification(GlyCoModification _modification) {
-		if (_modification == null) return false;
+	public void addModification(GlyCoModification _modification) {
+		if (_modification == null) return;
 		if (!this.modifications.contains(_modification)) {
-			return this.modifications.add(_modification);
+			this.modifications.add(_modification);
 		}
-		return false;
 	}
 	
-	public boolean removeModification(GlyCoModification _modificaiton) {
-		return this.modifications.remove(_modificaiton);
+	public void removeModification(GlyCoModification _modificaiton) {
+		this.modifications.remove(_modificaiton);
 	}
 	
 	public void setModification(ArrayList<GlyCoModification> _modifications) throws GlycanException {
@@ -145,9 +134,7 @@ public class Monosaccharide extends Node {
 			throw new GlycanException("Modificaition list is Null");
 		}
 		this.modifications.clear();
-		for(Iterator<GlyCoModification> iterMod = _modifications.iterator(); iterMod.hasNext();) {
-			this.modifications.add(iterMod.next());
-		}
+		this.modifications.addAll(_modifications);
 	}
 	
 	public void setStereos(LinkedList<String> _stereo) throws GlycanException {
@@ -155,78 +142,62 @@ public class Monosaccharide extends Node {
 			throw new GlycanException("null is not a valide set of basetypes");
 		}
 		this.stereos.clear();
+		this.stereos.addAll(_stereo);
+		/*
 		for (Iterator<String> iterStereo = _stereo.iterator(); iterStereo.hasNext();) {
 			this.addStereo(iterStereo.next());
 		}
-		this.stereos = _stereo;
+		 */
+		//this.stereos = _stereo;
 	}
 	
 	public LinkedList<String> getStereos() {
-		LinkedList<String> ret = new LinkedList<>();
-		ret.addAll(stereos);
-		
-		return ret;
+		return new LinkedList<>(stereos);
 	}
 	
-	public boolean addStereo(String _stereo) throws GlycanException {
+	public void addStereo(String _stereo) throws GlycanException {
 		 if (_stereo == null) { 
 			 throw new GlycanException("Basetype can not be null");
 		 }
-		 return this.stereos.add(_stereo);
+		this.stereos.add(_stereo);
 	}
 	
-	public boolean removeStereo(String _stereo) {
-		return this.stereos.remove(_stereo);
+	public void removeStereo(String _stereo) {
+		this.stereos.remove(_stereo);
 	}
-	
-	public boolean hasModification(GlyCoModification _modification) {
-		return this.modifications.contains(_modification);
-	}
-	
+
 	public boolean hasModification(GlyCoModification _modification, Integer _positionOne) {
 		for(GlyCoModification m : this.modifications) {
 			if(m.getModificationTemplate().equals(_modification.getModificationTemplate()) &&
-					m.getPositionOne() == _positionOne) {
+					m.getPositionOne().equals(_positionOne)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
-	public boolean hasModification(GlyCoModification _modification, Integer _positionOne, Integer _positionTwo) {
-		for(GlyCoModification m : this.modifications) {
-			if(m.getModificationTemplate().equals(_modification.getModificationTemplate()) && 
-					m.getPositionOne() == _positionOne && 
-					m.getPositionTwo() == _positionTwo) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
+
 	public void accept (ContainerVisitor _visitor) throws VisitorException {
 		_visitor.visit(this);
 	}
 	
 	public Monosaccharide copy() throws GlycanException {
-		Monosaccharide ret = null;
-		ret = new Monosaccharide(this.enumAnomer, this.enumSuperClass);
+		Monosaccharide ret = new Monosaccharide();
+		//ret = new Monosaccharide(this.enumAnomer, this.enumSuperClass);
+		ret.setAnomer(this.enumAnomer);
+		ret.setSuperClass(this.enumSuperClass);
 		ret.setAnomericPosition(this.getAnomericPosition());
-		
 		ret.setRingStart(this.ringStart);
 		ret.setRingEnd(this.ringEnd);
-		//ret.setRing(this.ringStart, this.ringEnd);
-		
-		for (Iterator<String> iterStereo = this.stereos.iterator(); iterStereo.hasNext();) {
-			ret.addStereo(iterStereo.next());
-		}
-		
-		for(Iterator<GlyCoModification> iterMod = this.modifications.iterator(); iterMod.hasNext();) {
-			ret.addModification(iterMod.next().copy());
+
+		for (String stereo : this.stereos) {
+			ret.addStereo(stereo);
 		}
 
-		for(Iterator<Edge> iterEdge = this.getChildEdges().iterator(); iterEdge.hasNext();) {
-			Edge childEdge = iterEdge.next();
+		for (GlyCoModification modification : this.modifications) {
+			ret.addModification(modification.copy());
+		}
+
+		for (Edge childEdge : this.getChildEdges()) {
 			Substituent sub = (Substituent) childEdge.getSubstituent();
 			if (sub == null) continue;
 			if (sub instanceof GlycanRepeatModification) continue;

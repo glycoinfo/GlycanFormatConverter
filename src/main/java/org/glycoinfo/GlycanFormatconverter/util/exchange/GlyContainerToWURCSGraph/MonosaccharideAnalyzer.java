@@ -69,21 +69,22 @@ public class MonosaccharideAnalyzer {
 		this.anomericPos = mono.getRingStart();
 		this.anomericSymbol = mono.getAnomer().getAnomericState();
 
-		if (this.anomericPos == Monosaccharide.OPEN_CHAIN) {
-			this.anomericSymbol= 'o';
-		}
-		//if (this.anomericPos == Monosaccharide.UNKNOWN_RING && this.anomericSymbol == '?') {
-		//	this.anomericSymbol = 'o';
-		//}
-		if (this.anomericSymbol == 'o') {
+		if (this.anomericSymbol == 'o' || this.anomericPos == Monosaccharide.OPEN_CHAIN) {
+			this.anomericSymbol = 'o';
 			this.anomericPos = Monosaccharide.OPEN_CHAIN;
 		}
+
+		/*
+		if (this.anomericPos == Monosaccharide.UNKNOWN_RING && this.anomericSymbol == '?') {
+			this.anomericSymbol = 'o';
+		}
+		 */
 
 		this.numOfAtom = mono.getSuperClass().getSize();
 		this.posToChar.put(1, 'h');
 		this.posToChar.put(this.numOfAtom, 'h');
 
-		LinkedList<GlyCoModification> mods = new LinkedList<GlyCoModification>();
+		LinkedList<GlyCoModification> mods = new LinkedList<>();
 		for (GlyCoModification mod : this.mono.getModifications()) {
 			if (mod.hasPositionTwo()) {
 				if (this.isDoublebond(mod)) mods.add(mod);
@@ -102,11 +103,15 @@ public class MonosaccharideAnalyzer {
 			this.posToChar.put(1, 'o');
 			this.anomericPositions.addFirst(1);
 		}
-		
-		/* */
+
+		//
 		if (this.anomericPositions.isEmpty()) {
 			this.anomericPos = Monosaccharide.OPEN_CHAIN;
 			this.anomericSymbol = 'o';
+		}
+
+		if (this.anomericSymbol == '?' && this.anomericPos != Monosaccharide.UNKNOWN_RING && mono.getRingEnd() != Monosaccharide.UNKNOWN_RING) {
+			this.anomericSymbol = 'x';
 		}
 
 		// Analyze anomeric position
@@ -160,7 +165,7 @@ public class MonosaccharideAnalyzer {
 	private String convertBaseTypesToSkeletonCode (LinkedList<String> _stereos) throws GlycanException {
 		String stereoCode = "";
 
-		LinkedList<String> configurations = new LinkedList<String>();
+		LinkedList<String> configurations = new LinkedList<>();
 		for (String stereo : _stereos) {
 			BaseTypeDictionary baseDict = BaseTypeDictionary.forName(stereo);
 			if (baseDict == null) throw new GlycanException(stereo + " could not found!");

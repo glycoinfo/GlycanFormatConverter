@@ -15,7 +15,7 @@ import java.util.LinkedList;
 public class GlyContainerToWURCSGraph {
 
 	private WURCSGraph graph;
-	private HashMap<Node, Backbone> node2Backbone = new HashMap<Node, Backbone>();
+	private HashMap<Node, Backbone> node2Backbone = new HashMap<>();
 
 	public WURCSGraph getGraph () {
 		return this.graph;
@@ -32,20 +32,20 @@ public class GlyContainerToWURCSGraph {
 
 		graph = new WURCSGraph();
 
-		/* convert monosaccharide */
+		//convert monosaccharide
 		for(Node node : graphAnalyzer.getMonosaccharides()) {
 			boolean isRootOfSubGraph = graphAnalyzer.getRootOfSubgraphs().contains(node);
 			this.analyzerMonosaccharide(node, isRootOfSubGraph);
 		}
 
-		/* convert linkage */
+		//convert linkage
 		for (Edge edge : graphAnalyzer.getLinkages()) {
 			EdgeToWURCSEdge edgeAnalyzer = new EdgeToWURCSEdge();
 			edgeAnalyzer.start(edge);
 
 			Modification mod = edgeAnalyzer.getModification();
 
-			/* for repeating unit */
+			//for repeating unit
 			if (graphAnalyzer.getRepeatingUnitByEdge(edge) != null) {
 				ModificationRepeat repMod = new ModificationRepeat(mod.getMAPCode());
 				GlycanRepeatModification gRepMod = graphAnalyzer.getRepeatingUnitByEdge(edge);
@@ -57,15 +57,15 @@ public class GlyContainerToWURCSGraph {
 			Backbone parent = node2Backbone.get(edgeAnalyzer.getParent());
 			Backbone child = node2Backbone.get(edgeAnalyzer.getChild());
 
-			/* parent side */
+			//parent side
 			this.makeLinkage(parent, edgeAnalyzer.getParentEdges(), mod);
 
-			/* child side */
+			//child side
 			if (edgeAnalyzer.getChild() == null) continue;
 			this.makeLinkage(child, edgeAnalyzer.getChildEdges(), mod);
 		}
 
-		/* for ambiguous structure */
+		//for ambiguous structure
 		for (GlycanUndefinedUnit und : graphAnalyzer.getFragments()) {
 			FragmentsToWURCSEdge frag2Edge = new FragmentsToWURCSEdge();
 			frag2Edge.start(und);
@@ -98,7 +98,7 @@ public class GlyContainerToWURCSGraph {
 			makeLinkage(child, frag2Edge.getChildEdges(), mod);
 		}
 
-		/* normalize */
+		//normalize
 		WURCSGraphNormalizer norm = new WURCSGraphNormalizer();
 		norm.start(graph);
 	}
@@ -124,7 +124,7 @@ public class GlyContainerToWURCSGraph {
 			if (mod.getMAPCode().lastIndexOf("*") > 0) {
 				wedge.addLinkage(new LinkagePosition(-1, DirectionDescriptor.L, 0));
 			}
-			LinkedList<WURCSEdge> coreWEdges = new LinkedList<WURCSEdge>();
+			LinkedList<WURCSEdge> coreWEdges = new LinkedList<>();
 			coreWEdges.add(wedge);
 			this.makeLinkage(backbone, coreWEdges, mod);
 		}
@@ -144,7 +144,7 @@ public class GlyContainerToWURCSGraph {
 			end.addLinkage(new LinkagePosition(Monosaccharide.UNKNOWN_RING, DirectionDescriptor.L, 0));
 		} 
 
-		LinkedList<WURCSEdge> edges = new LinkedList<WURCSEdge>();
+		LinkedList<WURCSEdge> edges = new LinkedList<>();
 		edges.add(start);
 		edges.add(end);
 		this.makeLinkage(backbone, edges, ring);

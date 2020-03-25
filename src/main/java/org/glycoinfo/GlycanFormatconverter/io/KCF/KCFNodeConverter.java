@@ -2,7 +2,7 @@ package org.glycoinfo.GlycanFormatconverter.io.KCF;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
-import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationParser;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.extended.IUPACNotationParser;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.BaseStereoIndex;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;

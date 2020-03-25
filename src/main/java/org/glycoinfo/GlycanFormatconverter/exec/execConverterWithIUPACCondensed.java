@@ -2,7 +2,7 @@ package org.glycoinfo.GlycanFormatconverter.exec;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
-import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACCondensedImporter;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.condensed.IUPACCondensedImporter;
 import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
 
 /**

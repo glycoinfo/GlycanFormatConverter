@@ -48,12 +48,8 @@ public class Substituent extends Node{
 		this.firstPosition = _firstPosition;
 	}
 	
-	public void setSecondPosition(Linkage _secondPosition) throws GlycanException {
-		if(_secondPosition == null) {
-			this.secondPosition = null;
-		}else {
-			this.secondPosition = _secondPosition;			
-		}
+	public void setSecondPosition(Linkage _secondPosition) {
+		this.secondPosition = _secondPosition;
 	}
 
 	public void setHeadAtom (String _headAtom) {

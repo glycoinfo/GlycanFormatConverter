@@ -10,7 +10,7 @@ import java.util.Iterator;
 public class Edge implements Visitable {
 	private Node parent = null;
 	private Node child = null;
-	private ArrayList<Linkage> linkages = new ArrayList<Linkage>();
+	private ArrayList<Linkage> linkages = new ArrayList<>();
 	private Node substituent = null;
 	
 	public void setParent(Node _parent) {
@@ -42,8 +42,8 @@ public class Edge implements Visitable {
 			throw new GlycanException ("linkage is Null");
 		}
 		this.linkages.clear();
-		for(Iterator<Linkage> iterLinkage = _linkages.iterator(); iterLinkage.hasNext();) {
-			this.addGlycosidicLinkage(iterLinkage.next());
+		for (Linkage linkage : _linkages) {
+			this.addGlycosidicLinkage(linkage);
 		}
 		this.linkages = _linkages;
 	}
@@ -116,8 +116,8 @@ public class Edge implements Visitable {
 	
 	public Edge copy() throws GlycanException {
 		Edge ret = new Edge();
-		for (Iterator<Linkage> iterEdges = this.linkages.iterator(); iterEdges.hasNext();) {
-			ret.addGlycosidicLinkage(iterEdges.next().copy());
+		for (Linkage linkage : this.linkages) {
+			ret.addGlycosidicLinkage(linkage.copy());
 		}
 
 		//ret.setChild(child);

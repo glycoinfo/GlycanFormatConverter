@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class FragmentsToWURCSEdge extends EdgeToWURCSEdge {
 
-	private ArrayList<Monosaccharide> parents = new ArrayList<Monosaccharide>();
+	private ArrayList<Monosaccharide> parents = new ArrayList<>();
 	
 	public Monosaccharide getParent() {
 		return this.parents.get(0);
@@ -67,7 +67,7 @@ public class FragmentsToWURCSEdge extends EdgeToWURCSEdge {
 			throw new WURCSExchangeException(e.getMessage());
 		}
 		
-		/* for ambiguous substituent */
+		//for ambiguous substituent
 		if (root instanceof Substituent && root.getChildEdges().isEmpty()) return;
 		
 		this.setWURCSEdge(false);
