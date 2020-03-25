@@ -29,7 +29,7 @@ public class LinearCodeStacker {
          * group 3 : substituent group
          *   group 4 : substituents
          * */
-        Matcher monoMat = Pattern.compile("([A-Z]+)+(~|\\^|')?(\\[(.+)+])?").matcher(_linearCodeSU);
+        Matcher monoMat = Pattern.compile("([A-Z]+)+([~^'])?(\\[(.+)+])?").matcher(_linearCodeSU);
         if (monoMat.find()) {
             linearCodeSU = monoMat.group(1);
             annotation = monoMat.group(2);

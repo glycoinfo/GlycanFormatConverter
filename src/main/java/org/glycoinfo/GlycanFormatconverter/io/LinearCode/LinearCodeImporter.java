@@ -27,7 +27,7 @@ public class LinearCodeImporter {
 
         _linearCode = _linearCode.trim();
 
-        ArrayList<String> notations = new ArrayList<String>();
+        ArrayList<String> notations = new ArrayList<>();
         String coreNotation = "";
 
         //Parse aglycone
@@ -36,13 +36,13 @@ public class LinearCodeImporter {
 
         _linearCode = modifyFragments(_linearCode);
 
-        /* extract unknown linkage fragments */
+        // extract unknown linkage fragments
         if (_linearCode.indexOf("&") != _linearCode.lastIndexOf("&")) {
             String subFragment = _linearCode.substring(_linearCode.indexOf("&"), _linearCode.lastIndexOf("&") + 1);
             coreNotation = _linearCode = _linearCode.replace(subFragment, "");
             subFragment = subFragment.replaceAll("&", "");
 
-            /* append fragments */
+            // append fragments
             for (String unit : subFragment.split(",")) {
                 if (unit.matches(".*[A-Z]")) {
                     unit = unit + "??=%|";
@@ -61,7 +61,7 @@ public class LinearCodeImporter {
             Collections.reverse(notations);
         }
 
-        /* extract monosaccharide fragments */
+        // extract monosaccharide fragments
         for (String unit : _linearCode.split("%\\|")) {
             if (unit.matches(".+=\\d")){
                 unit += "%|";
@@ -69,7 +69,7 @@ public class LinearCodeImporter {
             } else coreNotation = unit;
         }
 
-        /* append core notations */
+        // append core notations
         notations.add(coreNotation);
 
         Collections.reverse(notations);
@@ -105,9 +105,7 @@ public class LinearCodeImporter {
 
     private HashMap<LinearCodeStacker, LinearCodeStacker>
         parseChildren(LinearCodeStacker _lcParent, HashMap<LinearCodeStacker, LinearCodeStacker> _family) {
-        ArrayList<LinearCodeStacker> nodes = new ArrayList<>();
-
-        nodes.addAll(lc2node.keySet());
+        ArrayList<LinearCodeStacker> nodes = new ArrayList<>(lc2node.keySet());
 
         if (nodes.size() == 1) {
             return _family;
@@ -176,7 +174,7 @@ public class LinearCodeImporter {
         if (_linearCode.contains(",") && _linearCode.contains("&")) return _linearCode;
         if (!_linearCode.contains(",") && !_linearCode.contains("&")) return _linearCode;
 
-        /* search fragments point */
+        // search fragments point
         boolean isSubstituent = false;
         int fragmentsPos = -1;
         for (int i = 0; i < _linearCode.length(); i++) {
@@ -228,7 +226,7 @@ public class LinearCodeImporter {
     private boolean isRootOfFramgnets (String _notation) { return (_notation.lastIndexOf("%|") != -1); }
 
     private ArrayList<String> resolveNotation (String _linearCode) throws GlyCoImporterException {
-        ArrayList<String> ret = new ArrayList<String>();
+        ArrayList<String> ret = new ArrayList<>();
         String unit = "";
         boolean isAnomericSymbol = false;
         boolean isBranched = false;
@@ -254,18 +252,18 @@ public class LinearCodeImporter {
 
             if (_linearCode.length() - 1 > i) {
                 if (_linearCode.charAt(i+1) == '-' && isAnomericSymbol) continue;
-                if (String.valueOf(_linearCode.charAt(i+1)).matches("[\\d\\?]") && isAnomericSymbol) continue;
+                if (String.valueOf(_linearCode.charAt(i+1)).matches("[\\d?]") && isAnomericSymbol) continue;
                 if (_linearCode.charAt(i+1) == '=' || _linearCode.charAt(i+1) == '}') {
                     isAnomericSymbol = false;
                 }
                 if (_linearCode.charAt(i+1) == '/') continue;
                 if (_linearCode.charAt(i+1) == ')' && _linearCode.charAt(i+2) == '(') {
-                    /* extract branched notation */
+                    // extract branched notation
                     isBranched = true;
                     continue;
                 }
             }
-            if ((String.valueOf(word).matches("[\\d\\?\\-\\}]") && isAnomericSymbol) || isBranched) {
+            if ((String.valueOf(word).matches("[\\d?\\-}]") && isAnomericSymbol) || isBranched) {
                 ret.add(modifyNotation(unit));
                 unit = "";
                 isAnomericSymbol = false;
@@ -281,13 +279,13 @@ public class LinearCodeImporter {
     }
 
     private String extractAglycon (String _linearCode) {
-        if (_linearCode.indexOf(":") != -1) {
+        if (_linearCode.contains(":")) {
             return _linearCode.substring(_linearCode.indexOf(":") + 1);
         }
-        if (_linearCode.indexOf(";") != -1) {
+        if (_linearCode.contains(";")) {
             return _linearCode.substring(_linearCode.indexOf(";") + 1);
         }
-        if (_linearCode.indexOf("#") != -1) {
+        if (_linearCode.contains("#")) {
             return _linearCode.substring(_linearCode.indexOf("#") + 1);
         }
 

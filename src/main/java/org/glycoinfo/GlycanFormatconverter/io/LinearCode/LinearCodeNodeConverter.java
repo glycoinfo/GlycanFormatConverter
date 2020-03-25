@@ -37,10 +37,10 @@ public class LinearCodeNodeConverter {
 
         lcUnit += lcDict.getLinearCode();
 
-        /* extract configuration*/
+        // extract configuration
         BaseTypeDictionary baseDict = BaseTypeDictionary.forName(mono.getStereos().getLast());
 
-        /* extract ring size */
+        // extract ring size
         if (baseDict.getConfiguration().equals("d")) {
             if (convertRingSize(mono.getRingStart(), mono.getRingEnd()) == 'f') lcUnit += "^";
         }
@@ -49,15 +49,15 @@ public class LinearCodeNodeConverter {
             if (convertRingSize(mono.getRingStart(), mono.getRingEnd()) == 'f') lcUnit += "~";
         }
 
-        /* append substituent notation */
+        // append substituent notation
         HashMap<String, String> mapSub = makeSubstituentNotation(_node, lcDict);
         lcUnit += mapSub.get("outside").equals("[]") ? "" : mapSub.get("outside");
 
-        /* append anomeric symbol */
+        // append anomeric symbol
         lcUnit += mono.getAnomer().equals(AnomericStateDescriptor.UNKNOWN_STATE) ?
                 AnomericStateDescriptor.UNKNOWN.getAnomericState() : mono.getAnomer().getAnomericState();
 
-        /* append anomeric substituent */
+        // append anomeric substituent
         //TODO : 修飾に限らずanomeric modification も考慮しなければならない
         //TODO : 架橋の場合はポジション抜きのノーてションのみ
         lcUnit += mapSub.get(mono.getAnomer().toString()).equals("[]") ?

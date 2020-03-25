@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
  */
 public class LinearCodeLinkageParser {
 
-    private LinkedHashMap<LinearCodeStacker, Node> lc2node = new LinkedHashMap<>();
-    private HashMap<LinearCodeStacker, LinearCodeStacker> family = new HashMap<>();
+    private LinkedHashMap<LinearCodeStacker, Node> lc2node;
+    private HashMap<LinearCodeStacker, LinearCodeStacker> family;
 
     public LinearCodeLinkageParser (LinkedHashMap<LinearCodeStacker, Node> _lc2node,
                              HashMap<LinearCodeStacker, LinearCodeStacker> _family) {
@@ -49,7 +49,7 @@ public class LinearCodeLinkageParser {
 
     private GlyContainer parseLinkage (LinearCodeStacker _lcStacker, GlyContainer _glyco) throws GlycanException {
         if (_lcStacker.getBaseUnit().endsWith("}")) {
-            _glyco = parseRepeating(_lcStacker,_glyco);
+            _glyco = parseRepeating(_lcStacker, _glyco);
         }
 
         _glyco = parseSimpleLinkage(_lcStacker, _glyco);
@@ -128,10 +128,9 @@ public class LinearCodeLinkageParser {
     }
 
     private ArrayList<LinearCodeStacker> getEndRepeatingNode (LinearCodeStacker _lcStacker) {
-        int size = new ArrayList<LinearCodeStacker>(lc2node.keySet()).indexOf(_lcStacker) + 1;
+        int size = new ArrayList<>(lc2node.keySet()).indexOf(_lcStacker) + 1;
 
-        ArrayList<LinearCodeStacker> lcStackers = new ArrayList<>();
-        lcStackers.addAll(lc2node.keySet());
+        ArrayList<LinearCodeStacker> lcStackers = new ArrayList<>(lc2node.keySet());
 
         List<LinearCodeStacker> subNodes = lcStackers.subList(0, size);
 
@@ -147,11 +146,11 @@ public class LinearCodeLinkageParser {
     }
 
     private ArrayList<LinearCodeStacker> countRepeats (Collection<LinearCodeStacker> _nodes) {
-        int numOfstart = 0;
+        int numOfstart;
         ArrayList<LinearCodeStacker> retNodes = new ArrayList<>();
 
 		/* extract current repeating unit */
-        LinearCodeStacker start = new ArrayList<LinearCodeStacker>(_nodes).get(0);
+        LinearCodeStacker start = new ArrayList<>(_nodes).get(0);
         TreeMap<Integer, String> repPos = extractMultipleRepStart(start);
 
         for (Integer unit : repPos.keySet()) {
@@ -172,7 +171,7 @@ public class LinearCodeLinkageParser {
                     Matcher matEndRep = Pattern.compile("\\{[n|\\d+].+").matcher(notation);
 
                     while (matEndRep.find()) {
-                    String repStatus = matEndRep.group(0);
+                    //String repStatus = matEndRep.group(0);
                     if (isEndRep(notation)) {
                         if (numOfstart != 0) numOfstart--;
                         if (numOfstart == 0) {
@@ -198,7 +197,7 @@ public class LinearCodeLinkageParser {
         TreeMap<Integer, String> repPos = new TreeMap<>();
         int key = 1;
 
-        String startRep = repStart.substring(repStart.indexOf("}") - 1, repStart.length());
+        String startRep = repStart.substring(repStart.indexOf("}") - 1);
         for (String pos : startRep.split("}")) {
             //if (isStartRep(pos)) {
                 repPos.put(key, pos + "}");
@@ -218,7 +217,7 @@ public class LinearCodeLinkageParser {
     }
 
     private boolean isEndRepNonBondingSite (String _notation) {
-        return (_notation.matches(".+\\-.+\\-$"));
+        return (_notation.matches(".+-.+-$"));
     }
 
     private boolean isRootOfFramgnets (String _notation) {
@@ -226,7 +225,7 @@ public class LinearCodeLinkageParser {
     }
 
     private ArrayList<Node> parseFragmentParents (String _fragment) {
-        ArrayList<Node> ret = new ArrayList<Node>();
+        ArrayList<Node> ret = new ArrayList<>();
         String anchor = _fragment.substring(_fragment.indexOf("=") + 1, _fragment.length() - 1);
 
         for(LinearCodeStacker lcStacker : lc2node.keySet()) {
@@ -234,7 +233,7 @@ public class LinearCodeLinkageParser {
             if (anchor.equals("%")) {
                 ret.add(lc2node.get(lcStacker));
             } else {
-                if (lcStacker.getBaseUnit().indexOf(anchor) != -1 && !isRootOfFramgnets(lcStacker.getBaseUnit())) {
+                if (lcStacker.getBaseUnit().contains(anchor) && !isRootOfFramgnets(lcStacker.getBaseUnit())) {
                     ret.add(lc2node.get(lcStacker));
                 }
             }
@@ -243,7 +242,7 @@ public class LinearCodeLinkageParser {
         return ret;
     }
 
-    private LinkedList makeLinkage (String _position) {
+    private LinkedList<Integer> makeLinkage (String _position) {
         _position = _position.equals("?") ? "-1" : _position;
         LinkedList<Integer> ret = new LinkedList<>();
         for (String unit : _position.split("/")) {

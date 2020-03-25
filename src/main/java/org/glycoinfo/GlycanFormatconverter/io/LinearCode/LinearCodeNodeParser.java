@@ -24,8 +24,8 @@ public class LinearCodeNodeParser {
         MonosaccharideUtility monoUtil = new MonosaccharideUtility();
         ThreeLetterCodeAnalyzer threeAnalyzer = new ThreeLetterCodeAnalyzer();
 
-        ArrayList<String> substituents = new ArrayList<String>();
-        ArrayList<String> modifications = new ArrayList<String>();
+        ArrayList<String> substituents = new ArrayList<>();
+        ArrayList<String> modifications = new ArrayList<>();
 
         if (_lcStacker.getLinearCodeSU() != null) {
             String lcSUcode = _lcStacker.getLinearCodeSU();
@@ -33,13 +33,13 @@ public class LinearCodeNodeParser {
             LinearCodeSUDictionary lcDict = LinearCodeSUDictionary.forLinearCode(lcSUcode);
             if (lcDict == null) throw new GlyCoImporterException(lcSUcode + " is wrong LinearCode SU notation!");
 
-            /* analyze trivial name */
+            // analyze trivial name
             threeAnalyzer.analyzeTrivialName(lcDict.getIupacThreeLetter(), null);
 
             mono.setStereos(threeAnalyzer.getStereos());
             mono.setSuperClass(threeAnalyzer.getSuperClass());
 
-            /* define anomeric position */
+            // define anomeric position
             MonosaccharideIndex monoIndex = MonosaccharideIndex.forTrivialName(lcDict.getIupacThreeLetter());
             //if (_lcStacker.getAnomericStatus() == null) mono.setAnomericPosition(Monosaccharide.UNKNOWN_RING);
             //else
@@ -57,7 +57,7 @@ public class LinearCodeNodeParser {
             modifications.addAll(threeAnalyzer.getModificaitons());
         }
 
-        /* define anomeric symbol */
+        // define anomeric symbol
         AnomericStateDescriptor anomDec = AnomericStateDescriptor.UNKNOWN_STATE;
         if (_lcStacker.getAnomericStatus() != null) {
         		char anomState = _lcStacker.getAnomericStatus().charAt(0);
@@ -66,7 +66,7 @@ public class LinearCodeNodeParser {
         }
         mono.setAnomer(anomDec);
 
-        /* modify configuration and ring size */
+        // modify configuration and ring size
         LinkedList<String> configurations = new LinkedList<>();
         if (_lcStacker.getAnnotation() != null) {
             if (_lcStacker.getAnnotation().equals("'")) {
@@ -100,14 +100,12 @@ public class LinearCodeNodeParser {
             mono = monoUtil.modifyStereos(mono, configurations);
         }
         
-        /* append substituents */
+        // append substituents
         if (_lcStacker.getSubstituent() != null) {
             SubstituentIUPACNotationAnalyzer subAna = new SubstituentIUPACNotationAnalyzer();
 
-            /* convert LC notation to IUPAC notation */
-            for (String unit : exchangeLC2IUPACSubs(subAna.resolveSubstituents(_lcStacker.getSubstituent(), true))) {
-                substituents.add(unit);
-            }
+            // convert LC notation to IUPAC notation
+            substituents.addAll(exchangeLC2IUPACSubs(subAna.resolveSubstituents(_lcStacker.getSubstituent(), true)));
         }
         
         mono = monoUtil.appendSubstituents(mono, substituents);
@@ -117,7 +115,7 @@ public class LinearCodeNodeParser {
     }
 
     private ArrayList<String> exchangeLC2IUPACSubs (ArrayList<String> _lcSubs) throws GlyCoImporterException {
-        ArrayList<String> ret = new ArrayList<String>();
+        ArrayList<String> ret = new ArrayList<>();
         for (String unit : _lcSubs) {
             Matcher matSub = Pattern.compile("([\\d,]+)+([A-Z]+)+").matcher(unit);
             String iupac = "";

@@ -5,8 +5,6 @@ import org.apache.commons.collections.bidimap.DualHashBidiMap;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
-import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
-import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 
@@ -33,7 +31,7 @@ public class KCFImporter {
     public GlyContainer start (String _kcf) throws GlyCoImporterException, GlycanException, ConverterExchangeException, TrivialNameException {
         String countKey = "";
         boolean isRepeat = false;
-        ArrayList<String> repeatNode = new ArrayList<String>();
+        ArrayList<String> repeatNode = new ArrayList<>();
 
         kcfUtil.start(_kcf);
 
@@ -78,7 +76,7 @@ public class KCFImporter {
         }
 
         // modify duplicate substituents
-        MonosaccharideUtility monoUtil = new MonosaccharideUtility();
+        //MonosaccharideUtility monoUtil = new MonosaccharideUtility();
         //for (String unit : nodeIndex.keySet()) {
         //    monoUtil.margeDuplicateSubstituents(nodeIndex.get(unit));
         //}
@@ -259,7 +257,7 @@ public class KCFImporter {
     }
 
     private Collection<Integer> makeLinkages (String _position) {
-        ArrayList<Integer> ret = new ArrayList<Integer>();
+        ArrayList<Integer> ret = new ArrayList<>();
         if(_position == null) {
             ret.add(-1);
         } else {
@@ -299,14 +297,14 @@ public class KCFImporter {
         Node end = extractRepeatation(_repeatsUnit.get(0), _repeatsUnit.get(2));
 
         if (start instanceof Monosaccharide && end instanceof Monosaccharide)
-            makeRepeatingUnit(start, end, null, _repeatsUnit.get(2));
+            makeRepeatingUnit(start, end, null);//, _repeatsUnit.get(2));
         if (start instanceof Substituent)
-            makeRepeatingUnitWithSubstituent(null, start, end, _repeatsUnit.get(2));
+            makeRepeatingUnitWithSubstituent(null, start, end);//, _repeatsUnit.get(2));
         if (end instanceof Substituent)
-            makeRepeatingUnitWithSubstituent(start, end, null, _repeatsUnit.get(2));
+            makeRepeatingUnitWithSubstituent(start, end, null);//, _repeatsUnit.get(2));
     }
 
-    private Node extractRepeatation (String _repeat, String _count) throws GlycanException, GlyCoImporterException {
+    private Node extractRepeatation (String _repeat, String _count) throws GlyCoImporterException {
         ArrayList<String> repeat = kcfUtil.splitNotation(_repeat);
 
         BigDecimal bx = new BigDecimal(repeat.get(1)).setScale(1, BigDecimal.ROUND_DOWN);
@@ -379,7 +377,7 @@ public class KCFImporter {
                 1.01 > _y.doubleValue() && _y.doubleValue() > 0.89);
     }
 
-    private void makeRepeatingUnitWithSubstituent (Node _start, Node _cross, Node _end, String _count) throws GlycanException {
+    private void makeRepeatingUnitWithSubstituent (Node _start, Node _cross, Node _end) throws GlycanException {
         // for start side
         if (_start == null) {
             String startSide = kcfUtil.extractEdgeByID(extractNodeID(_cross), true);
@@ -392,10 +390,10 @@ public class KCFImporter {
             _end = nodeIndex.get(kcfUtil.extractID(kcfUtil.splitNotation(endSide).get(2)));
         }
 
-        makeRepeatingUnit(_start, _end, _cross, _count);
+        makeRepeatingUnit(_start, _end, _cross);
     }
 
-    private void makeRepeatingUnit (Node _start, Node _end, Node _cross, String _count) throws GlycanException {
+    private void makeRepeatingUnit (Node _start, Node _end, Node _cross) throws GlycanException {
         Edge parentEdge = new Edge();
 
         String startPos = kcfUtil.getLinkagePositionByNodeID(extractNodeID(_start), false);
@@ -418,8 +416,8 @@ public class KCFImporter {
                 if (child == null) {
                     endPos = kcfUtil.extractLinkagePosition(units.get(2));
                 }
-                if ((parent != null && parent instanceof Substituent) || (child != null && child instanceof Substituent))
-                    continue;
+                //if ((parent != null && parent instanceof Substituent) || (child != null && child instanceof Substituent)) {
+                //}
             }
         } else endPos = kcfUtil.extractLinkagePosition(kcfUtil.splitNotation(endUnits.get(0)).get(2));
 
@@ -434,7 +432,7 @@ public class KCFImporter {
 
         if (_cross != null) {
             repMod.setTemplate(((Substituent) _cross).getSubstituent());
-            SubstituentUtility subUtil = new SubstituentUtility();
+            //SubstituentUtility subUtil = new SubstituentUtility();
             //repMod = (GlycanRepeatModification) subUtil.modifyLinkageType(repMod);
         }
 
@@ -475,12 +473,9 @@ public class KCFImporter {
             mono.setAnomericPosition(Monosaccharide.OPEN_CHAIN);
             mono.setRing(Monosaccharide.UNKNOWN_RING, Monosaccharide.UNKNOWN_RING);
         }
-
-        return;
     }
 
     private boolean isFacingAnoms (Node _node) {
-        boolean ret = false;
         int anomericPos = ((Monosaccharide) _node).getAnomericPosition();
         for (Edge childEdge : _node.getChildEdges()) {
             Monosaccharide child = (Monosaccharide) childEdge.getChild();
@@ -495,8 +490,7 @@ public class KCFImporter {
                     return true;
             }
         }
-
-        return ret;
+        return false;
     }
 
     private boolean isRepeat (String _notation) {

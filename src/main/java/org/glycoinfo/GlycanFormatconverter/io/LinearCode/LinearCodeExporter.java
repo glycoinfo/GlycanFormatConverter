@@ -26,19 +26,19 @@ public class LinearCodeExporter extends IUPACExporterUtility implements Exporter
             makeLinkageNotation(node);
         }
 
-        /* for fragments of substituent */
+        // for fragments of substituent
         for (GlycanUndefinedUnit und : _glyCo.getUndefinedUnit()) {
             if (und.getNodes().get(0) instanceof Substituent)
                 makeSubstituentNotation(und);
         }
 
-        /* append fragments anchor */
+        // append fragments anchor
         makeFragmentsAnchor(_glyCo);
 
-        /* sort core nodes */
+        // sort core nodes
         ret.insert(0, makeSequence(lcSim.sortAllNode(_glyCo.getRootNodes().get(0))));
 
-        /* sort fragments*/
+        // sort fragments
         String[] fragments = makeFragmentsSequence(_glyCo.getUndefinedUnit()).split("\\+");
         if (fragments.length > 0) {
             if (fragments[0].length() != 0) {
@@ -62,7 +62,7 @@ public class LinearCodeExporter extends IUPACExporterUtility implements Exporter
                 ArrayList<Node> sortedFragments = lcSim.sortAllNode(antennae);
                 String fragment = makeSequence(sortedFragments);
 
-                if (fragment.indexOf("%") != -1) {
+                if (fragment.contains("%")) {
                     ret.insert(0, fragment + "|");
                 } else {
                     if (unknownLink.length() != 0) unknownLink.append(",");
@@ -77,7 +77,8 @@ public class LinearCodeExporter extends IUPACExporterUtility implements Exporter
             unknownLink.append("&");
         }
 
-        ret.append("+" + unknownLink);
+        ret.append("+");
+        ret.append(unknownLink);
         return ret.toString();
     }
 
@@ -112,7 +113,7 @@ public class LinearCodeExporter extends IUPACExporterUtility implements Exporter
 
         for (Edge parentEdge : lcSim.sortParentSideEdges(_node.getParentEdges())) {
             if (parentEdge.isRepeat()) {
-                /* append a symbol of repeating for start node */
+                // append a symbol of repeating for start node
                 LCMap.put(_node, LCMap.get(_node) + "}");
             } else if (parentEdge.isCyclic()) {
 
