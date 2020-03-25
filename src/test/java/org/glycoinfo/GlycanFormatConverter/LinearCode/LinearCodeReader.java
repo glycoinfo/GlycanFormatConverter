@@ -1,21 +1,11 @@
-package org.glycoinfo.GlycanFormatConverter.reader;
+package org.glycoinfo.GlycanFormatConverter.LinearCode;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporter;
-import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStyleDescriptor;
-import org.glycoinfo.GlycanFormatconverter.io.KCF.KCFImporter;
 import org.glycoinfo.GlycanFormatconverter.io.LinearCode.LinearCodeImporter;
 import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
-import org.glycoinfo.WURCSFramework.wurcs.array.RES;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;

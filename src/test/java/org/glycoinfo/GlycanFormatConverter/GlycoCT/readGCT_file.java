@@ -3,8 +3,10 @@ package org.glycoinfo.GlycanFormatConverter.GlycoCT;
 import org.glycoinfo.WURCSFramework.io.GlycoCT.GlycoCTListReader;
 import org.glycoinfo.WURCSFramework.io.GlycoCT.WURCSExporterGlycoCTList;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.TreeMap;
 
 /**
  * Created by e15d5605 on 2019/02/20.

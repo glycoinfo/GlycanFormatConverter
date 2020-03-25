@@ -1,8 +1,7 @@
-package org.glycoinfo.GlycanFormatConverter.exchange;
+package org.glycoinfo.GlycanFormatConverter.IUPAC.condensed;
 
-import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExtendedImporter;
-import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerToWURCSGraph;
-import org.glycoinfo.WURCSFramework.util.WURCSFactory;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.condensed.IUPACCondensedImporter;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,12 +10,13 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 
 /**
- * Created by e15d5605 on 2017/06/21.
+ * Created by e15d5605 on 2017/10/04.
  */
-public class IUPACToWURCS2Tester {
+public class IUPACCondensedImporterFromFile {
 
-    public static void main(String[] args) throws Exception {
-        String string_list = "src/test/resources/sampleIUPAC";
+    public static void main (String[] args) throws Exception {
+
+        String string_list = "src/test/resources/sampleIUPACCondensed";
 
         if(string_list == null || string_list.equals("")) throw new Exception();
 
@@ -25,6 +25,7 @@ public class IUPACToWURCS2Tester {
         if(file.isFile()) {
             String input = "";
             LinkedHashMap<String, String> iupacIndex = openString(string_list);
+
             StringBuilder results = new StringBuilder();
             StringBuilder errors = new StringBuilder();
 
@@ -33,17 +34,19 @@ public class IUPACToWURCS2Tester {
 
                 try {
                     /* Import IUPAC */
-                    IUPACExtendedImporter ii = new IUPACExtendedImporter();
+                    IUPACCondensedImporter ii = new IUPACCondensedImporter();
 
-                    /* GlyContainerToWURCSGraph */
-                    GlyContainerToWURCSGraph gc2wg = new GlyContainerToWURCSGraph();
-                    gc2wg.start(ii.start(iupacIndex.get(key)));
+                    /* GlyContainerToIUPAC */
+                    IUPACExporter ie = new IUPACExporter();
 
-                    /* Convert WURCS */
-                    WURCSFactory wfout = new WURCSFactory(gc2wg.getGraph());
+                    //ii.start(iupacIndex.get(key));
+                    //ie.start(ii.getGlyContainer());
+                    ie.start(ii.start(iupacIndex.get(key)));
 
-                    results.append(wfout.getWURCS() + "\n");
-                    results.append(iupacIndex.get(key) + "\n\n");
+                    if (!iupacIndex.get(key).equals(ie.getExtendedWithGreek())) {
+                        results.append(input + "\n");
+                        results.append(ie.getExtendedWithGreek() + "\n\n");
+                    }
                 } catch (Exception e) {
                     errors.append(key + "\t" + input + "\n");
                     System.out.println(e.getMessage());
@@ -53,7 +56,8 @@ public class IUPACToWURCS2Tester {
 
             System.out.println(results);
             System.out.println(errors);
-        } else if(args.length > 0) {
+        }
+        else if(args.length > 0) {
         }else {
             throw new Exception("This file is not found !");
         }

@@ -1,12 +1,9 @@
 package org.glycoinfo.GlycanFormatConverter.exchange.GlycoCT;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eurocarbdb.MolecularFramework.io.SugarImporter;
-import org.eurocarbdb.MolecularFramework.io.SugarImporterException;
 import org.eurocarbdb.MolecularFramework.io.GlycoCT.SugarExporterGlycoCTCondensed;
 import org.eurocarbdb.MolecularFramework.io.GlycoCT.SugarImporterGlycoCTCondensed;
+import org.eurocarbdb.MolecularFramework.io.SugarImporter;
+import org.eurocarbdb.MolecularFramework.io.SugarImporterException;
 import org.eurocarbdb.MolecularFramework.io.namespace.GlycoVisitorToGlycoCT;
 import org.eurocarbdb.MolecularFramework.sugar.Sugar;
 import org.eurocarbdb.MolecularFramework.util.validation.GlycoVisitorValidation;
@@ -14,6 +11,9 @@ import org.eurocarbdb.MolecularFramework.util.visitor.GlycoVisitorException;
 import org.eurocarbdb.resourcesdb.Config;
 import org.eurocarbdb.resourcesdb.io.MonosaccharideConverter;
 import org.glycoinfo.WURCSFramework.io.GlycoCT.GlycoVisitorValidationForWURCS;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Validation class for GlycoCT

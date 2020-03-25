@@ -2,7 +2,6 @@ package org.glycoinfo.GlycanFormatConverter.WURCS;
 
 import org.glycoinfo.GlycanFormatConverter.exchange.GlycoCT.CSVReader;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStyleDescriptor;
-import org.glycoinfo.GlycanFormatconverter.io.WURCS.WURCSImporter;
 import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer.WURCSGraphToGlyContainer;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;

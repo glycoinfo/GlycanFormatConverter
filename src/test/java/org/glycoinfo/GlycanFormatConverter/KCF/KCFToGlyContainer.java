@@ -1,9 +1,7 @@
-package org.glycoinfo.GlycanFormatConverter.reader;
+package org.glycoinfo.GlycanFormatConverter.KCF;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporter;
-import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExtendedImporter;
 import org.glycoinfo.GlycanFormatconverter.io.KCF.KCFImporter;
 
 import java.io.BufferedReader;

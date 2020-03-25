@@ -1,21 +1,15 @@
-package org.glycoinfo.GlycanFormatConverter.IUPAC;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedHashMap;
+package org.glycoinfo.GlycanFormatConverter.WURCS;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStyleDescriptor;
 import org.glycoinfo.GlycanFormatconverter.io.WURCS.WURCSImporter;
 import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
 import org.junit.Test;
+
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedHashMap;
 
 //TODO : will implement exception utility
 
@@ -42,8 +36,7 @@ public class WURCSToIUPACTester {
 				try {
 					/* WURCS to IUPAC */
 					WURCSImporter wi = new WURCSImporter();
-					wi.start(input);
-					GlyContainer glycan = wi.getGlyContainer();
+					GlyContainer glycan = wi.start(input);//wi.getGlyContainer();
 					ExporterEntrance ee = new ExporterEntrance(glycan);
 					
 					result.append(key + " " + ee.toIUPAC(IUPACStyleDescriptor.GREEK) + "\n");

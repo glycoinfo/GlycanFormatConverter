@@ -1,17 +1,12 @@
 package org.glycoinfo.GlycanFormatConverter.exchange.GlycoCT;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.eurocarbdb.MolecularFramework.io.SugarImporterException;
 import org.eurocarbdb.MolecularFramework.util.visitor.GlycoVisitorException;
 import org.glycoinfo.GlycanFormatconverter.io.GlycoCT.WURCSConversionValidatorForGlycoCT;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
+
+import java.util.*;
 
 public class WURCSToGlycoCTNormalizerFromCSV extends WURCSReaderFromCSV {
 

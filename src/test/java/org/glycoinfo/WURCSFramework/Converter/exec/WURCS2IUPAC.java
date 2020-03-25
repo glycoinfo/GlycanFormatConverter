@@ -1,11 +1,12 @@
 package org.glycoinfo.WURCSFramework.Converter.exec;
 
+import org.glycoinfo.WURCSFramework.util.oldUtil.IUPAC.WURCSToIUPAC;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.TreeMap;
-import org.glycoinfo.WURCSFramework.util.oldUtil.IUPAC.WURCSToIUPAC;
 
 public class WURCS2IUPAC {
 
