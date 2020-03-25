@@ -158,15 +158,15 @@ public class SubstituentIUPACNotationConverter {
 	}
 	
 	private ArrayList<String> concatSubstituents() {
-		ArrayList<String> ret = new ArrayList<String>();
+		ArrayList<String> ret = new ArrayList<>();
 		
 		for (String key : mapSubs.keySet()) {
 			int numOfsub = 0;
 			String notation = mapSubs.get(key);
-			if (notation.indexOf(",") != -1 && notation.indexOf("-") == -1) {
+			if (notation.contains(",") && !notation.contains("-")) {
 				numOfsub = notation.split(",").length;
 			}
-			if (notation.indexOf(":") != -1) {
+			if (notation.contains(":")) {
 				numOfsub = notation.split(":").length;
 			}
 			
@@ -219,7 +219,7 @@ public class SubstituentIUPACNotationConverter {
 			}
 		}
 
-		mapSubs.put(subNotation.toString(), sbPos.toString());
+		mapSubs.put(subNotation, sbPos.toString());
 	}
 	
 	private void extractAnhydroxylSubstituent(Substituent _sub) {

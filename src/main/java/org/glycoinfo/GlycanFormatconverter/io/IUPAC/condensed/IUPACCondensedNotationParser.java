@@ -1,4 +1,4 @@
-package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
+package org.glycoinfo.GlycanFormatconverter.io.IUPAC.condensed;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
@@ -19,22 +19,22 @@ import java.util.regex.Pattern;
 public class IUPACCondensedNotationParser {
 
     public Node parseMonosaccharide (String _notation) throws GlycanException, GlyCoImporterException{
-        String temp = this.trimParentheses(_notation);
-
         if (_notation.matches("\\[[\\d?]\\)"))
-            throw new GlyCoImporterException("Repeating structure could not parse !");
+            throw new GlyCoImporterException("Repeating structure is not support !");
         if (_notation.matches("[\\d?]\\)") || _notation.matches("\\([ab?][\\d?]-"))
-            throw new GlyCoImporterException("Cyclic structure could not parse !");
+            throw new GlyCoImporterException("Cyclic structure is not support !");
+        //if (_notation.matches(".+=[\\d?]\\$,$"))
+        //    throw new GlyCoImporterException("Glycan fragments is not support !");
 
+        String temp = this.trimSymbols(_notation);
         String ringSize = "";
         Monosaccharide mono = new Monosaccharide();
-        ArrayList<String> subNotation = new ArrayList<String>();
-        ArrayList<String> modifications = new ArrayList<String>();
+        ArrayList<String> subNotation = new ArrayList<>();
+        ArrayList<String> modifications = new ArrayList<>();
         LinkedList<String> configurations = new LinkedList<>();
 
         //parse independent substituent
         if (this.isSubstituent(temp)) {
-
             SubstituentIUPACNotationAnalyzer subAna = new SubstituentIUPACNotationAnalyzer();
             subAna.start(temp);
 
@@ -49,7 +49,7 @@ public class IUPACCondensedNotationParser {
         Matcher matModi = Pattern.compile("(([\\d,?]+)+-(.*)?(deoxy|Anhydro)-)").matcher(temp);
         if (matModi.find()) {
             String position = matModi.group(2);
-            String prefix = matModi.group(3);
+            //String prefix = matModi.group(3);
             String notation = matModi.group(4);
 
             if (notation.equals("deoxy")) {
@@ -96,9 +96,8 @@ public class IUPACCondensedNotationParser {
             temp = temp.replace(matUlo.group(1), "");
         }
 
-        //parse monosaccharide
-
-        /* parse complex monosaccharide such as DDmanHep
+        /*
+            parse complex monosaccharide such as DDmanHep
             group1 : configuration
             group2 : monosaccharide notation
             group3 : ring size
@@ -141,7 +140,7 @@ public class IUPACCondensedNotationParser {
           group2 : native deoxy modification such as 6dTal
           group3 : monosaccharide notation
           group4 : ring size
-          group5 : native substituent
+          group5 : native substituent (5Gc, 5Ac, NAc, NGc, NA, A, N)
          */
         Matcher matMono = Pattern.compile("([LD?]-?)?([468]?[dei])?([A-Z][a-z]{1,2}C?|KDN)([pf?])?(5[GA]c|N[AG]c|NA|A|N)?").matcher(temp);
         String threeLetterCode = "";
@@ -166,7 +165,7 @@ public class IUPACCondensedNotationParser {
             if(matMono.group(3) != null) {
                 coreName = matMono.group(3);
                 ThreeLetterCodeAnalyzer threeCode = new ThreeLetterCodeAnalyzer();
-                threeCode.analyzeTrivialName(prefix + coreName, new LinkedList<String>());
+                threeCode.analyzeTrivialName(prefix + coreName, new LinkedList<>());
 
                 if (threeCode.getCoreNotation() != null) {
                     threeLetterCode = threeCode.getCoreNotation();
@@ -321,7 +320,7 @@ public class IUPACCondensedNotationParser {
 
         for (String unit : _linkage.split(":")) {
             if (unit.matches("\\(.+")) unit = this.trimHead(unit);
-            if (unit.indexOf("a") != -1 || unit.indexOf("b") != -1) {
+            if (unit.contains("a") || unit.contains("b")) {
                 childPos = this.charToInt(unit.charAt(1));
             }
         }
@@ -349,17 +348,23 @@ public class IUPACCondensedNotationParser {
         return (Integer.parseInt(String.valueOf(_char)));
     }
 
-    private String trimParentheses(String _notation) {
-        String ret = _notation;
-        ret = ret.replaceAll("\\(","");
-        ret = ret.replaceAll("\\)","");
-        return ret;
+    private String trimSymbols (String _notation) {
+        //remove brackets
+        _notation = _notation.replaceAll("\\(","");
+        _notation = _notation.replaceAll("\\)","");
+        _notation = _notation.replaceAll("\\[","");
+        _notation = _notation.replaceAll("]","");
+
+        //remove ambiguous anchor
+        _notation = _notation.replaceAll("=?[?\\d]\\$,?", "");
+
+        return _notation;
     }
 
     private String extractLinkage (String _notation) {
-        String ret = "";
+        StringBuilder ret = new StringBuilder();
         boolean isLinkage = false;
-        boolean isAnomeric = false;
+        //boolean isAnomeric = false;
 
         if (_notation.endsWith("-") && !_notation.matches(".*[ab?][\\d?]?-$")) {
             return "-";
@@ -367,7 +372,7 @@ public class IUPACCondensedNotationParser {
 
         for (int i = _notation.length() - 1; i != 0; i--) {
             char item = _notation.charAt(i);
-            ret = item + ret;
+            ret.insert(0, item);
             if (item == '-') isLinkage = true;
 
             if (isLinkage) {
@@ -376,26 +381,9 @@ public class IUPACCondensedNotationParser {
             }
         }
 
-        /*
-        for (int i = 0; i < _notation.length(); i++) {
-            char item = _notation.charAt(i);
-
-            if (isLinkage) ret += item;
-
-            if (i == _notation.length() -1) break;
-
-            if ((item == 'a' || item == 'b' || item == '?') && !isAnomeric) {
-                char pos = _notation.charAt(i+1);
-                if (String.valueOf(pos).matches("[\\d?-]") && !isAnomeric) {
-                    isAnomeric = true;
-                    isLinkage = true;
-                    ret += item;
-                }
-            }
-        }
-        */
-
-        return ret;
+        //TODO: 結合を含まない単糖に対してどう対応するか、エラーとして扱うか
+        if (ret.toString().matches("[ab?][\\d?]?-([\\d?/]+)?")) return ret.toString();
+        else return "";
     }
 
     private boolean isSubstituent (String _notation) {
@@ -408,7 +396,7 @@ public class IUPACCondensedNotationParser {
     }
 
     private String trimHead (String _temp) {
-        return _temp.substring(1, _temp.length());
+        return _temp.substring(1);
     }
 
     private String replaceTemplate (String _temp, String _regex) {

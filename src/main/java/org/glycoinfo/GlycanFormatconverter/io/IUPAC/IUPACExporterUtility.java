@@ -73,13 +73,8 @@ public abstract class IUPACExporterUtility {
 	
 		return ret.toString();
 	}
-	
-	/***
-	 * check dual linkage
-	 * @param _edges
-	 * @return
-	 */
-	protected boolean isCyclicLinkage (ArrayList<Edge> _edges) {
+
+	protected boolean isCyclicLinkage(ArrayList<Edge> _edges) {
 		if(_edges.size() < 1) return false;
 		
 		Node node = null;

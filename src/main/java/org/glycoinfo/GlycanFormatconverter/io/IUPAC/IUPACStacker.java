@@ -8,15 +8,20 @@ import java.util.HashMap;
 
 public class IUPACStacker {
 
-	private ArrayList<Node> nodes = new ArrayList<Node>();
-	private ArrayList<String> notations = new ArrayList<String>();
-	private HashMap<Node, Node> family = new HashMap<Node, Node>();
-	private int numOfNode = -1;
+	private ArrayList<Node> nodes;
+	private ArrayList<String> notations;
+	private HashMap<Node, Node> family;
+	private int numOfNode;
 	private boolean isFragment;
 	private boolean isComposition;
 
 	public IUPACStacker () {
-		isFragment = false;
+		this.isFragment = false;
+		this.isComposition = false;
+		this.nodes = new ArrayList<>();
+		this.notations = new ArrayList<>();
+		this.family = new HashMap<>();
+		this.numOfNode = -1;
 	}
 	
 	public ArrayList<Node> getNodes () {
@@ -92,7 +97,6 @@ public class IUPACStacker {
 
 	public void setFragment () {
 		this.isFragment = true;
-		return;
 	}
 
 	public boolean isFragment () {
@@ -101,7 +105,6 @@ public class IUPACStacker {
 
 	public void setComposition () {
 		this.isComposition = true;
-		return;
 	}
 
 	public Node getRoot () {

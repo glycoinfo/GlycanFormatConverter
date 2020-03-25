@@ -1,4 +1,4 @@
-package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
+package org.glycoinfo.GlycanFormatconverter.io.IUPAC.extended;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
@@ -14,30 +14,30 @@ import java.util.regex.Pattern;
 public class IUPACNotationParser {
 
 	public Node parseMonosaccharide (String _iupac) throws GlycanException, GlyCoImporterException{
-		/* remove */
+		// remove
 		String temp = this.trim(_iupac);
 		
 		String linkagePos = "";
 		String anomericState = "";
 		Monosaccharide mono = new Monosaccharide();
 		ArrayList<String> subNotation = new ArrayList<>();
-		ArrayList<String> modifications = new ArrayList<String>();
-		LinkedList<String> configurations = new LinkedList<String>();
-		LinkedList<String> trivialName = new LinkedList<String>();
+		ArrayList<String> modifications = new ArrayList<>();
+		LinkedList<String> configurations = new LinkedList<>();
+		LinkedList<String> trivialName = new LinkedList<>();
 
 		SubstituentIUPACNotationAnalyzer subAna = new SubstituentIUPACNotationAnalyzer();
 		MonosaccharideUtility monoUtil = new MonosaccharideUtility();
 
-		/* extract linkage positions */
-		if(temp.indexOf("-(") != -1 ) {
-			linkagePos = temp.substring(temp.indexOf("-(") + 1, temp.length());
+		// extract linkage positions
+		if(temp.contains("-(")) {
+			linkagePos = temp.substring(temp.indexOf("-(") + 1);
 			temp = temp.replace("-" + linkagePos, "");
 		}
-		if (temp.indexOf(")-") != -1 ) {
+		if (temp.contains(")-")) {
 			temp = temp.substring(temp.indexOf(")-") + 2);
 		}
 		
-		/* parse fragment by substituent */
+		// parse fragment by substituent
 		//group 1 : anchor
 		//group 2 : notation
 		//group 3 : fragments ID
@@ -52,7 +52,7 @@ public class IUPACNotationParser {
 			return sub;
 		}
 		
-		/* extract anhydro and deoxy */
+		// extract anhydro and deoxy
 		//group 1 : anhydro (3,9-dideoxy-L-gro-α-L-manNon2ulop5N7NFo-onic-)
 		//group 2 : deoxy block (3,9-dideoxy-L-gro-α-L-manNon2ulop5N7NFo-onic-)
 		//group 5 : anomeric state
@@ -87,7 +87,7 @@ public class IUPACNotationParser {
 			}
 		}
 
-		/* extract configuration and trivial name */
+		// extract configuration and trivial name
 		for(String unit : temp.split("-")) {
 			if(unit.equals("D") || unit.equals("L") || unit.equals("?")) {
 				configurations.addLast(unit);
@@ -102,7 +102,7 @@ public class IUPACNotationParser {
 
 		if (temp.matches("[a-z]{3}-.+")) {//temp.indexOf("gro-") != -1) {
 			trivialName.add(temp.substring(0, temp.indexOf("-")));
-			trivialName.add(temp.substring(temp.indexOf("-") + 1, temp.length()));
+			trivialName.add(temp.substring(temp.indexOf("-") + 1));
 		} else {
 			trivialName.add(temp);
 		}
@@ -114,12 +114,12 @@ public class IUPACNotationParser {
 		String coreNotation = trivialName.getLast();
 		String threeLetterCode = "";
 
-		//group 1 : trivial name ([A-Z]{1}[a-z]{2}\\d?[A-Z]{1}[a-z]{1,2} : Neu5Ac, [a-z]{2,3}[A-Z]{1}[a-z]{2} : lyxHex, araHex,  [A-Z]{1}[a-z]{2} : Glc)
+		//group 1 : trivial name ([A-Z][a-z]{2}\\d?[A-Z][a-z]{1,2} : Neu5Ac, [a-z]{2,3}[A-Z][a-z]{2} : lyxHex, araHex,  [A-Z]{1}[a-z]{2} : Glc)
 		//group 2 : ulosonic
-		Matcher matCore = Pattern.compile("(Sugar|Ko|[a-z]{2,3}[A-Z]{1}[a-z]{2}|6?d?i?[A-Z]{1}[a-z]{2})+((\\dulo)+)?").matcher(coreNotation);
+		Matcher matCore = Pattern.compile("(Sugar|Ko|[a-z]{2,3}[A-Z][a-z]{2}|6?d?i?[A-Z][a-z]{2})+((\\dulo)+)?").matcher(coreNotation);
 		if(matCore.find()) {
 
-			/* extract trivial name and super class */
+			// extract trivial name and super class
 			if(matCore.group(1) != null) {
 				ThreeLetterCodeAnalyzer threeCode = new ThreeLetterCodeAnalyzer();
 				threeCode.analyzeTrivialName(matCore.group(1), trivialName);
@@ -137,7 +137,7 @@ public class IUPACNotationParser {
 				modifications.addAll(threeCode.getModificaitons());
 				coreNotation = coreNotation.replace(matCore.group(1), "");
 			}
-			/* extract ulosonic */
+			// extract ulosonic
 			if(matCore.group(2) != null) {
 				String ulosonic = matCore.group(2);
 				while (ulosonic.length() != 0) {
@@ -153,10 +153,10 @@ public class IUPACNotationParser {
 		mono.setAnomer(convertAnomericState(mono, anomericState));
 
 		// define anomeric position
-		//mono.setAnomericPosition(extractAnomericPosition(mono, linkagePos));
+		mono.setAnomericPosition(extractAnomericPosition(mono, linkagePos));
 
 
-		/* extract ring size and substituents */
+		// extract ring size and substituents
 		//group 1 : ring size
 		//group 2 : substituents
 		Matcher matTail = Pattern.compile("([pf?])?([\\d,\\w/:(%)\\-?]+)?").matcher(coreNotation);
@@ -189,10 +189,10 @@ public class IUPACNotationParser {
 					subNotations = subNotations.replaceFirst(String.valueOf(subNotations.charAt(0)), "");
 				}
 
-				if (subNotations != null) {
+				//if (subNotations != null) {
 					subNotation.addAll(subAna.resolveSubstituents(subNotations, true));
 					modifications.addAll(subAna.resolveSubstituents(subNotations, false));
-				}
+				//}
 			}
 		}
 
@@ -223,7 +223,7 @@ public class IUPACNotationParser {
 		
 		for (String unit : _linkage.split(":")) {
 			if (unit.matches("\\(.+")) unit = this.trimHead(unit);
-			if (unit.indexOf("\u2192") != -1 || unit.indexOf("\u2194") != -1) {
+			if (unit.contains("\u2192") || unit.contains("\u2194")) {
 				childPos = this.charToInt(unit.charAt(0));
 				isAnomeric = true;
 			}
@@ -263,15 +263,15 @@ public class IUPACNotationParser {
 	private String trim (String _notation) {
 		String ret = _notation;	
 		
-		/* remove anchor*/
+		// remove anchor
 		if (_notation.matches(".+(=\\d+\\$,?)+")) ret = _notation.replaceAll("(=\\d+\\$,?)", "");
-		if (_notation.matches(".*([\\?\\d+]\\$\\|?)+.+")) ret = ret.replaceFirst("([\\?\\d+]\\$\\|?)+", "");
+		if (_notation.matches(".*([?\\d+]\\$\\|?)+.+")) ret = ret.replaceFirst("([?\\d+]\\$\\|?)+", "");
 		
-		ret = (ret.indexOf(")-") != -1) ? ret.substring(ret.indexOf(")-") + 1, ret.length()) : ret;
+		ret = (ret.contains(")-")) ? ret.substring(ret.indexOf(")-") + 1) : ret;
 		ret = (ret.startsWith("[")) ? ret.replaceAll("\\[", "") : ret;
 		ret = (ret.startsWith("]-")) ? ret.replaceAll("]-", "") : ret;
 		ret = (ret.startsWith("-")) ? ret.replaceFirst("-", "") : ret;
-		ret = (ret.endsWith("]")) ? ret.replaceFirst("\\]", "") : ret;
+		ret = (ret.endsWith("]")) ? ret.replaceFirst("]", "") : ret;
 		
 		return ret;
 	}
@@ -281,6 +281,6 @@ public class IUPACNotationParser {
 	}
 	
 	private String trimHead (String _temp) {
-		return _temp.substring(1, _temp.length());
+		return _temp.substring(1);
 	}
 }

@@ -1,9 +1,10 @@
-package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
+package org.glycoinfo.GlycanFormatconverter.io.IUPAC.extended;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStacker;
 import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 
 import java.util.ArrayList;
@@ -17,13 +18,11 @@ public class IUPACExtendedImporter {
 
 	public GlyContainer start(String _iupac) throws GlycanException, GlyCoImporterException {
 		GlyContainer glyCo = new GlyContainer();
-		
-		LinkedHashMap<Node, String> nodeIndex = new LinkedHashMap<Node, String>();
-		
-		List<String> notations = new ArrayList<String>();
+		LinkedHashMap<Node, String> nodeIndex = new LinkedHashMap<>();
+		List<String> notations = new ArrayList<>();
 
 		// separate glycan fragents
-		if (_iupac.indexOf("$,") != -1) {
+		if (_iupac.contains("$,")) {
 			for (String unit : _iupac.split("\\$,")) {
 				if (unit.matches(".+=[\\d?]+")) unit += "$,";
 				notations.add(unit);
@@ -90,26 +89,25 @@ public class IUPACExtendedImporter {
 
 	private Node makeNode (String _notation) throws GlycanException, GlyCoImporterException {
 		IUPACNotationParser iupacNP = new IUPACNotationParser();
-		Node ret = iupacNP.parseMonosaccharide(_notation);
-		return ret;
+		return iupacNP.parseMonosaccharide(_notation);
 	}
 
 	private ArrayList<String> parseNotation(String _iupac) {
-		ArrayList<String> ret = new ArrayList<String>();
+		ArrayList<String> ret = new ArrayList<>();
 
-		String mono = "";
+		StringBuilder mono = new StringBuilder();
 		boolean isLinkage = false;
 		boolean isRepeat = false;
 		boolean isbisect = false;
 		boolean isMultipleParent = false;
 		for (int i = 0; i < _iupac.length(); i++) {
-			mono += _iupac.charAt(i);
+			mono.append(_iupac.charAt(i));
 
 			if (_iupac.charAt(i) == '(') isLinkage = true;
 
 			if (isbisect && _iupac.charAt(i) == ']') {
-				ret.add(mono);
-				mono = "";
+				ret.add(mono.toString());
+				mono = new StringBuilder();
 				isbisect = false;
 			}
 
@@ -120,8 +118,8 @@ public class IUPACExtendedImporter {
 					isMultipleParent = false;
 					continue;
 				}
-				ret.add(mono);
-				mono = "";
+				ret.add(mono.toString());
+				mono = new StringBuilder();
 				isMultipleParent = false;
 			}
 
@@ -138,8 +136,8 @@ public class IUPACExtendedImporter {
 				}
 
 				if (String.valueOf(_iupac.charAt(i + 1)).matches("[a-zA-Z,]")) continue;
-				ret.add(mono);
-				mono = "";
+				ret.add(mono.toString());
+				mono = new StringBuilder();
 				isLinkage = false;
 			}
 			// for repeating
@@ -150,14 +148,14 @@ public class IUPACExtendedImporter {
 			}
 			// for root
 			if ((_iupac.length() - 1) == i) {
-				ret.add(mono);
+				ret.add(mono.toString());
 				break;
 			}
 			// for repeating count
 			if (isRepeat) {
 				if (String.valueOf(_iupac.charAt(i)).matches("[\\dn]")) {
 					if (String.valueOf(_iupac.charAt(i + 1)).matches("\\d")) continue;
-					if (_iupac.charAt(i + 1) == '-' && String.valueOf(_iupac.charAt(i + 2)).matches("[\\dn\\(]")) {
+					if (_iupac.charAt(i + 1) == '-' && String.valueOf(_iupac.charAt(i + 2)).matches("[\\dn(]")) {
 						continue;
 					}
 					if (_iupac.charAt(i - 1) == '(' && _iupac.charAt(i + 1) == '\u2192') continue;
@@ -170,8 +168,8 @@ public class IUPACExtendedImporter {
 				}
 
 				if (!isRepeat) {
-					ret.add(mono);
-					mono = "";
+					ret.add(mono.toString());
+					mono = new StringBuilder();
 				}
 
 			}
@@ -181,8 +179,7 @@ public class IUPACExtendedImporter {
 	}
 
 	private void parseChildren(IUPACStacker _stacker, LinkedHashMap<Node, String> _index) {
-		ArrayList<Node> nodes = new ArrayList<Node>();
-		nodes.addAll(_stacker.getNodes());
+		ArrayList<Node> nodes = new ArrayList<>(_stacker.getNodes());
 
 		Collections.reverse(nodes);
 
@@ -229,7 +226,7 @@ public class IUPACExtendedImporter {
 	}
 	
 	private ArrayList<Node> pickChildren (ArrayList<Node> _nodes, Node _branch, LinkedHashMap<Node, String> _index) {
-		ArrayList<Node> children = new ArrayList<Node>();
+		ArrayList<Node> children = new ArrayList<>();
 		int count = 0;
 		boolean isChild = false;
 

@@ -2,6 +2,9 @@ package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACShortExporter;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.condensed.IUPACCondensedExporter;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.extended.IUPACExtendedExporter;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 
 public class IUPACExporter {

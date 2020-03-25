@@ -1,9 +1,10 @@
-package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
+package org.glycoinfo.GlycanFormatconverter.io.IUPAC.condensed;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationConverter;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
 
 /**
@@ -15,7 +16,7 @@ import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
  * 3-deoxy-gro-galNon2ulo5NAc-onic
  * ManNAc
  * */
-public class CondensedConverter extends IUPACNotationConverter{
+public class CondensedConverter extends IUPACNotationConverter {
 
     public String start (Node _node, boolean _iswebStyle) throws GlycanException {
         Node copy = _node.copy();

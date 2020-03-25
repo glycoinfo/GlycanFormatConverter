@@ -1,6 +1,7 @@
-package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
+package org.glycoinfo.GlycanFormatconverter.io.IUPAC.extended;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStacker;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 
 import java.util.*;
@@ -12,9 +13,9 @@ import java.util.regex.Pattern;
 
 public class IUPACLinkageParser extends SubstituentUtility {
 
-	private HashMap<Node, String> nodeIndex = new HashMap<Node, String>();
-	private GlyContainer glyCo = null;
-	private IUPACStacker stacker = new IUPACStacker();
+	private HashMap<Node, String> nodeIndex;
+	private GlyContainer glyCo;
+	private IUPACStacker stacker;
 	
 	public GlyContainer getGlyCo () {
 		return this.glyCo;
@@ -38,11 +39,13 @@ public class IUPACLinkageParser extends SubstituentUtility {
 			parseLinkage(node);
 		}
 
+		/*
 		if (stacker.isFragment()) {
 			Node root = stacker.getRoot();
 			GlycanUndefinedUnit und = glyCo.getUndefinedUnitWithIndex(root);
 			und.setConnection(root.getParentEdge());
 		}
+		 */
 	}
 
 	public GlycanUndefinedUnit makeUndefinedUnit (Node _node, String _notation) throws GlycanException {
@@ -56,7 +59,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 	}
 	
 	public ArrayList<Node> parseFragmentParents (String _fragment) {
-		ArrayList<Node> ret = new ArrayList<Node>();
+		ArrayList<Node> ret = new ArrayList<>();
 		String anchor = _fragment.substring(_fragment.indexOf("=") + 1, _fragment.length() - 1);
 
 		for(Node node : nodeIndex.keySet()) {
@@ -66,14 +69,14 @@ public class IUPACLinkageParser extends SubstituentUtility {
 			if (notation.contains("=") && notation.startsWith("?$")) {
 				String target;
 
-				/* for composition */
+				// for composition
 				if (notation.endsWith(",")) target = notation.substring(notation.indexOf("=")+1, notation.length()-1);
-				else target = notation.substring(notation.indexOf("=")+1, notation.length());
+				else target = notation.substring(notation.indexOf("=")+1);
 
 				if (anchor.equals(target)) ret.add(node);
 			}
 			if ((notation.contains("|") || notation.contains("$")) &&!notation.contains("=")) {
-				/* resolve multiple anchor */
+				// resolve multiple anchor
 				String temp = "";
 				for (int i = 0; i < notation.length(); i++) {
 					char unit = notation.charAt(i);
@@ -102,16 +105,16 @@ public class IUPACLinkageParser extends SubstituentUtility {
 		* group 4 : maximum count number
 		* group 5 : start cyclic position or multiple parent position
 		* */
-		Matcher matStartRep = Pattern.compile("\\(([\\d?/?]+)[\u2192\\-]](([n\\d]+)-?([n\\d]+)?)(-.+|:.+)?").matcher(notation);
+		Matcher matStartRep = Pattern.compile("\\(([\\d?/]+)[\u2192\\-]](([n\\d]+)-?([n\\d]+)?)(-.+|:.+)?").matcher(notation);
 
-		/* parse start repetition */
+		// parse start repetition
 		if(matStartRep.find()) {
 			parseRepeating(_node, parent, matStartRep.group(5));
 		} else {
 			parseSimpleLinkage(_node, parent, notation);
 		}
 
-		/* parse cyclic */
+		// parse cyclic
 		if(isEndCyclic(notation)) {
 			parseCyclic(_node, getIndex(nodeIndex.size() - 1));
 		}
@@ -166,7 +169,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 					bridge.addParentEdge(parentEdge);
 				}
 
-				/* extract probability annotation */
+				// extract probability annotation
 				if (matLin.group(7) != null) {
 					if (matLin.group(7).equals("?")) lin.setProbabilityLower(-1.0);
 					else lin.setProbabilityLower(Double.parseDouble(matLin.group(7)) * .01);
@@ -190,10 +193,12 @@ public class IUPACLinkageParser extends SubstituentUtility {
 					}
 				}
 
-				/* for root of antennae */
+				// for root of antennae
 				if(matLin.group(9) != null && _parent == null) {
 					_node.addParentEdge(parentEdge);
 					parentEdge.setChild(_node);
+					GlycanUndefinedUnit und = glyCo.getUndefinedUnitWithIndex(_node);
+					und.setConnection(parentEdge);
 				}
 			}			
 		}
@@ -209,7 +214,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 
 		for (Node endRep : endNodes) {
 			String startPos = repPos.get(endNodes.indexOf(endRep) + 1);
-			Matcher matStartRep = Pattern.compile("([\\d?/?]+)[\u2192\\-]](([n\\d]+)-?([n\\d]+)?)").matcher(startPos);
+			Matcher matStartRep = Pattern.compile("([\\d?/]+)[\u2192\\-]](([n\\d]+)-?([n\\d]+)?)").matcher(startPos);
 			if (matStartRep.find()) {
 				childPos = matStartRep.group(1);
 				count = matStartRep.group(2);
@@ -245,7 +250,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 				repMod.setSecondPosition(new Linkage());
 
 				String[] repCount = count.split("-");
-				String min = "n";
+				String min;
 				String max = "n";
 				min = repCount[0];
 				if (repCount.length == 2) max = repCount[1];
@@ -273,7 +278,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 					childPos = matParent.group(1);
 					parentPos = matParent.group(4);
 
-					SubstituentInterface subface = null;
+					SubstituentInterface subface;
 
 					// for substituent
 					if (matParent.group(3) != null) {
@@ -324,10 +329,10 @@ public class IUPACLinkageParser extends SubstituentUtility {
 	}
 	
 	private String extractLinkageNotation (String _linkage) {
-		if (_linkage.indexOf("-(") == -1) return "";
-		_linkage = _linkage.substring(_linkage.indexOf("-(") + 1, _linkage.length());
+		if (!_linkage.contains("-(")) return "";
+		_linkage = _linkage.substring(_linkage.indexOf("-(") + 1);
 		
-		if(_linkage.matches("^\\(.+")) _linkage = _linkage.substring(1, _linkage.length());
+		if(_linkage.matches("^\\(.+")) _linkage = _linkage.substring(1);
 		if(_linkage.lastIndexOf(")") != -1) _linkage = _linkage.substring(0, _linkage.lastIndexOf(")"));
 	
 		return _linkage;
@@ -353,11 +358,10 @@ public class IUPACLinkageParser extends SubstituentUtility {
 
 	private ArrayList<Node> countRepeats (Collection<Node> _nodes) {
 		int numOfstart = 0;
-		String regex = "\\[(\u002D[\\w()]+\u002D)?[\\d\\?/]+\\)";
-		Node ret = null;
-		ArrayList<Node> retNodes = new ArrayList<Node>();
+		String regex = "\\[(\u002D[\\w()]+\u002D)?[\\d?/]+\\)";
+		ArrayList<Node> retNodes = new ArrayList<>();
 
-		/* extract current repeating unit */
+		// extract current repeating unit
 		Node start = new ArrayList<>(_nodes).get(0);
 		TreeMap<Integer, String> repPos = extractMultipleRepStart(start);
 
@@ -378,7 +382,6 @@ public class IUPACLinkageParser extends SubstituentUtility {
 					if (isEndRep(repStatus + "-")) {
 						if (numOfstart != 0) numOfstart--;
 						if (numOfstart == 0) {
-							ret = node;
 							retNodes.add(node);
 							break;
 						}
@@ -398,7 +401,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 		String repStart = nodeIndex.get(_node);
 		TreeMap<Integer, String> repPosMap = new TreeMap<>();
 		int key = 1;
-		for (String pos : repStart.substring(repStart.indexOf("-(") + 2, repStart.length()).split(":")) {
+		for (String pos : repStart.substring(repStart.indexOf("-(") + 2).split(":")) {
 			if (isStartRep(pos)) {
 				repPosMap.put(key, pos);//repPos.add(pos);
 				key++;
@@ -427,8 +430,8 @@ public class IUPACLinkageParser extends SubstituentUtility {
 	}
 	
 	private boolean isEndCyclic (String _notation) {
-		if(_notation.indexOf("]-") == 0) _notation = _notation.substring(2, _notation.length());
-		if (_notation.indexOf("-") == 0) _notation = _notation.substring(1, _notation.length());
+		if(_notation.indexOf("]-") == 0) _notation = _notation.substring(2);
+		if (_notation.indexOf("-") == 0) _notation = _notation.substring(1);
 		return (_notation.matches("^\\d\\).+"));
 	}
 	
@@ -442,13 +445,11 @@ public class IUPACLinkageParser extends SubstituentUtility {
 
 	private boolean isRootOfFramgnets (String _notation) {
 		if (_notation.lastIndexOf("$,") != -1) return true;
-		else if (_notation.lastIndexOf("$") == _notation.length() -1) return true;
-
-		return false;
+		else return _notation.lastIndexOf("$") == _notation.length() - 1;
 	}
 
 	private LinkedList<Integer> makeLinkageList (String _pos) {
-		LinkedList<Integer> ret = new LinkedList<Integer>();
+		LinkedList<Integer> ret = new LinkedList<>();
 		
 		for(String pos : _pos.split("/")) {
 			if(pos.equals("?")) ret.addLast(-1);

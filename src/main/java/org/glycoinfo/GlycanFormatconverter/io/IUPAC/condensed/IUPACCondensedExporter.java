@@ -1,7 +1,8 @@
-package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
+package org.glycoinfo.GlycanFormatconverter.io.IUPAC.condensed;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.ExporterInterface;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporterUtility;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 
 	private StringBuilder condensed = new StringBuilder();
 	private HashMap<Node, String> notationIndex = new HashMap<>();
-	private NodeSimilarity gu = new NodeSimilarity();;
+	private NodeSimilarity gu = new NodeSimilarity();
 	private boolean isGlycanWeb;
 
 	public IUPACCondensedExporter (boolean _isGlycanWeb) {
@@ -37,7 +38,7 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 			if (und.getNodes().get(0) instanceof Substituent)
 				makeSubstituentNotation(und);
 		}
-		
+
 		makeFragmentsAnchor(_glyCo);
 
 		if (_glyCo.isComposition()) {
@@ -57,12 +58,12 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 	public String makeComposition(GlyContainer _glyCo) {
 		StringBuilder ret = new StringBuilder();
 		
-		ArrayList<String> nodeList = new ArrayList<String>();
-		for (Iterator<GlycanUndefinedUnit> iterUnd = _glyCo.getUndefinedUnit().iterator(); iterUnd.hasNext();) {
-			nodeList.add(notationIndex.get(iterUnd.next().getNodes().get(0)));
+		ArrayList<String> nodeList = new ArrayList<>();
+		for (GlycanUndefinedUnit glycanUndefinedUnit : _glyCo.getUndefinedUnit()) {
+			nodeList.add(notationIndex.get(glycanUndefinedUnit.getNodes().get(0)));
 		}
 		
-		LinkedHashMap<String, Integer> block = new LinkedHashMap<String, Integer>();
+		LinkedHashMap<String, Integer> block = new LinkedHashMap<>();
 		for (String notation : nodeList) {
 			if (block.containsKey(notation)) {
 				block.put(notation, block.get(notation)+1);
@@ -73,7 +74,10 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 		
 		for (Iterator<String> iterKey = block.keySet().iterator(); iterKey.hasNext();) {
 			String notation = iterKey.next();
-			ret.append("{" + notation + "}" + block.get(notation));
+			ret.append("{")
+				.append(notation)
+				.append("}")
+				.append(block.get(notation));
 			if (iterKey.hasNext()) ret.append(",");
 		}
 		
@@ -81,14 +85,13 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 	}
 
 	public String makeFragmentsSequence (ArrayList<GlycanUndefinedUnit> _fragments) throws GlycanException {
-		StringBuilder ret = new StringBuilder();
 		for(GlycanUndefinedUnit und : _fragments) {
 			for(Node antennae : und.getRootNodes()) {
 				ArrayList<Node> sortedFragments = gu.sortAllNode(antennae);
 				condensed.insert(0, makeSequence(sortedFragments) + ",");
 			}
 		}
-		return ret.toString();
+		return "";
 	}
 
 	public void makeFragmentsAnchor (GlyContainer _glyCo) throws GlycanException {
@@ -159,12 +162,14 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 				if (parentEdge.isCyclic() && linkagePos.charAt(linkagePos.length() - 1) == ':') linkagePos.append("(");
 
 				// append anomeric position
-				linkagePos.append(makeChildSidePosition(parentEdge));
+				linkagePos.append(makeDonorPosition(parentEdge));
 
 				// append start repeating position
-				if(sub != null && sub instanceof GlycanRepeatModification && !parentEdge.isCyclic()) {
-					linkagePos.append("]");
-					linkagePos.append(makeRepeatingCount((GlycanRepeatModification) parentEdge.getSubstituent()));
+				if (sub != null) {
+					if (sub instanceof GlycanRepeatModification && !parentEdge.isCyclic()) {
+						linkagePos.append("]");
+						linkagePos.append(makeRepeatingCount((GlycanRepeatModification) parentEdge.getSubstituent()));
+					}
 				}
 
 				// append probability annotation
@@ -172,15 +177,13 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 
 				// append parent linkage position
 				if (!parentEdge.isRepeat() && !parentEdge.isCyclic()) {
-					linkagePos.append(makeParentSidePosition(parentEdge));
+					linkagePos.append(makeAcceptorPosition(parentEdge));
 					if(!iterParent.hasNext()) linkagePos.append(")");
 				}
 
 				// append a separator for dual linkage position
 				if(iterParent.hasNext()) {
 					linkagePos.append(":");
-					//if (parentEdge.isRepeat()) linkagePos.append("-(");
-					//else linkagePos.append(":");
 				}
 			}
 
@@ -224,7 +227,7 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 					//endReppos.append(sub.getNameWithIUPAC());
 					endReppos.append("-");
 				}
-				endReppos.append(makeParentSidePosition(edge));
+				endReppos.append(makeAcceptorPosition(edge));
 				endReppos.append(")");
 				notation.insert(0, endReppos);
 			}
@@ -233,7 +236,7 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 		this.notationIndex.put(mono, notation.toString());
 	}
 	
-	private String makeParentSidePosition (Edge _parentEdge) {
+	private String makeAcceptorPosition(Edge _parentEdge) {
 		if(_parentEdge.getGlycosidicLinkages().size() > 1) return "";	
 		StringBuilder ret = new StringBuilder(extractPosition(_parentEdge.getGlycosidicLinkages().get(0).getParentLinkages()));
 		if(isFacingAnom(_parentEdge)) {
@@ -244,7 +247,7 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 		return ret.toString();
 	}
 	
-	private String makeChildSidePosition (Edge _parentEdge) {
+	private String makeDonorPosition(Edge _parentEdge) {
 		StringBuilder ret = new StringBuilder();
 
 		// append anomeric state
@@ -256,6 +259,8 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 				char parentAnom = ((Monosaccharide) _parentEdge.getChild()).getAnomer().getAnomericState();
 				ret.append(parentAnom == 'x' ? '?' : parentAnom);
 			}
+		} else {
+			ret.append("?");
 		}
 		// append child position (anomeric carbon)
 		ret.append(extractPosition(_parentEdge.getGlycosidicLinkages().get(0).getChildLinkages()));
@@ -267,11 +272,10 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 			ret.append(sub.getFirstPosition() == null ? "" : extractPosition(sub.getFirstPosition().getChildLinkages()));
 			ret.append(sub.getNameWithIUPAC());
 			ret.append(sub.getSecondPosition() == null ? "" : extractPosition(sub.getSecondPosition().getChildLinkages()));
-			//ret.append(((Substituent) _parentEdge.getSubstituent()).getNameWithIUPAC());
 		}
 		
 		ret.append("-");
-		
+
 		return ret.toString();
 	}
 }

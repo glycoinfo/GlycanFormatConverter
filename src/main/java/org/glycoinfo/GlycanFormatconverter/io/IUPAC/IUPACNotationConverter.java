@@ -20,10 +20,10 @@ public class IUPACNotationConverter {
 		return this.coreCode.toString();
 	}
 
-	/** 
+	/*
 	 * notation for iupac short form (monosaccharide three letter code) 
 	 * ManNAc
-	 * */
+	 */
 	public String getThreeLetterCode() {
 		return this.threeLetterCode.toString();
 	}
@@ -34,7 +34,7 @@ public class IUPACNotationConverter {
 
 		Monosaccharide mono = (Monosaccharide) _node;
 
-		/* convert to tivial name (D-gro-D-galNon -> D-Neu) */
+		// convert to tivial name (D-gro-D-galNon -> D-Neu)
 		ThreeLetterCodeConverter threeCon = new ThreeLetterCodeConverter();
 		threeCon.start(_node);
 
@@ -50,14 +50,14 @@ public class IUPACNotationConverter {
 
 		subConv.start(trivialName.toString(), mono);
 
-		/* define non additional notation */
+		// define non additional notation
 		threeLetterCode = new StringBuilder(trivialName);
 
-		/* */
+		//
 		trivialName.append(subConv.getCoreSubstituentNotaiton());
 		coreCode.append(trivialName);
 
-		/* make acidic tail */
+		//make acidic tail
 		if(makeAcidicStatus(mono).equals("A")) {
 			coreCode.append("A");
 		}
@@ -89,7 +89,7 @@ public class IUPACNotationConverter {
 			if(iterStereo.hasNext()) ret.append("-");
 		}
 
-		/* append super class */
+		//append super class
 		if (isFuzzyMotif(_node)) ret = appendSuperClass(_node, ret);
 
 		return ret.toString();
@@ -101,7 +101,7 @@ public class IUPACNotationConverter {
 
 		StringBuilder ret = new StringBuilder(trivial);
 
-		/**/
+		//
 		if(mono.getSuperClass().getSize() > _threeCon.getSize()) {
 			ret = appendSuperClass(_node, ret);
 		}
@@ -110,7 +110,7 @@ public class IUPACNotationConverter {
 	}
 
 	public String makeConfiguration (String _stereo) {
-		String configuration = "?";
+		String configuration;
 
 		_stereo = trimThreeLetterPrefix(_stereo);
 
@@ -126,7 +126,7 @@ public class IUPACNotationConverter {
 			if(_temp.indexOf("-") == -1)
 				_temp = _temp.replace(0, 1, String.valueOf(prefix).toLowerCase());
 			
-			/* append super class*/
+			// append super class
 			_temp.append(((Monosaccharide) _node).getSuperClass().getSuperClass());
 		}
 
@@ -160,22 +160,22 @@ public class IUPACNotationConverter {
 	}
 	
 	public String extractUlonic(Monosaccharide _mono) {
-		String ret = "";
+		StringBuilder ret = new StringBuilder();
 
 		for(GlyCoModification mod : _mono.getModifications()) {
 			ModificationTemplate modT = mod.getModificationTemplate();
 			if(modT.equals(ModificationTemplate.KETONE_U)) {
-				ret += mod.getPositionOne() + modT.getIUPACnotation();
+				ret.append(mod.getPositionOne()).append(modT.getIUPACnotation());
 			}
 			if(modT.equals(ModificationTemplate.ULOSONIC)) {
-				ret += mod.getPositionOne() + modT.getIUPACnotation();
+				ret.append(mod.getPositionOne()).append(modT.getIUPACnotation());
 			}
 			if (modT.equals(ModificationTemplate.KETONE)) {
-				ret += mod.getPositionOne() + modT.getIUPACnotation();
+				ret.append(mod.getPositionOne()).append(modT.getIUPACnotation());
 			}
 		}
 		
-		return ret;
+		return ret.toString();
 	}
 	
 	public String extractDLconfiguration(String _stereo) {
@@ -226,7 +226,7 @@ public class IUPACNotationConverter {
 	public String makeDeoxyPosition(Monosaccharide _mono) throws TrivialNameException {
 		if(_mono.getModifications().isEmpty()) return "";
 		
-		ArrayList<GlyCoModification> deoxys = new ArrayList<GlyCoModification>();
+		ArrayList<GlyCoModification> deoxys = new ArrayList<>();
 		
 		for(GlyCoModification mod : _mono.getModifications()) {
 			ModificationTemplate modT = mod.getModificationTemplate();
@@ -237,14 +237,18 @@ public class IUPACNotationConverter {
 			if(modT.equals(ModificationTemplate.UNSATURATION_ZL)) deoxys.add(mod);
 		}
 		
-		/* define prefix */
+		//define prefix
 		StringBuilder deoxy = new StringBuilder();
 		PrefixDescriptor a_enumPrefix = PrefixDescriptor.forNumber(deoxys.size());
 		
 		for (Iterator<GlyCoModification> i = deoxys.iterator(); i.hasNext(); ) {
 			deoxy.append(i.next().getPositionOne());
 			if(i.hasNext()) deoxy.append(",");
-			else deoxy.append("-" + a_enumPrefix.getPrefix() + "deoxy-");
+			else {
+				deoxy.append("-")
+					 .append(a_enumPrefix.getPrefix())
+					 .append("deoxy-");
+			}
 		}
 	
 		return deoxy.toString();
@@ -275,8 +279,9 @@ public class IUPACNotationConverter {
 		
 		for(GlyCoModification mod : mono.getModifications()) {
 			ModificationTemplate modT = mod.getModificationTemplate();
-			if(modT.equals(ModificationTemplate.ALDEHYDE) && mod.getPositionOne() == 1) {
+			if (modT.equals(ModificationTemplate.ALDEHYDE) && mod.getPositionOne() == 1) {
 				aldehyde = true;
+				break;
 			}
 		}
 		
