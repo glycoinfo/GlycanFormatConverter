@@ -4,6 +4,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by e15d5605 on 2019/03/05.
@@ -17,6 +18,9 @@ public class GlyContainerOptimizer {
 
             // Merge duplicated substituents
             this.optimizeDuplicateSubstituent((Monosaccharide) node);
+
+            // Optimize state of un saturation
+            this.optimizeUnsaturation((Monosaccharide) node);
 
             // Optimize linkage type of substituent
             this.optimizeSubstituent((Monosaccharide) node);
@@ -315,6 +319,39 @@ public class GlyContainerOptimizer {
         return (sub instanceof GlycanRepeatModification);
     }
 
+    private void optimizeUnsaturation (Monosaccharide _mono) throws GlycanException {
+        HashMap<Integer, List<GlyCoModification>> modList = new HashMap<>();
+        for (GlyCoModification gMod : _mono.getModifications()) {
+            if (!modList.containsKey(gMod.getPositionOne())) {
+                List<GlyCoModification> list = new ArrayList<>();
+                list.add(gMod);
+                modList.put(gMod.getPositionOne(), list);
+            } else {
+                modList.get(gMod.getPositionOne()).add(gMod);
+            }
+        }
+
+        for (Integer key :modList.keySet()) {
+            List<GlyCoModification> list = modList.get(key);
+            if (list.size() != 1) continue;
+            if (list.get(0).getModificationTemplate().equals(ModificationTemplate.UNSATURATION_FL)) {
+                _mono.removeModification(list.get(0));
+                GlyCoModification gMod = new GlyCoModification(ModificationTemplate.UNSATURATION_FU, key);
+                _mono.addModification(gMod);
+            }
+            if (list.get(0).getModificationTemplate().equals(ModificationTemplate.UNSATURATION_EL)) {
+                _mono.removeModification(list.get(0));
+                GlyCoModification gMod = new GlyCoModification(ModificationTemplate.UNSATURATION_EU, key);
+                _mono.addModification(gMod);
+            }
+            if (list.get(0).getModificationTemplate().equals(ModificationTemplate.UNSATURATION_ZL)) {
+                _mono.removeModification(list.get(0));
+                GlyCoModification gMod = new GlyCoModification(ModificationTemplate.UNSATURATION_ZU, key);
+                _mono.addModification(gMod);
+            }
+        }
+    }
+
     private void checkStatus (Node _node) {
         if (_node instanceof Monosaccharide) {
             Monosaccharide mono = (Monosaccharide) _node;
@@ -334,4 +371,5 @@ public class GlyContainerOptimizer {
             }
         }
     }
+
 }
