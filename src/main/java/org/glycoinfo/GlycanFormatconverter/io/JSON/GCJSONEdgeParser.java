@@ -51,27 +51,20 @@ public class GCJSONEdgeParser {
 
                 bridge.getFirstPosition().setParentLinkages(parsePosition(edgeObj.getJSONObject("Acceptor").getJSONArray("Position")));
                 bridge.getFirstPosition().setParentLinkageType(parseLinkageType(edgeObj.getJSONObject("Acceptor").get("LinkageType")));
-                bridge.getFirstPosition().setChildLinkages(parsePosition(null));
+                bridge.getFirstPosition().setChildLinkages(new ArrayList<>(1));
                 bridge.getFirstPosition().setChildLinkageType(parseLinkageType(bridgeObj.getJSONObject("Donor").get("LinkageType")));
 
                 bridge.getSecondPosition().setParentLinkages(parsePosition(edgeObj.getJSONObject("Donor").getJSONArray("Position")));
                 bridge.getSecondPosition().setParentLinkageType(parseLinkageType(bridgeObj.getJSONObject("Acceptor").get("LinkageType")));
-                bridge.getSecondPosition().setChildLinkages(parsePosition(null));
+                bridge.getSecondPosition().setChildLinkages(new ArrayList<>(1));
                 bridge.getSecondPosition().setChildLinkageType(parseLinkageType(edgeObj.getJSONObject("Donor").get("LinkageType")));
-            /*
 
-
-            	String headPos = matLin.group(5);
-					String tailPos = matLin.group(3);
-
-					// HEAD is parent, Tail is child
-					if (headPos != null) {
-						bridge.getFirstPosition().addChildLinkage(Integer.parseInt(headPos));
-					}
-					if (tailPos != null) {
-						bridge.getSecondPosition().addChildLinkage(Integer.parseInt(tailPos));
-					}
-             */
+                if (bridge.getFirstPosition().getParentLinkageType().equals(LinkageType.H_AT_OH)) {
+                    bridge.setHeadAtom("O");
+                }
+                if (bridge.getSecondPosition().getChildLinkageType().equals(LinkageType.H_AT_OH)) {
+                    bridge.setTailAtom("O");
+                }
 
                 edge.setSubstituent(bridge);
                 bridge.addParentEdge(edge);

@@ -43,6 +43,10 @@ public class GCJSONModificationParser {
         }
 
         Substituent sub = new Substituent(subFace, positionOne, null);
+        if (sub.getFirstPosition().getParentLinkageType().equals(LinkageType.H_AT_OH)) {
+            sub.setHeadAtom("O");
+        }
+
         subEdge.setSubstituent(sub);
         subEdge.addGlycosidicLinkage(positionOne);
 

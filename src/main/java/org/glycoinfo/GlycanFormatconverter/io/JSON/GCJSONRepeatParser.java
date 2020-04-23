@@ -23,7 +23,6 @@ public class GCJSONRepeatParser {
 
         for (String id: _repeat.keySet()) {
             JSONObject repObj = _repeat.getJSONObject(id);
-
             JSONObject bridgeObj = extractBridgeBlock(repObj, _bridge);
 
             GlycanRepeatModification repMod = new GlycanRepeatModification(extractBridge(repObj, _bridge));
@@ -41,10 +40,18 @@ public class GCJSONRepeatParser {
                 repMod.getSecondPosition().setParentLinkageType(parseLinkageType(bridgeObj.getJSONObject("Acceptor").get("LinkageType")));
                 //repMod.getSecondPosition().setChildLinkages(parsePosition(null));
                 repMod.getSecondPosition().setChildLinkageType(parseLinkageType(repObj.getJSONObject("Donor").get("LinkageType")));
+
+                if (repMod.getFirstPosition().getParentLinkageType().equals(LinkageType.H_AT_OH)) {
+                    repMod.setHeadAtom("O");
+                }
+                if (repMod.getSecondPosition().getChildLinkageType().equals(LinkageType.H_AT_OH)) {
+                    repMod.setTailAtom("O");
+                }
             }
 
             repMod.setMinRepeatCount((Integer) repObj.get("Min"));
             repMod.setMaxRepeatCount((Integer) repObj.get("Max"));
+
 
             String start = (String) repObj.getJSONObject("Donor").get("Node");
             String end = (String) repObj.getJSONObject("Acceptor").get("Node");

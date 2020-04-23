@@ -1,6 +1,7 @@
 package org.glycoinfo.GlycanFormatconverter.io.JSON;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -39,8 +40,8 @@ public class GCJSONImporter {
 
         }
 
-        //GlyContainerOptimizer gcOpt = new GlyContainerOptimizer();
-        //ret = gcOpt.start(ret);
+        GlyContainerOptimizer gcOpt = new GlyContainerOptimizer();
+        ret = gcOpt.start(ret);
 
         return ret;
     }
