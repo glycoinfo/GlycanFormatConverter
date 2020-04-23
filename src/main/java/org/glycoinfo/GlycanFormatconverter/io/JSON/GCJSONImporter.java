@@ -1,12 +1,9 @@
 package org.glycoinfo.GlycanFormatconverter.io.JSON;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 
 /**
  * Created by e15d5605 on 2017/09/19.
@@ -23,7 +20,7 @@ public class GCJSONImporter {
 
         // Parse Edges
         GCJSONEdgeParser gcEdgeParser = new GCJSONEdgeParser(nodeIndex);
-        GlyContainer ret = gcEdgeParser.parseEdge(glycan.getJSONObject("Edges"), glycan.getJSONObject("Bridge"));
+        GlyContainer ret = gcEdgeParser.start(glycan.getJSONObject("Edges"), glycan.getJSONObject("Bridge"));
 
         // Parse repeating unit
         if (!glycan.getJSONObject("Repeat").isEmpty()) {

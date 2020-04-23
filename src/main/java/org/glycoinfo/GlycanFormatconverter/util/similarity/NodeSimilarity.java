@@ -36,7 +36,7 @@ public class NodeSimilarity {
 	 * sort edges by linkage position from current node.
 	 */
 	public ArrayList<Edge> sortChildSideEdges (Node _node) {
-		ArrayList<Edge> picked = new ArrayList<Edge>();
+		ArrayList<Edge> picked = new ArrayList<>();
 		for (Edge edge : _node.getChildEdges()) {
 			if (edge.isRepeat()) continue;
 			picked.add(edge);
@@ -51,12 +51,12 @@ public class NodeSimilarity {
 	 * simple->repeating->cyclic
 	 */
 	public ArrayList<Edge> sortParentSideEdges (ArrayList<Edge> _edges) {
-		ArrayList<Edge> ret = new ArrayList<Edge>();
+		ArrayList<Edge> ret = new ArrayList<>();
 		
-		/* stack the edge of cyclic and repeating */
+		// stack the edge of cyclic and repeating
 		Edge cyclic = null;
-		ArrayList<Edge> repeating = new ArrayList<Edge>();
-		ArrayList<Edge> simple = new ArrayList<Edge>();
+		ArrayList<Edge> repeating = new ArrayList<>();
+		ArrayList<Edge> simple = new ArrayList<>();
 		for(Edge edge : _edges) {
 			if(edge.isRepeat()) repeating.add(edge);
 			else if(edge.isCyclic()) cyclic = edge;
@@ -136,11 +136,11 @@ public class NodeSimilarity {
 	
 	/* sort priority edges with repeat */
 	private ArrayList<Edge> sortEdge (Node _node) {
-		ArrayList<Edge> ret = new ArrayList<Edge>();
+		ArrayList<Edge> ret = new ArrayList<>();
 		
 		if(_node.getChildEdges().isEmpty()) return ret;
 
-		/* pick repeat */
+		// pick repeat
 		for(Edge childEdge : _node.getChildEdges()) {
 			if(childEdge.isRepeat()) ret.add(childEdge);
 		}
@@ -153,32 +153,31 @@ public class NodeSimilarity {
 	}
 	
 	private ArrayList<Edge> sortPosition (ArrayList<Edge> _edges) {
-		ArrayList<Edge> ret = new ArrayList<Edge>();
+		ArrayList<Edge> ret = new ArrayList<>();
 
-		ArrayList<Edge> copy = new ArrayList<Edge>();
+		ArrayList<Edge> copy = new ArrayList<>();
 		try {
 			Node child = null;
 			for(Edge childEdge : _edges) {
 				if(childEdge.getChild() != null) {
-					/* for cyclic linkages */
+					// for cyclic linkages
 					if(child != null && child.equals(childEdge.getChild())) continue;
 					copy.add(childEdge);
 				}
 				if(child == null && !childEdge.isRepeat()) child = childEdge.getChild();
 			}
 			
-			/* sort sticky */
+			// sort sticky
 			for(Edge childEdge : extractSticky(_edges)) {
 				ret.add(childEdge);
 				copy.remove(childEdge);
 			}
 
-			/* sort monosaccharides other than sticky */
-			Collections.sort(copy, new EdgeComparator());
-			for(Edge childEdge : copy) {//comparePositions(copy)) {
-				ret.add(childEdge);
-			}
-			
+			// sort monosaccharides other than sticky
+			copy.sort(new EdgeComparator());
+			//comparePositions(copy)) {
+			ret.addAll(copy);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -187,7 +186,7 @@ public class NodeSimilarity {
 	}
 	
 	private ArrayList<Edge> extractSticky(ArrayList<Edge> _edges) {
-		ArrayList<Edge> ret = new ArrayList<Edge>();
+		ArrayList<Edge> ret = new ArrayList<>();
 	
 		for(Edge unit : _edges) {
 			Node child = unit.getChild();
@@ -211,7 +210,7 @@ public class NodeSimilarity {
 			}
 		}
 
-		Collections.sort(ret, new EdgeComparator());
+		ret.sort(new EdgeComparator());
 		return ret;
 	}
 }

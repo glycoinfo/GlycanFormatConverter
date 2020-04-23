@@ -1,6 +1,7 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerEdgeAnalyzer;
@@ -24,6 +25,7 @@ public class WURCSGraphToGlyContainer {
 	private ArrayList<ModificationAlternative> undefinedLinkages; // 09/24/2018 Masaaki added
 	private ArrayList<ModificationAlternative> undefinedSubstituents; // 09/25/2018 Masaaki added
 	private Backbone root;
+	private LinkedList<Backbone> sortedList;
 
 	public WURCSGraphToGlyContainer () {
 		this.backbone2node = new HashMap<>();
@@ -32,29 +34,39 @@ public class WURCSGraphToGlyContainer {
 		this.undefinedLinkages = new ArrayList<>(); // 09/24/2018 Masaaki added
 		this.undefinedSubstituents = new ArrayList<>(); // 09/25/2018 Masaaki added
 		this.root = null;
+		this.sortedList = new LinkedList<>();
 	}
-	
+
+	public ArrayList<Node> getSortedList () {
+		ArrayList<Node> ret = new ArrayList<>();
+		for (Backbone bb : sortedList) {
+			ret.add(this.backbone2node.get(bb));
+		}
+
+		return ret;
+	}
+
 	public GlyContainer getGlycan() {
 		return this.glyCo;
 	}
 	
 	public void start (WURCSGraph _graph) throws WURCSException, GlycanException {
 		// sort nodes
-		LinkedList<Backbone> sortedNodes = sortNodes(_graph);
+		sortNodes(_graph);
 
 		// set root
-		Backbone root = sortedNodes.getFirst();
-		this.root = sortedNodes.getFirst();
+		Backbone root = this.sortedList.getFirst();
+		this.root = root;
 
 		// convert node
 		BackboneToNode b2n = new BackboneToNode();
-		for (Backbone bb : sortedNodes) {
+		for (Backbone bb : this.sortedList) {
 			backbone2node.put(bb, b2n.start(bb));
 		}
 
 		// extract glycan fragments root
 		ModAltToUndUnit gfParser = new ModAltToUndUnit(glyCo, backbone2node);
-		gfParser.start(sortedNodes);
+		gfParser.start(this.sortedList);
 		this.antennae = gfParser.getAntennae();
 		this.undefinedLinkages = gfParser.getUndefinedLinkages();
 		this.undefinedSubstituents = gfParser.getUndefinedSubstituents();
@@ -74,7 +86,7 @@ public class WURCSGraphToGlyContainer {
 			if (glyCo.getNodes().isEmpty()) glyCo.addNode(backbone2node.get(root));
 
 			// convert linkage
-			for (Backbone bb : sortedNodes) {
+			for (Backbone bb : this.sortedList) {
 				WURCSEdgeToLinkage(bb);
 			}
 			//
@@ -477,18 +489,16 @@ public class WURCSGraphToGlyContainer {
 		return ret;
 	}
 
-	private LinkedList<Backbone> sortNodes (WURCSGraph _graph) throws WURCSVisitorException {
-		LinkedList<Backbone> ret = new LinkedList<Backbone>();
+	private void sortNodes (WURCSGraph _graph) throws WURCSVisitorException {
+		//LinkedList<Backbone> ret = new LinkedList<>();
 		WURCSVisitorCollectSequence w = new WURCSVisitorCollectSequence();
 		w.start(_graph);
 
 		for (WURCSComponent wc : w.getNodes()) {
-			if (wc instanceof Backbone && !ret.contains(wc)) {
-				ret.add(((Backbone) wc));
+			if (wc instanceof Backbone && !this.sortedList.contains(wc)) {
+				this.sortedList.add((Backbone) wc);
 			}
 		}
-
-		return ret;
 	}
 
 	private boolean isCyclicNode (Backbone _backbone) {

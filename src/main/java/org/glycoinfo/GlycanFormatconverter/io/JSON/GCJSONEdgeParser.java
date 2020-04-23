@@ -18,7 +18,7 @@ public class GCJSONEdgeParser {
         nodeIndex = _nodeIndex;
     }
 
-    public GlyContainer parseEdge (JSONObject _edges, JSONObject _bridge) throws GlycanException {
+    public GlyContainer start (JSONObject _edges, JSONObject _bridge) throws GlycanException {
         GlyContainer ret = new GlyContainer();
 
         for (String key : _edges.keySet()) {

@@ -57,8 +57,6 @@ public class ModAltToUndUnit {
         }
 
         this.backboneToUndefinedUnit();
-
-        return;
     }
 
     private void parseFragments (Backbone _backbone) throws GlycanException, WURCSFormatException {
@@ -77,8 +75,6 @@ public class ModAltToUndUnit {
 
 			if (!this.antennae.contains(modAlt)) this.antennae.add(modAlt);
         }
-
-        return;
     }
 
     private boolean isCrossLinkedSubstituent (Modification _mod) throws GlycanException, WURCSFormatException {
@@ -203,8 +199,6 @@ public class ModAltToUndUnit {
 
         if (glyCo.getUndefinedUnit().size() != antennae.size())
             throw new GlycanException ("Parse fragment did not correctly performed.");
-
-        return;
     }
 
     private Backbone extractFragmentRoot (WURCSEdge _inEdge) {
