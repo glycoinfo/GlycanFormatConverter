@@ -2,102 +2,136 @@ package org.glycoinfo.GlycanFormatconverter.io.JSON;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by e15d5605 on 2017/10/24.
  */
 public class GCJSONRepeatParser {
 
-    private GCJSONLinkageParser gclinParser;
-    private GlyContainer glyCo;
-    private Node current;
-    private Node parent;
+    private HashMap<String, Node> nodeIndex;
 
-    public GCJSONRepeatParser (GlyContainer _glyCo, Node _current, Node _parent) {
-        glyCo = _glyCo;
-        current = _current;
-        parent = _parent;
-        gclinParser = new GCJSONLinkageParser();
+    public GCJSONRepeatParser (HashMap<String, Node> _nodeIndex) {
+        this.nodeIndex = _nodeIndex;
     }
 
-    public GlyContainer makeRepeatingEdge (Object _repeat) throws GlycanException {
-        Edge edge = new Edge();
-        Linkage lin = gclinParser.parsePosition((JSONObject) _repeat);
-        edge.addGlycosidicLinkage(lin);
+    public GlyContainer start (JSONObject _repeat, JSONObject _bridge, GlyContainer _glyCo) throws GlycanException {
 
-        Substituent repMod = parseRepeat((JSONObject) _repeat);
-        edge.setSubstituent(repMod);
-        repMod.addParentEdge(edge);
+        for (String id: _repeat.keySet()) {
+            JSONObject repObj = _repeat.getJSONObject(id);
 
-        glyCo.addEdge(parent, current, edge);
+            JSONObject bridgeObj = extractBridgeBlock(repObj, _bridge);
 
-        return glyCo;
+            GlycanRepeatModification repMod = new GlycanRepeatModification(extractBridge(repObj, _bridge));
+            repMod.setFirstPosition(new Linkage());
+            repMod.setSecondPosition(new Linkage());
+
+            if (bridgeObj != null) {
+                //repMod.getFirstPosition().setParentLinkages(parsePosition(repObj.getJSONObject("Acceptor").getJSONArray("Position")));
+                repMod.getFirstPosition().setParentLinkageType(parseLinkageType(repObj.getJSONObject("Acceptor").get("LinkageType")));
+                //repMod.getFirstPosition().setChildLinkages(parsePosition(null));
+                repMod.getFirstPosition().setChildLinkageType(parseLinkageType(bridgeObj.getJSONObject("Donor").get("LinkageType")));
+
+
+                //repMod.getSecondPosition().setParentLinkages(parsePosition(repObj.getJSONObject("Donor").getJSONArray("Position")));
+                repMod.getSecondPosition().setParentLinkageType(parseLinkageType(bridgeObj.getJSONObject("Acceptor").get("LinkageType")));
+                //repMod.getSecondPosition().setChildLinkages(parsePosition(null));
+                repMod.getSecondPosition().setChildLinkageType(parseLinkageType(repObj.getJSONObject("Donor").get("LinkageType")));
+            }
+
+            repMod.setMinRepeatCount((Integer) repObj.get("Min"));
+            repMod.setMaxRepeatCount((Integer) repObj.get("Max"));
+
+            String start = (String) repObj.getJSONObject("Donor").get("Node");
+            String end = (String) repObj.getJSONObject("Acceptor").get("Node");
+            Node endNode = this.nodeIndex.get(end);
+            Node startNode = this.nodeIndex.get(start);
+
+            Linkage repPos = new Linkage();
+            repPos.setChildLinkages(parsePosition(repObj.getJSONObject("Donor").getJSONArray("Position")));
+            repPos.setChildLinkageType(parseLinkageType(repObj.getJSONObject("Donor").get("LinkageType")));
+            repPos.setParentLinkages(parsePosition(repObj.getJSONObject("Acceptor").getJSONArray("Position")));
+            repPos.setParentLinkageType(parseLinkageType(repObj.getJSONObject("Acceptor").get("LinkageType")));
+            repPos.setProbabilityUpper(parseProbability(repObj.getJSONObject("Probability").get("High")));
+            repPos.setProbabilityLower(parseProbability(repObj.getJSONObject("Probability").get("Low")));
+
+            Edge repEdge = new Edge();
+            repEdge.addGlycosidicLinkage(repPos);
+            repEdge.setSubstituent(repMod);
+            repMod.addParentEdge(repEdge);
+
+            _glyCo.addNode(endNode, repEdge, startNode);
+       }
+
+        return _glyCo;
     }
 
-    public Substituent parseRepeatingBridge (JSONObject _rep) throws GlycanException {
-        Linkage lin1 = null;
-        Linkage lin2 = null;
-        SubstituentInterface subInter = null;
-        SubstituentUtility subUtil = new SubstituentUtility();
+    private JSONObject extractBridgeBlock (JSONObject _edge, JSONObject _bridge) {
+        String start = (String) _edge.getJSONObject("Acceptor").get("Node");
+        String end = (String) _edge.getJSONObject("Donor").get("Node");
 
-        for (String key : _rep.keySet()) {
-            switch (key) {
-                case "PositionOne" :
-                    lin1 = gclinParser.parsePosition(_rep.getJSONObject(key));
-                    break;
-
-                case "PositionTwo" :
-                    lin2 = gclinParser.parsePosition(_rep.getJSONObject(key));
-                    break;
-
-                case "Notation" :
-                    subInter = parseCrossLinkedTemplate(_rep.getString(key));
-                    break;
+        for (String key : _bridge.keySet()) {
+            JSONObject bridge = _bridge.getJSONObject(key);
+            String acceptor = (String) bridge.getJSONObject("Acceptor").get("Node");
+            String donor = (String) bridge.getJSONObject("Donor").get("Node");
+            if (acceptor.equals(start) && donor.equals(end)) {
+                return bridge;
             }
         }
 
-        if (lin1 == null) lin1 = new Linkage();
-        if (lin2 == null) lin2 = new Linkage();
-        GlycanRepeatModification ret = new GlycanRepeatModification(subInter);
-        ret.setFirstPosition(lin1);
-        ret.setSecondPosition(lin2);
-
-        return ret;//subUtil.modifyLinkageType(ret);
-    }
-
-    public Substituent parseRepeat (JSONObject _rep) throws GlycanException {
-        int max = -1;
-        int min = -1;
-        GlycanRepeatModification retMod = null;
-
-        for (String key : _rep.keySet()) {
-            switch (key) {
-                case "Max" :
-                    max = _rep.getInt(key);
-                    break;
-
-                case "Min" :
-                    min = _rep.getInt(key);
-                    break;
-
-                case "Bridge" :
-                    retMod = (GlycanRepeatModification) parseRepeatingBridge(_rep.getJSONObject(key));
-                    break;
-            }
-        }
-
-        retMod.setMinRepeatCount(min);
-        retMod.setMaxRepeatCount(max);
-
-        return retMod;
-    }
-
-    public CrossLinkedTemplate parseCrossLinkedTemplate (String _notation) {
-        for (CrossLinkedTemplate value : CrossLinkedTemplate.values()) {
-            if (_notation.equals(value.toString())) return value;
-        }
         return null;
     }
 
+    private SubstituentInterface extractBridge (JSONObject _repeat, JSONObject _bridge) {
+        JSONObject bridge = extractBridgeBlock(_repeat, _bridge);
+
+        if (bridge != null) {
+            return BaseCrossLinkedTemplate.forIUPACNotationWithIgnore((String) bridge.get("Notation"));
+        } else {
+            return null;
+        }
+    }
+
+    private double parseProbability (Object _prob) {
+        double ret = 1.0;
+        if (_prob instanceof Integer) {
+            ret = (int) _prob;
+        }
+        return ret;
+    }
+
+    private LinkageType parseLinkageType (Object _type) {
+        String type = (String) _type;
+
+        switch (type) {
+            case "DEOXY" :
+                return LinkageType.DEOXY;
+            case "H_AT_OH" :
+                return LinkageType.H_AT_OH;
+            case "NONMONOSACCHARIDE" :
+                return LinkageType.NONMONOSACCHARIDE;
+            case "UNVALIDATED" :
+                return LinkageType.UNVALIDATED;
+            case "H_LOSE" :
+                return LinkageType.H_LOSE;
+            case "R_CONFIG" :
+                return LinkageType.R_CONFIG;
+            case "S_CONFIG" :
+                return LinkageType.S_CONFIG;
+        }
+
+        return LinkageType.UNVALIDATED;
+    }
+
+    private ArrayList<Integer> parsePosition (JSONArray _position) {
+        ArrayList<Integer> ret = new ArrayList<>();
+        for (Object pos: _position) {
+            ret.add((Integer) pos);
+        }
+        return ret;
+    }
 }

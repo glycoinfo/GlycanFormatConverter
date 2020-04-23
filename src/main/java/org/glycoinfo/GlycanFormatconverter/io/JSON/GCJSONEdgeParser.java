@@ -1,8 +1,10 @@
 package org.glycoinfo.GlycanFormatconverter.io.JSON;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -11,72 +13,144 @@ import java.util.HashMap;
 public class GCJSONEdgeParser {
 
     private HashMap<String, Node> nodeIndex;
-    private GCJSONLinkageParser gclinParser;
 
     public GCJSONEdgeParser (HashMap<String, Node> _nodeIndex) {
         nodeIndex = _nodeIndex;
-        gclinParser = new GCJSONLinkageParser();
     }
 
-    public GlyContainer parseEdge (JSONObject _monosaccharides) throws GlycanException {
+    public GlyContainer parseEdge (JSONObject _edges, JSONObject _bridge) throws GlycanException {
         GlyContainer ret = new GlyContainer();
 
-        for (String key : _monosaccharides.keySet()) {
-            JSONObject edge = _monosaccharides.getJSONObject(key).getJSONObject("Edge");
-            Node currentNode = nodeIndex.get(key);
+        for (String key : _edges.keySet()) {
+            JSONObject edgeObj = _edges.getJSONObject(key);
+            Edge edge = new Edge();
+            Node donor = nodeIndex.get(edgeObj.getJSONObject("Donor").get("Node"));
+            Node acceptor = nodeIndex.get(edgeObj.getJSONObject("Acceptor").get("Node"));
 
-            if (_monosaccharides.length() == 1) {
-                ret.addNode(currentNode);
-                break;
+            Linkage lin = new Linkage();
+
+            lin.setParentLinkages(parsePosition(edgeObj.getJSONObject("Acceptor").getJSONArray("Position")));
+            lin.setParentLinkageType(parseLinkageType(edgeObj.getJSONObject("Acceptor").get("LinkageType")));
+
+            lin.setChildLinkages(parsePosition(edgeObj.getJSONObject("Donor").getJSONArray("Position")));
+            lin.setChildLinkageType(parseLinkageType(edgeObj.getJSONObject("Donor").get("LinkageType")));
+
+            lin.setProbabilityUpper(parseProbability(edgeObj.getJSONObject("Probability").get("High")));
+            lin.setProbabilityLower(parseProbability(edgeObj.getJSONObject("Probability").get("Low")));
+
+            edge.addGlycosidicLinkage(lin);
+
+            // extract bridge
+            SubstituentInterface subFace = this.extractBridge(edgeObj, _bridge);
+            if (subFace != null) {
+                JSONObject bridgeObj = extractBridgeBlock(edgeObj, _bridge);
+
+                Substituent bridge = new Substituent(subFace);
+                bridge.setFirstPosition(new Linkage());
+                bridge.setSecondPosition(new Linkage());
+
+                bridge.getFirstPosition().setParentLinkages(parsePosition(edgeObj.getJSONObject("Acceptor").getJSONArray("Position")));
+                bridge.getFirstPosition().setParentLinkageType(parseLinkageType(edgeObj.getJSONObject("Acceptor").get("LinkageType")));
+                bridge.getFirstPosition().setChildLinkages(parsePosition(null));
+                bridge.getFirstPosition().setChildLinkageType(parseLinkageType(bridgeObj.getJSONObject("Donor").get("LinkageType")));
+
+                bridge.getSecondPosition().setParentLinkages(parsePosition(edgeObj.getJSONObject("Donor").getJSONArray("Position")));
+                bridge.getSecondPosition().setParentLinkageType(parseLinkageType(bridgeObj.getJSONObject("Acceptor").get("LinkageType")));
+                bridge.getSecondPosition().setChildLinkages(parsePosition(null));
+                bridge.getSecondPosition().setChildLinkageType(parseLinkageType(edgeObj.getJSONObject("Donor").get("LinkageType")));
+            /*
+
+
+            	String headPos = matLin.group(5);
+					String tailPos = matLin.group(3);
+
+					// HEAD is parent, Tail is child
+					if (headPos != null) {
+						bridge.getFirstPosition().addChildLinkage(Integer.parseInt(headPos));
+					}
+					if (tailPos != null) {
+						bridge.getSecondPosition().addChildLinkage(Integer.parseInt(tailPos));
+					}
+             */
+
+                edge.setSubstituent(bridge);
+                bridge.addParentEdge(edge);
             }
-            ret = extractEdge(edge, ret, currentNode);
+
+            //acceptor, edge, donor
+            ret.addNode(acceptor, edge, donor);
         }
 
         return ret;
     }
 
-    public GlyContainer extractEdge (JSONObject _edge, GlyContainer _glyCo, Node _current) throws GlycanException {
-        for (String key : _edge.keySet()) {
-            switch (key) {
-                case "Parent" :
-                    GCJSONModificationParser gcModParser = new GCJSONModificationParser();
+    private JSONObject extractBridgeBlock (JSONObject _edge, JSONObject _bridge) {
+        String start = (String) _edge.getJSONObject("Acceptor").get("Node");
+        String end = (String) _edge.getJSONObject("Donor").get("Node");
 
-                    for (Object obj : _edge.getJSONArray(key)) {
-                        Edge edge = new Edge();
-                        Linkage lin = gclinParser.parsePosition((JSONObject) obj);
-                        edge.addGlycosidicLinkage(lin);
-
-                        Substituent bridge = gcModParser.parseBridge(((JSONObject) obj).getJSONObject("Bridge"));
-                        edge.setSubstituent(bridge);
-                        if (bridge != null) bridge.addParentEdge(edge);
-
-                        Node parent = nodeIndex.get(extractParentID((JSONObject) obj));
-                        _glyCo.addEdge(parent, _current, edge);
-                    }
-                    break;
-
-                case "Repeat" :
-                    for (Object obj : _edge.getJSONArray(key)) {
-                        GCJSONRepeatParser gcRepParser =
-                                new GCJSONRepeatParser(_glyCo, _current, nodeIndex.get(extractParentID((JSONObject) obj)));
-                        _glyCo = gcRepParser.makeRepeatingEdge(obj);
-                    }
-
-                    break;
-
-                case "Fragment" :
-                    if (_edge.getJSONObject(key).length() == 0) break;
-                    GCJSONFragmentsParser gcFragParser = new GCJSONFragmentsParser(nodeIndex);
-                    GlycanUndefinedUnit und = gcFragParser.parseFragments(_edge.getJSONObject(key), _current);
-                    _glyCo.addGlycanUndefinedUnit(und);
-                    break;
+        for (String key : _bridge.keySet()) {
+            JSONObject bridge = _bridge.getJSONObject(key);
+            String acceptor = (String) bridge.getJSONObject("Acceptor").get("Node");
+            String donor = (String) bridge.getJSONObject("Donor").get("Node");
+            if (acceptor.equals(start) && donor.equals(end)) {
+                return bridge;
             }
         }
 
-        return _glyCo;
+        return null;
     }
 
-    private String extractParentID (JSONObject _edgeUnit) {
-        return _edgeUnit.get("ParentNodeID").toString();
+    private SubstituentInterface extractBridge (JSONObject _repeat, JSONObject _bridge) {
+        JSONObject bridge = extractBridgeBlock(_repeat, _bridge);
+
+        if (bridge != null) {
+            return BaseCrossLinkedTemplate.forIUPACNotationWithIgnore((String) bridge.get("Notation"));
+        } else {
+            return null;
+        }
+    }
+
+    private double parseProbability (Object _prob) {
+        double ret = 1.0;
+        if (_prob instanceof Integer) {
+            ret = (int) _prob;
+        }
+        return ret;
+    }
+
+    private LinkageType parseLinkageType (Object _type) {
+        String type = _type.toString();
+
+        switch (type) {
+            case "DEOXY" :
+                return LinkageType.DEOXY;
+            case "H_AT_OH" :
+                return LinkageType.H_AT_OH;
+            case "NONMONOSACCHARIDE" :
+                return LinkageType.NONMONOSACCHARIDE;
+            case "UNVALIDATED" :
+                return LinkageType.UNVALIDATED;
+            case "H_LOSE" :
+                return LinkageType.H_LOSE;
+            case "R_CONFIG" :
+                return LinkageType.R_CONFIG;
+            case "S_CONFIG" :
+                return LinkageType.S_CONFIG;
+        }
+
+        return LinkageType.UNVALIDATED;
+    }
+
+    private ArrayList<Integer> parsePosition (JSONArray _position) {
+        ArrayList<Integer> ret = new ArrayList<>();
+        if (_position == null) {
+            ret.add(-1);
+            return ret;
+        }
+
+        for (Object pos: _position) {
+            ret.add((Integer) pos);
+        }
+        return ret;
     }
 }

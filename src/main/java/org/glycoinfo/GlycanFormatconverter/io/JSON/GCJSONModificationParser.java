@@ -1,7 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.io.JSON;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -12,75 +11,40 @@ import java.util.ArrayList;
  */
 public class GCJSONModificationParser {
 
-    private GCJSONLinkageParser gclinParser;
-
     public GCJSONModificationParser () {
-        gclinParser = new GCJSONLinkageParser();
-    }
 
-    public Substituent parseBridge (JSONObject _bridge) throws GlycanException {
-        Linkage lin1 = null;
-        Linkage lin2 = null;
-        SubstituentInterface subInter = null;
-        SubstituentUtility subUtil = new SubstituentUtility();
-
-        for (String key : _bridge.keySet()) {
-            switch (key) {
-                case "PositionOne" :
-                    lin1 = gclinParser.parsePosition(_bridge.getJSONObject(key));
-                    break;
-
-                case "PositionTwo" :
-                    lin2 = gclinParser.parsePosition(_bridge.getJSONObject(key));
-                    break;
-
-                case "Notation" :
-                    subInter = parseCrossLinkedTemplate(_bridge.getString(key));
-                    break;
-            }
-        }
-
-        if (subInter == null) return null;
-        if (lin1 == null) lin1 = new Linkage();
-        if (lin2 == null) lin2 = new Linkage();
-
-        Substituent ret = new Substituent(subInter, lin1, lin2);
-        return ret;//subUtil.modifyLinkageType(ret);
     }
 
     public Edge parseSubstituent (JSONObject _sub) throws GlycanException {
         Edge subEdge = new Edge();
-        SubstituentInterface subInter = null;
-        SubstituentUtility subUtil = new SubstituentUtility();
-        Linkage positionOne = null;
-        Linkage positionTwo = null;
+        SubstituentInterface subFace = null;
+        Linkage positionOne = new Linkage();
 
         for (String key : _sub.keySet()) {
             switch (key) {
-                case "PositionOne" :
-                    positionOne = gclinParser.parsePosition(_sub.getJSONObject(key));
+                case "Status" :
                     break;
-
-                case "PositionTwo" :
-                    positionTwo = gclinParser.parsePosition(_sub.getJSONObject(key));
+                case "Acceptor" :
+                    JSONObject acceptor = (JSONObject) _sub.get(key);
+                    positionOne.setParentLinkages(getPositions(acceptor.getJSONArray("Position")));
+                    positionOne.setParentLinkageType(parseLinkageType(acceptor.get("LinkageType")));
                     break;
-
+                case "Donor" :
+                    JSONObject donor = (JSONObject) _sub.get(key);
+                    positionOne.setChildLinkages(getPositions(donor.getJSONArray("Position")));
+                    positionOne.setChildLinkageType(parseLinkageType(donor.get("LinkageType")));
+                    break;
+                case "Probability" :
+                    break;
                 case "Notation" :
-                    if (positionTwo != null) {
-                        subInter = parseCrossLinkedTemplate(_sub.getString(key));
-                    } else {
-                        subInter = parseSubstituentTemplate(_sub.getString(key));
-                    }
+                    subFace = parseSubstituentTemplate(_sub.getString(key));
                     break;
             }
         }
 
-        Substituent sub = new Substituent(subInter, positionOne, positionTwo);//subUtil.modifyLinkageType(new Substituent(subInter, positionOne, positionTwo));
+        Substituent sub = new Substituent(subFace, positionOne, null);
         subEdge.setSubstituent(sub);
         subEdge.addGlycosidicLinkage(positionOne);
-        if (positionTwo != null) {
-            subEdge.addGlycosidicLinkage(positionTwo);
-        }
 
         return subEdge;
     }
@@ -88,26 +52,12 @@ public class GCJSONModificationParser {
     public ArrayList<GlyCoModification> parseModifications (JSONArray _mod) throws GlycanException {
         ArrayList<GlyCoModification> ret = new ArrayList<>();
 
-        for (Object unit : _mod) {
-            JSONObject mod = (JSONObject) unit;
-            ModificationTemplate modTemp = null;
-            int position = -1;
+        for (Object item : _mod) {
+            JSONObject modObj = (JSONObject) item;
+            ModificationTemplate modTemp = parseModificationTemplate((String) modObj.get("Notation"));
+            Integer pos = (Integer) modObj.get("Position");
 
-            for (String key : mod.keySet()) {
-                switch (key) {
-                    case "PositionOne" :
-                        position = mod.getInt(key);
-                        break;
-
-                    case "Notation" :
-                        modTemp = parseModificationTemplate(mod.getString(key));
-                        break;
-                }
-            }
-
-            if (modTemp == null) continue;
-
-            GlyCoModification gMod = new GlyCoModification(modTemp, position);
+            GlyCoModification gMod = new GlyCoModification(modTemp, pos);
             ret.add(gMod);
         }
 
@@ -123,24 +73,48 @@ public class GCJSONModificationParser {
         return ret;
     }
 
-    public SubstituentTemplate parseSubstituentTemplate (String _notation) {
-        for (SubstituentTemplate value : SubstituentTemplate.values()) {
-            if (_notation.equals(value.toString())) return value;
+    public BaseSubstituentTemplate parseSubstituentTemplate (String _notation) {
+        for (BaseSubstituentTemplate value : BaseSubstituentTemplate.values()) {
+            if (_notation.equals(value.getIUPACnotation())) return value;
         }
         return null;
     }
 
     public ModificationTemplate parseModificationTemplate (String _notation) {
         for (ModificationTemplate value : ModificationTemplate.values()) {
-            if (_notation.equals(value.toString())) return value;
+            if (_notation.equals(value.getIUPACnotation())) return value;
         }
         return null;
     }
 
-    public CrossLinkedTemplate parseCrossLinkedTemplate (String _notation) {
-        for (CrossLinkedTemplate value : CrossLinkedTemplate.values()) {
-            if (_notation.equals(value.toString())) return value;
+    private LinkageType parseLinkageType (Object _type) {
+        String type = _type.toString();
+
+        switch (type) {
+            case "DEOXY" :
+                return LinkageType.DEOXY;
+            case "H_AT_OH" :
+                return LinkageType.H_AT_OH;
+            case "NONMONOSACCHARIDE" :
+                return LinkageType.NONMONOSACCHARIDE;
+            case "UNVALIDATED" :
+                return LinkageType.UNVALIDATED;
+            case "H_LOSE" :
+                return LinkageType.H_LOSE;
+            case "R_CONFIG" :
+                return LinkageType.R_CONFIG;
+            case "S_CONFIG" :
+                return LinkageType.S_CONFIG;
         }
-        return null;
+
+        return LinkageType.UNVALIDATED;
+    }
+
+    private ArrayList<Integer> getPositions (JSONArray _position) {
+        ArrayList<Integer> ret = new ArrayList<>();
+        for (Object pos : _position) {
+            ret.add((Integer) pos);
+        }
+        return ret;
     }
 }

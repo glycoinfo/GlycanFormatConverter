@@ -1,7 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.util;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoExporterException;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.condensed.IUPACCondensedExporter;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.extended.IUPACExtendedExporter;
@@ -67,6 +66,7 @@ public class ExporterEntrance {
         return lcExpo.start(glyCo);
     }
 
+    /*
     public String toJSON () throws GlycanException, ConverterExchangeException {
         GCJSONExporter gcjsonExpo = new GCJSONExporter();
 
@@ -78,6 +78,7 @@ public class ExporterEntrance {
 
         return gcjsonExpo.start(glyCo.copy(), true);
     }
+     */
 
     public String toWURCS () throws GlycanException, WURCSException {
         GlyContainerToWURCSGraph gc2wg = new GlyContainerToWURCSGraph();
