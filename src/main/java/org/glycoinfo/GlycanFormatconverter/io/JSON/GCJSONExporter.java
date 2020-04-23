@@ -467,8 +467,6 @@ public class GCJSONExporter {
     private JSONArray extractModifications (Node _node) {
         Monosaccharide mono = (Monosaccharide) _node;
         JSONArray ret = new JSONArray();
-        boolean isUnsaturate = false;
-        JSONArray pos = null;
 
         for (GlyCoModification gMod : mono.getModifications()) {
             if (mono.getSuperClass().getSize() == gMod.getPositionOne() &&
@@ -478,25 +476,13 @@ public class GCJSONExporter {
             modUnit.accumulate("Position", gMod.getPositionOne());
             modUnit.accumulate("Notation", gMod.getModificationTemplate().getIUPACnotation());
 
-            /*
-            if (isUnsaturation(gMod)) {
-                if (isUnsaturate) {
-                    pos.put(gMod.getPositionOne());
-                    isUnsaturate = false;
-                } else {
-                    pos = new JSONArray();
-                    pos.put(gMod.getPositionOne());
-                    isUnsaturate = true;
-                    continue;
-                }
-            } else {
-                pos = new JSONArray();
-                pos.put(gMod.getPositionOne());
+            if (isDeoxyUnsaturation(gMod.getModificationTemplate())) {
+                JSONObject deoxy = new JSONObject();
+                deoxy.accumulate("Position", gMod.getPositionOne());
+                deoxy.accumulate("Notation", "deoxy");
+                ret.put(deoxy);
             }
 
-            if (pos != null) modUnit.put("Position", pos);
-            modUnit.accumulate("Notation", gMod.getModificationTemplate().getIUPACnotation());
-             */
             ret.put(modUnit);
         }
 
@@ -541,14 +527,9 @@ public class GCJSONExporter {
         return agly.getName();
     }
 
-    private boolean isUnsaturation (GlyCoModification _gMod) {
-        if (_gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_EL) ||
-                _gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_EU) ||
-                _gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_FL) ||
-                _gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_FU) ||
-                _gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_ZL) ||
-                _gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_ZU)) return true;
-
-        return false;
+    private boolean isDeoxyUnsaturation (ModificationTemplate _modTemp) {
+        return (_modTemp.equals(ModificationTemplate.UNSATURATION_EL) ||
+                _modTemp.equals(ModificationTemplate.UNSATURATION_ZL) ||
+                _modTemp.equals(ModificationTemplate.UNSATURATION_FL));
     }
 }
