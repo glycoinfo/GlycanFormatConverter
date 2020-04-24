@@ -65,6 +65,15 @@ public class wurcsjsonImporter {
     }
 
     @Test
+    public void bridgeSecondLinkage () {
+        //https://glytoucan.org/Structures/Glycans/G14394SO
+        String testWURCS = "WURCS=2.0/4,4,3/[hxh][a2122h-1x_1-5][a1221m-1a_1-5][a2112h-1b_1-5]/1-2-3-4/a3n2-b1n1*1NCCOP^XO*2/6O/6=O_b3-c1_b4-d1";
+        String json = toWURCSJSON(testWURCS);
+        String wurcs = parseWURCSJSON(json);
+        Assert.assertEquals(testWURCS, wurcs);
+    }
+
+    @Test
     public void bridgeRepeat () {
         //https://glytoucan.org/Structures/Glycans/G42377JL
         String testWURCS = "WURCS=2.0/2,4,4/[hxh][a2112h-1x_1-5_2*NCC/3=O]/1-1-1-2/a1-b1*OPO*/3O/3=O_b3-c1*OPO*/3O/3=O_c2-d1_a3-c3*OPO*/3O/3=O~n";

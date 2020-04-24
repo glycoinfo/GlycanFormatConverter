@@ -33,21 +33,21 @@ public class GCJSONFragmentsParser {
             }
 
             // extract linkage position
-            lin.setParentLinkages(parsePosition(frgObj.getJSONObject("Acceptor").getJSONArray("Position")));
-            lin.setChildLinkages(parsePosition(frgObj.getJSONObject("Donor").getJSONArray("Position")));
+            lin.setParentLinkages(JSONParamAnalyzer.parsePosition(frgObj.getJSONObject("Acceptor").getJSONArray("Position")));
+            lin.setChildLinkages(JSONParamAnalyzer.parsePosition(frgObj.getJSONObject("Donor").getJSONArray("Position")));
 
             // extract probability
-            lin.setProbabilityLower(parseProbability(frgObj.getJSONObject("Probability").get("Low")));
-            lin.setProbabilityUpper(parseProbability(frgObj.getJSONObject("Probability").get("High")));
+            lin.setProbabilityLower(JSONParamAnalyzer.parseProbability(frgObj.getJSONObject("Probability").get("Low")));
+            lin.setProbabilityUpper(JSONParamAnalyzer.parseProbability(frgObj.getJSONObject("Probability").get("High")));
 
             // extract LinkageType
-            lin.setParentLinkageType(parseLinkageType(frgObj.getJSONObject("Acceptor").get("LinkageType")));
-            lin.setChildLinkageType(parseLinkageType(frgObj.getJSONObject("Donor").get("LinkageType")));
+            lin.setParentLinkageType(JSONParamAnalyzer.parseLinkageType(frgObj.getJSONObject("Acceptor").get("LinkageType")));
+            lin.setChildLinkageType(JSONParamAnalyzer.parseLinkageType(frgObj.getJSONObject("Donor").get("LinkageType")));
 
             // extract donor side
             Node root;
             if (isSubstituentFragment(frgObj)) {
-                root = new Substituent(parseSubstituentTemplate((String) frgObj.getJSONObject("Donor").get("Notation")), lin);
+                root = new Substituent(JSONParamAnalyzer.parseSubstituentTemplate((String) frgObj.getJSONObject("Donor").get("Notation")), lin);
                 edge.setSubstituent(root);
             } else {
                 root = nodeIndex.get(frgObj.getJSONObject("Donor").get("Node"));
@@ -70,51 +70,5 @@ public class GCJSONFragmentsParser {
 
     private boolean isSubstituentFragment (JSONObject _frgObj) {
         return (_frgObj.getJSONObject("Donor").has("Notation"));
-    }
-
-    public BaseSubstituentTemplate parseSubstituentTemplate (String _notation) {
-        for (BaseSubstituentTemplate value : BaseSubstituentTemplate.values()) {
-            if (_notation.equals(value.getIUPACnotation())) return value;
-        }
-        return null;
-    }
-
-    private double parseProbability (Object _prob) {
-        double ret = 1.0;
-        if (_prob instanceof Integer) {
-            ret = (int) _prob;
-        }
-        return ret;
-    }
-
-    private LinkageType parseLinkageType (Object _type) {
-        String type = (String) _type;
-
-        switch (type) {
-            case "DEOXY" :
-                return LinkageType.DEOXY;
-            case "H_AT_OH" :
-                return LinkageType.H_AT_OH;
-            case "NONMONOSACCHARIDE" :
-                return LinkageType.NONMONOSACCHARIDE;
-            case "UNVALIDATED" :
-                return LinkageType.UNVALIDATED;
-            case "H_LOSE" :
-                return LinkageType.H_LOSE;
-            case "R_CONFIG" :
-                return LinkageType.R_CONFIG;
-            case "S_CONFIG" :
-                return LinkageType.S_CONFIG;
-        }
-
-        return LinkageType.UNVALIDATED;
-    }
-
-    private ArrayList<Integer> parsePosition (JSONArray _position) {
-        ArrayList<Integer> ret = new ArrayList<>();
-        for (Object pos: _position) {
-            ret.add((Integer) pos);
-        }
-        return ret;
     }
 }

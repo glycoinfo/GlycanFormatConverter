@@ -342,8 +342,8 @@ public class GCJSONExporter {
             // define linkage position
             //JSONObject pos = new JSONObject();
             if (this.haveSubstituentDirection(sub)) {
-                donor.accumulate("Pos", sub.getFirstPosition().getChildLinkages().get(0));
-                acceptor.accumulate("Pos", sub.getSecondPosition().getChildLinkages().get(0));
+                donor.accumulate("Position", sub.getFirstPosition().getChildLinkages().get(0));
+                acceptor.accumulate("Position", sub.getSecondPosition().getChildLinkages().get(0));
                 //pos.accumulate("Donor", sub.getFirstPosition().getChildLinkages().get(0));
                 //pos.accumulate("Acceptor", sub.getSecondPosition().getChildLinkages().get(0));
                 //unit.accumulate("Pos", pos);
