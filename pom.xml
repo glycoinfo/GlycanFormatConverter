@@ -79,7 +79,7 @@
 	<repositories>
 		<repository>
 			<id>glycoinfo</id>
-			<url>http://nexus.glycoinfo.org/content/groups/public</url>
+			<url>https://nexus.glycoinfo.org/content/groups/public</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
@@ -97,12 +97,12 @@
 		<repository>
 			<id>glycoinfo</id>
 			<name>Internal Releases</name>
-			<url>http://nexus.glycoinfo.org/content/repositories/releases/</url>
+			<url>https://nexus.glycoinfo.org/content/repositories/releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>glycoinfo-snapshots</id>
 			<name>Internal Release Snapshots</name>
-			<url>http://nexus.glycoinfo.org/content/repositories/snapshots/</url>
+			<url>https://nexus.glycoinfo.org/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
