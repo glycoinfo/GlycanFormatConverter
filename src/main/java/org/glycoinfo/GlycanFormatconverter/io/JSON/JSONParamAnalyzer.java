@@ -39,9 +39,14 @@ public class JSONParamAnalyzer {
 
     protected static double parseProbability (Object _prob) {
         double ret = 1.0;
+
         if (_prob instanceof Integer) {
             ret = (int) _prob;
         }
+        if (_prob instanceof Double) {
+            ret = (double) _prob;
+        }
+
         return ret;
     }
 

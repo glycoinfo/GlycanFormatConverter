@@ -44,6 +44,9 @@ public class GCJSONModificationParser {
                     positionOne.setChildLinkageType(JSONParamAnalyzer.parseLinkageType(donor.get("LinkageType")));
                     break;
                 case "Probability" :
+                    JSONObject probability = (JSONObject) _sub.get(key);
+                    positionOne.setProbabilityUpper(JSONParamAnalyzer.parseProbability(_sub.getJSONObject("Probability").get("High")));
+                    positionOne.setProbabilityLower(JSONParamAnalyzer.parseProbability(_sub.getJSONObject("Probability").get("Low")));
                     break;
                 case "Notation" :
                     subFace = JSONParamAnalyzer.parseSubstituentTemplate(_sub.getString(key));

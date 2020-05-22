@@ -21,6 +21,11 @@ public class GCJSONEdgeParser {
     public GlyContainer start (JSONObject _edges, JSONObject _bridge) throws GlycanException {
         GlyContainer ret = new GlyContainer();
 
+        if (_edges.isEmpty() && nodeIndex.size() == 1) {
+            ret.addNode(this.nodeIndex.get("m0"));
+            return ret;
+        }
+
         for (String key : _edges.keySet()) {
             JSONObject edgeObj = _edges.getJSONObject(key);
             Edge edge = new Edge();
