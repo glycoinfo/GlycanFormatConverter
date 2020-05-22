@@ -27,7 +27,9 @@ public class WURCSImporter {
 		WURCSGraphNormalizer wgNorm = new WURCSGraphNormalizer();
 		wgNorm.start(graph);
 
-		//TODO: CompositionWithLinkageを弾く
+        if (wf.getArray().getLINCount() != 0 && _wurcs.contains("}-{")) {
+            throw new GlycanException("Glycan compositions containing glycosidic linkage is not support in this converter.");
+        }
 
 		this.wg2gc = new WURCSGraphToGlyContainer();
         this.wg2gc.start(graph);
