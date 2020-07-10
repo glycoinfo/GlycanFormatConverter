@@ -176,7 +176,7 @@ public class SubstituentToModification {
 			posO++;
 		}
 
-		ArrayList<Integer> nums = new ArrayList<Integer>();
+		ArrayList<Integer> nums = new ArrayList<>();
 		String num = "";
 		for (int i = 0; i < _map.length(); i++) {
 			char c = _map.charAt(i);

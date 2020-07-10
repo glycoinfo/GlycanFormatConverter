@@ -24,11 +24,11 @@ public class BackboneToNode {
 
 		// extract anomeric state
         char anomericstate = _backbone.getAnomericSymbol();
-        AnomericStateDescriptor enumAnom = AnomericStateDescriptor.forAnomericState(checkAnomericState(skeletonCode, anomericstate));
+        AnomericStateDescriptor enumAnom = this.parseAnomericState(skeletonCode, anomericstate);
         ret.setAnomer(enumAnom);
 
 		// extract anomeric position
-        int anomericposition = checkAnomericPosition(_backbone);
+        int anomericposition = _backbone.getAnomericPosition();
         ret.setAnomericPosition(anomericposition);
 
 		// extract stereo
@@ -219,23 +219,39 @@ public class BackboneToNode {
         return ret;
     }
 
-    //TODO : 修正が必要
-    private char checkAnomericState (String _skeletonCode, char _anomericstate) {
-        if (_anomericstate == 'o') {
-            if (_skeletonCode.indexOf("o") == 0 || _skeletonCode.indexOf("O") == 1) return 'o';
-            if (_skeletonCode.indexOf("u") == 0 || _skeletonCode.indexOf("U") == 1) return '?';
-        }
-        return _anomericstate;
+    private AnomericStateDescriptor parseAnomericState (String _skeletonCode, char _anomericState) {
+        if (_anomericState != 'o') return AnomericStateDescriptor.forAnomericState(_anomericState);
+        if (_skeletonCode.indexOf("o") == 0 || _skeletonCode.indexOf("O") == 1) return AnomericStateDescriptor.OPEN;
+        if (_skeletonCode.indexOf("u") == 0 || _skeletonCode.indexOf("U") == 1) return AnomericStateDescriptor.OPEN;
+        if (_skeletonCode.indexOf("h") == 0) return AnomericStateDescriptor.OPEN;
+        return AnomericStateDescriptor.UNKNOWN_STATE;
     }
 
     private Monosaccharide appendSubstituent (Node _node, Node _substituent) throws GlycanException {
-        Edge first = new Edge();
-        first.setSubstituent(_substituent);
-        first.setParent(_node);
-        _node.addChildEdge(first);
-        _substituent.addParentEdge(first);
+        Edge subEdge = new Edge();
+        subEdge.setSubstituent(_substituent);
+        subEdge.setParent(_node);
+        _node.addChildEdge(subEdge);
+        _substituent.addParentEdge(subEdge);
 
         //Define linkage position for substituent
+        //parse 1st linkage
+        Substituent sub = (Substituent) _substituent;
+        if (sub.getFirstPosition() != null) {
+            Linkage linkage = new Linkage();
+            linkage.setChildLinkages(sub.getFirstPosition().getChildLinkages());
+            linkage.setParentLinkages(sub.getFirstPosition().getParentLinkages());
+            subEdge.addGlycosidicLinkage(linkage);
+        }
+
+        //parse 2nd linkage
+        if (sub.getSecondPosition() != null) {
+            Linkage linkage = new Linkage();
+            linkage.setChildLinkages(sub.getSecondPosition().getChildLinkages());
+            linkage.setParentLinkages(sub.getSecondPosition().getParentLinkages());
+            subEdge.addGlycosidicLinkage(linkage);
+        }
+        /*
         Linkage linkage = new Linkage();
         for (Integer pos : ((Substituent) _substituent).getFirstPosition().getChildLinkages()) {
             linkage.addChildLinkage(pos);
@@ -244,6 +260,7 @@ public class BackboneToNode {
             linkage.addParentLinkage(pos);
         }
         first.addGlycosidicLinkage(linkage);
+         */
 
         return (Monosaccharide) _node;
     }
@@ -277,7 +294,11 @@ public class BackboneToNode {
         }
 
         if (ring.isEmpty()) {
-            _mono.setRing(start, -1);
+            if (_mono.getAnomer().equals(AnomericStateDescriptor.OPEN)) {
+                _mono.setRing(0, 0);
+            } else {
+                _mono.setRing(start, -1);
+            }
         } else {
             Collections.sort(ring);
             _mono.setRing(start, ring.get(0));

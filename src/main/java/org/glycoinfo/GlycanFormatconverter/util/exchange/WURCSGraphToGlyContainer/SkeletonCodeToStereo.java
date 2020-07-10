@@ -55,12 +55,15 @@ public class SkeletonCodeToStereo {
         LinkedList<String> stereos = msUtility.extractStereo(ms);
 
         // retry define stereo
-        if(stereos.isEmpty()) stereos = checkStereos(ms, wsc);
+        if(stereos.isEmpty()) stereos = checkStereos(ms);
+
+        // modify fuzzy configuration such as d/l-
+        stereos = this.modifyFuzzyConfiguration(stereos);
 
         return stereos;
     }
 
-    private LinkedList<String> checkStereos(MS _ms, WURCSSubsumptionConverter _wsc) throws ConverterExchangeException {
+    private LinkedList<String> checkStereos(MS _ms) throws ConverterExchangeException {
         LinkedList<String> a_aStereo = new LinkedList<>();
         String a_sSkeletonCode = _ms.getSkeletonCode();
 
@@ -94,6 +97,18 @@ public class SkeletonCodeToStereo {
             }
         }
 
+        return ret;
+    }
+
+    private LinkedList<String> modifyFuzzyConfiguration (LinkedList<String> _stereos) {
+        LinkedList<String> ret = new LinkedList<>();
+        for (String stereo : _stereos) {
+            if (!stereo.startsWith("d/l-")) {
+                ret.add(stereo);
+                continue;
+            }
+            ret.add(stereo.replaceFirst("d/l-", ""));
+        }
         return ret;
     }
 

@@ -8,6 +8,7 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 	
 	private ArrayList<Node> parents;
 	private Edge connection = null;
+	private ArrayList<Edge> connections; //20200701, added
 	private ArrayList<Node> children;
 	public static final double UNKNOWN = -1;
 	
@@ -17,6 +18,7 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 	public GlycanUndefinedUnit () {
 		this.parents = new ArrayList<>();
 		this.children = new ArrayList<>();
+		this.connections = new ArrayList<>();
 	}
 	
 	@Override
@@ -32,13 +34,9 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 				ret.add(root);
 				continue;
 			}
-			//if(root.getParentEdges().size() > 1 && !parent.isCyclic()) continue;
-			if(parent != null && parent.getParent() == null) {
-				ret.add(root);
-				continue;
-			}
 
-			if(parent != null && !parent.isReverseEdge()) {
+			if (parent == null) continue;
+			if (this.parents.contains(parent.getParent())) {
 				ret.add(root);
 			}
 		}
@@ -184,7 +182,15 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 		child.removeParentEdge(_edge);
 		parent.removeChildEdge(_edge);
 	}
-	
+
+	public void addConnection (Edge _edge) {
+		this.connections.add(_edge);
+	}
+
+	public ArrayList<Edge> getConnections () {
+		return this.connections;
+	}
+
 	public void setConnection (Edge _edge) {
 		this.connection = _edge;
 	}

@@ -57,7 +57,7 @@ public class MAPAnalyzer {
         }
 
         // analyze MAP with H_AT_OH
-        if (tempMAP.indexOf("*") == -1 && _map.startsWith("*O")) {
+        if (!tempMAP.contains("*") && _map.startsWith("*O")) {
             this.headAtom = tempMAP.substring(0, 1);
             tempMAP = removeOxygenFromHead(tempMAP);
         }
@@ -69,8 +69,8 @@ public class MAPAnalyzer {
         }
 
         // make base MAP of double linkage substituent
-
-        if (_map.equals("*N*")) {
+        //if (_map.equals("*N*")) {
+        if (_map.matches("\\*[A-Z]\\*.*")) {
             tempMAP = tempMAP.replaceFirst("\\*", "");
             this.baseCrossTemp = BaseCrossLinkedTemplate.forMAP(tempMAP);
             return;
@@ -84,7 +84,8 @@ public class MAPAnalyzer {
         this.headAtom = String.valueOf(tempMAP.charAt(tempMAP.indexOf("*") + 1));
 
         // extract tail atom from MAP
-        this.tailAtom = String.valueOf(tempMAP.charAt(tempMAP.lastIndexOf("*") - 1));
+        if (this.countStar(tempMAP) > 1)
+            this.tailAtom = String.valueOf(tempMAP.charAt(tempMAP.lastIndexOf("*") - 1));
 
         tempMAP = tempMAP.replaceFirst("\\*", "");
 
@@ -92,12 +93,10 @@ public class MAPAnalyzer {
         tempMAP = this.makeDoubleLinkMAP(tempMAP);
 
         if (tempMAP.startsWith("*")) {
-            tempMAP = tempMAP.substring(1, tempMAP.length());
+            tempMAP = tempMAP.substring(1);
         }
 
         this.baseCrossTemp = BaseCrossLinkedTemplate.forMAP(tempMAP);
-
-        return;
     }
 
     private String makeDoubleLinkMAP (String _map) {
@@ -106,7 +105,7 @@ public class MAPAnalyzer {
         // Set map positions and linkage type
         Boolean isSwap = null;
         boolean hasOrder = false;
-        if (isSwap == null && this.headAtom != this.tailAtom) {
+        if (!this.headAtom.equals(this.tailAtom)) {
             if (this.headAtom.equals("O")) {
                 isSwap = false;
             } else if (this.tailAtom.equals("O")) {
@@ -141,7 +140,7 @@ public class MAPAnalyzer {
     private String removeOxygenFromHead (String _map) {
         if (_map.startsWith("NCCOP")) return _map;
 
-        ArrayList<Integer> nums = new ArrayList<Integer>();
+        ArrayList<Integer> nums = new ArrayList<>();
         String num = "";
         for (int i = 0; i < _map.length(); i++) {
             char c = _map.charAt(i);
@@ -192,7 +191,7 @@ public class MAPAnalyzer {
             posO++;
         }
 
-        ArrayList<Integer> nums = new ArrayList<Integer>();
+        ArrayList<Integer> nums = new ArrayList<>();
         String num = "";
         for (int i = 0; i < _map.length(); i++) {
             char c = _map.charAt(i);
@@ -232,7 +231,7 @@ public class MAPAnalyzer {
     private String extractHeadPosition (String _map) {
         int pos = _map.indexOf("*");
 
-        if (pos != 0) return "";
+        if (pos != 0) return _map;
 
         this.headPos = _map.substring(pos+1, pos+2);
 
@@ -249,7 +248,7 @@ public class MAPAnalyzer {
         int pos = _map.lastIndexOf("*");
         StringBuilder ret = new StringBuilder(_map);
 
-        if (pos == -1) return "";
+        if (pos == -1) return _map;
 
         if (_map.length() == (pos + 1)) return "";
 
@@ -269,5 +268,13 @@ public class MAPAnalyzer {
             return LinkageType.H_AT_OH;
         }
         return LinkageType.DEOXY;
+    }
+
+    private int countStar (String _map) {
+        int ret = 0;
+        for (String s : _map.split("")) {
+            if (s.equals("*")) ret++;
+        }
+        return ret;
     }
 }

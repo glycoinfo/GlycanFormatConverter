@@ -56,12 +56,6 @@ public class EdgeToWURCSEdge {
 	public Modification getModification () {
 		return this.mod;
 	}
-	
-	/*
-	public int getMAPPositionParentSide () {
-		return this.parentSidePos;
-	}
-	 */
 
 	public void start (Edge _edge) throws WURCSException {
 		this.setLinkage(_edge);
@@ -90,7 +84,6 @@ public class EdgeToWURCSEdge {
 	
 	protected LinkedList<WURCSEdge> makeWURCSEdges (Edge _edge, boolean _isParent) throws WURCSException {
 		LinkedList<WURCSEdge> wedges = new LinkedList<>();
-		
 		Linkage parentLinkage = _edge.getGlycosidicLinkages().get(0);
 
 		if (_isParent) {
@@ -186,7 +179,6 @@ public class EdgeToWURCSEdge {
 
 			subst2mod.start(this.sub);
 			String map = subst2mod.getMAPCode();
-
 			mod = new Modification(map);
 			this.parentSidePos = subst2mod.getParentSidePosition();
 			this.childSidePos = subst2mod.getChildSidePosition();

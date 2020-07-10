@@ -1,7 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerEdgeAnalyzer;
@@ -10,7 +9,6 @@ import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparatorSimple;
 import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSVisitorCollectSequence;
 import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSVisitorException;
-import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 import org.glycoinfo.WURCSFramework.wurcs.graph.*;
 
 import java.util.ArrayList;
@@ -99,11 +97,12 @@ public class WURCSGraphToGlyContainer {
 		glyCo = gop.start(glyCo);
 	}
 
-	private void WURCSEdgeToLinkage(Backbone _backbone) throws GlycanException, ConverterExchangeException, WURCSFormatException {
+	private void WURCSEdgeToLinkage(Backbone _backbone) throws GlycanException, WURCSFormatException {
 		for (WURCSEdge cEdge : _backbone.getChildEdges()) {
 			Modification mod = cEdge.getModification();
 
 			if (mod.isRing()) continue;
+			if (mod instanceof ModificationAlternative) continue;
 			if (isSubstituentEdge(cEdge)) continue;
 
 			// define simple linkage
@@ -159,25 +158,6 @@ public class WURCSGraphToGlyContainer {
 			donor = _donorEdge.getLinkages();
 		}
 
-		/*
-		if (isFlipFlop(_backbone)) {
-			Backbone tmp = _backbone;
-			LinkedList<LinkagePosition> temp = acceptor;
-			if (cpBackbone != null) {
-				_backbone = cpBackbone;
-				cpBackbone = tmp;
-				acceptor = donor;
-				donor = temp;
-			}
-			if (ccBackbone != null) {
-				_backbone = ccBackbone;
-				ccBackbone = tmp;
-				acceptor = donor;
-				donor = temp;
-			}
-		}
-		*/
-
 		Edge edge = null;
 		if (ccBackbone != null) {
 			edge = WURCSEdgeToEdge(donor, acceptor);
@@ -207,12 +187,16 @@ public class WURCSGraphToGlyContainer {
 
 		if (glyCo.containsAntennae(backbone2node.get(_backbone))) {
 			GlycanUndefinedUnit und = glyCo.getUndefinedUnitWithIndex(backbone2node.get(_backbone));
-			und.addNode(backbone2node.get(_backbone), edge, backbone2node.get(ccBackbone));
+			if (ccBackbone != null) {
+				und.addNode(backbone2node.get(_backbone), edge, backbone2node.get(ccBackbone));
+			}
+			if (cpBackbone != null) {
+				und.addNode(backbone2node.get(_backbone), edge, backbone2node.get(cpBackbone));
+			}
 		} else {
 			if (ccBackbone != null && !isDefinedLinkage(_backbone, edge, ccBackbone)) { //&& !containNodes(_backbone, ccBackbone)) {
 				glyCo.addNode(backbone2node.get(_backbone), edge, backbone2node.get(ccBackbone));
 			}
-
 			if (cpBackbone != null && !isDefinedLinkage(_backbone, edge, cpBackbone)) {// && !containNodes(_backbone, cpBackbone)) {
 				glyCo.addNode(backbone2node.get(_backbone), edge, backbone2node.get(cpBackbone));
 			}
@@ -406,7 +390,7 @@ public class WURCSGraphToGlyContainer {
 
 		cyclicEdge.setSubstituent(makeSubstituentWithRepeat(_mod));
 
-		if (end != null && !end.equals(start)) {
+		if (!end.equals(start)) {
 			glyCo.addNode(end, cyclicEdge, start);
 		}
 	}
@@ -549,7 +533,7 @@ public class WURCSGraphToGlyContainer {
 
 	private boolean isSubstituentEdge (WURCSEdge _wedge) {
 		Modification mod = _wedge.getModification();
-		if (mod.isGlycosidic() || mod.isRing() || mod instanceof ModificationRepeat) return false;
+		if (mod.isGlycosidic() || mod.isRing() || mod instanceof ModificationRepeat || mod instanceof ModificationAlternative) return false;
 
 		if (!_wedge.getModification().getMAPCode().equals("")) {
 			return (_wedge.getNextComponent().getChildEdges().isEmpty() && !_wedge.getNextComponent().getParentEdges().isEmpty());
@@ -586,13 +570,10 @@ public class WURCSGraphToGlyContainer {
 						break;
 					}
 				}
-
 				if (ret) break;
 			}
-
 			if (ret) break;
 		}
-
 		return ret;
 	}
 
@@ -634,8 +615,8 @@ public class WURCSGraphToGlyContainer {
 			if (edge.getChild().equals(donor) && edge.getParent().equals(acceptor)) {
 				for (Linkage lin : edge.getGlycosidicLinkages()) {
 					if (lin.getChildLinkages().size() > 1 || lin.getParentLinkages().size() > 1) continue;
-					if (lin.getChildLinkages().indexOf(currentDonorPos) != -1 &&
-							lin.getParentLinkages().indexOf(currentAcceptorPos) != -1) {
+					if (lin.getChildLinkages().contains(currentDonorPos) &&
+							lin.getParentLinkages().contains(currentAcceptorPos)) {
 						isDefined = true;
 					}
 				}

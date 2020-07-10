@@ -14,13 +14,13 @@ public class GlyContainerOptimizer {
     public GlyContainer start (GlyContainer _glyCo) throws GlycanException {
         for (Node node : _glyCo.getAllNodes()) {
             // Optimize monoasccharide
-            this.optimizeMonosaccharide((Monosaccharide) node);
+            //this.optimizeMonosaccharide((Monosaccharide) node);
 
             // Merge duplicated substituents
             this.optimizeDuplicateSubstituent((Monosaccharide) node);
 
             // Optimize state of un saturation
-            this.optimizeUnsaturation((Monosaccharide) node);
+            //this.optimizeUnsaturation((Monosaccharide) node);
 
             // Optimize linkage type of substituent
             this.optimizeSubstituent((Monosaccharide) node);
@@ -39,7 +39,6 @@ public class GlyContainerOptimizer {
         return _glyCo;
     }
 
-    //TODO: What should this method do ?
     public void optimizeMonosaccharide (Monosaccharide _mono) {
         //TODO : optimize anomeric state
     }
@@ -156,6 +155,31 @@ public class GlyContainerOptimizer {
         }
     }
 
+    public void optimizeSubstituentFragmentLinkageType (Substituent sub, Edge _coreSide) throws GlycanException {
+        // Optimize linkage atoms
+        this.optimizeSubstituentAtoms(sub);
+
+        if (sub.getFirstPosition() != null && sub.getSecondPosition() == null) {
+            // Simple substituent
+            Linkage lin = _coreSide.getGlycosidicLinkages().get(0);
+            lin.setChildLinkageType(LinkageType.NONMONOSACCHARIDE);
+            lin.setParentLinkageType(LinkageType.DEOXY);
+
+            sub.getFirstPosition().setChildLinkageType(LinkageType.NONMONOSACCHARIDE);
+            sub.getFirstPosition().setParentLinkageType(LinkageType.DEOXY);
+
+            // O-type substituent
+            //if (SubstituentUtility.isOLinkedSubstituent(sub.getSubstituent())) {
+            if (sub.getHeadAtom().equals("O")) {
+                lin.setChildLinkageType(LinkageType.NONMONOSACCHARIDE);
+                lin.setParentLinkageType(LinkageType.H_AT_OH);
+
+                sub.getFirstPosition().setChildLinkageType(LinkageType.NONMONOSACCHARIDE);
+                sub.getFirstPosition().setParentLinkageType(LinkageType.H_AT_OH);
+            }
+        }
+    }
+
     public void optimizeCrossLinkedSubstituent (Edge _edge, Substituent _sub) throws GlycanException {
         // Optimize linkage type between cross-linked substituent
         //if (!isRepeating(_edge) && isCrossLinkedSubstituent(_edge)) {
@@ -249,13 +273,19 @@ public class GlyContainerOptimizer {
 
     public void optimizeUndefinedUnit (GlycanUndefinedUnit _und) throws GlycanException {
         Edge connect = _und.getConnection();
+        Node root = _und.getRootNodes().get(0);
 
         // Optimize acceptor side linkage
         // connection equal acceptor side edge of root node
         if (connect != null) {
-            for (Linkage lin : connect.getGlycosidicLinkages()) {
-                lin.setChildLinkageType(LinkageType.DEOXY);
-                lin.setParentLinkageType(LinkageType.H_AT_OH);
+            if (root instanceof Monosaccharide) {
+                for (Linkage lin : connect.getGlycosidicLinkages()) {
+                    lin.setChildLinkageType(LinkageType.DEOXY);
+                    lin.setParentLinkageType(LinkageType.H_AT_OH);
+                }
+            }
+            if (root instanceof Substituent) {
+                this.optimizeSubstituentFragmentLinkageType((Substituent) root, connect);
             }
         }
 
@@ -352,6 +382,22 @@ public class GlyContainerOptimizer {
         }
     }
 
+    private boolean hasUnsaturationWithDeoxy (List<GlyCoModification> _gModList) {
+        boolean haveDeoxy = false;
+        boolean haveUnsaturation = false;
+        for (GlyCoModification gMod : _gModList) {
+            if (gMod.getModificationTemplate().equals(ModificationTemplate.DEOXY)) {
+                haveDeoxy = true;
+            }
+            if (gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_FU) ||
+                    gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_ZU) ||
+                    gMod.getModificationTemplate().equals(ModificationTemplate.UNSATURATION_EU)) {
+                haveUnsaturation = true;
+            }
+        }
+        return (haveDeoxy && haveUnsaturation);
+    }
+
     private void checkStatus (Node _node) {
         if (_node instanceof Monosaccharide) {
             Monosaccharide mono = (Monosaccharide) _node;
@@ -371,5 +417,4 @@ public class GlyContainerOptimizer {
             }
         }
     }
-
 }

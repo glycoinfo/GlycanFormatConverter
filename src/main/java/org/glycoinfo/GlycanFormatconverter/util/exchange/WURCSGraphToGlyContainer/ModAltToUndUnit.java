@@ -1,6 +1,7 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparator;
@@ -59,7 +60,7 @@ public class ModAltToUndUnit {
         this.backboneToUndefinedUnit();
     }
 
-    private void parseFragments (Backbone _backbone) throws GlycanException, WURCSFormatException {
+    private void parseFragments (Backbone _backbone) throws GlycanException {
         if (_backbone.getChildEdges().isEmpty()) return;
 
         // Extract root of glycan fragments
@@ -73,14 +74,10 @@ public class ModAltToUndUnit {
             this.extractUndefinedSubstituents(modAlt);
 			/**/
 
-			if (!this.antennae.contains(modAlt)) this.antennae.add(modAlt);
+            if (!this.undefinedLinkages.contains(modAlt) &&
+                    !this.undefinedSubstituents.contains(modAlt) &&
+                    !this.antennae.contains(modAlt)) this.antennae.add(modAlt);
         }
-    }
-
-    private boolean isCrossLinkedSubstituent (Modification _mod) throws GlycanException, WURCSFormatException {
-        if (_mod.getMAPCode().equals("")) return false;
-        return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof BaseCrossLinkedTemplate);
-        //return (SubstituentUtility.MAPToInterface(_mod.getMAPCode()) instanceof CrossLinkedTemplate);
     }
 
     /**
@@ -136,92 +133,165 @@ public class ModAltToUndUnit {
     }
 
     private void backboneToUndefinedUnit () throws GlycanException, WURCSFormatException {
-        for (ModificationAlternative modAlt : this.antennae) {
+
+        //define monosaccharide compositons
+        this.convertCompositon();
+
+        //define monosaccharide fragment(s)
+        this.convertMonosacchrideFragment();
+
+        //define substituent fragment(s)
+        this.convertSubstituentFragment();
+
+        if ((glyCo.getUndefinedUnit().size() + glyCo.getUndefinedUnitsForSubstituent().size()) !=
+                (this.undefinedSubstituents.size() + this.undefinedLinkages.size() + this.antennae.size())) {
+            throw new GlycanException ("Parse fragment did not correctly performed.");
+        }
+    }
+
+    private void convertCompositon () throws GlycanException {
+        if (!this.getUndefinedLinkages().isEmpty()) {
+            throw new GlycanException("Monosaccharide composition with linkages can not support.");
+        }
+
+        for (ModificationAlternative modComp : this.undefinedLinkages) {
             GlycanUndefinedUnit und = new GlycanUndefinedUnit();
 
-            for (WURCSEdge inEdge : modAlt.getLeadInEdges()) {
-                Node fragRoot;
+            Backbone currentBackbone = null;
 
-                // extract root node
-                if (!modAlt.getMAPCode().equals("")) {
-                    fragRoot = SubstituentUtility.MAPToSubstituent(modAlt);
-                    und.addNode(fragRoot);
-                } else {
-                    fragRoot = this.backbone2Node.get(this.extractFragmentRoot(inEdge));
-                    und.addNode(fragRoot);
+            //extract donor side WURCSEdge
+            WURCSEdge donorSideEdge = extractDonorSideWURCSEdge(modComp);
+
+            for (WURCSEdge inEdge : modComp.getLeadInEdges()) {
+                if (currentBackbone == null) {
+                    currentBackbone = inEdge.getBackbone();
+                    und.addNode(this.backbone2Node.get(inEdge.getBackbone()));
                 }
 
-                // extract core side node(s)
-                for (WURCSEdge acceptorWE : inEdge.getNextComponent().getParentEdges()) {
-                    Node coreNode = this.backbone2Node.get(acceptorWE.getBackbone());
-                    und.addParentNode(coreNode);
-                }
-
-                // define linkage
-                Edge acceptorEdge = new Edge();
-                Linkage linkage = new Linkage();
-                ArrayList<Integer> acceptorPos = new ArrayList<>();
-                ArrayList<Integer> donorPos = new ArrayList<>();
-
-                if (modAlt.getMAPCode().equals("")) {
-                    Backbone fragBB = this.extractFragmentRoot(inEdge);
-                    fragRoot = backbone2Node.get(fragBB);
-                    fragRoot.addParentEdge(acceptorEdge);
-
-                    // donor (fragment root)
-                    acceptorEdge.setChild(fragRoot);
-
-                    // position
-                    donorPos.add(fragBB.getAnomericPosition());
-                } else {
-                    fragRoot = und.getNodes().get(0);
-                    fragRoot.addParentEdge(acceptorEdge);
-
-                    acceptorEdge.setSubstituent(fragRoot);
-
-                    donorPos.add(0);
-                }
-
-                for (LinkagePosition lp : inEdge.getLinkages()) {
-                    acceptorPos.add(lp.getBackbonePosition());
-                }
-
-                linkage.setParentLinkages(acceptorPos);
-                linkage.setChildLinkages(donorPos);
-                acceptorEdge.addGlycosidicLinkage(linkage);
-                und.setConnection(acceptorEdge);
-
-                break;
+                Node compNode = this.backbone2Node.get(currentBackbone);
+                Edge edgeForOtherSide = this.parseLinkagePosition(inEdge, donorSideEdge, compNode);
+                und.addConnection(edgeForOtherSide);
+                und.setConnection(edgeForOtherSide);
+                und.addParentNode(this.backbone2Node.get(inEdge.getBackbone()));
+                compNode.addParentEdge(edgeForOtherSide);
             }
+            glyCo.addGlycanUndefinedUnit(und);
+        }
+    }
+
+    private void convertMonosacchrideFragment () throws GlycanException {
+        for (ModificationAlternative modAltNode : this.antennae) {
+            GlycanUndefinedUnit und = new GlycanUndefinedUnit();
+
+            //define fragment node
+            Node fragRoot = this.backbone2Node.get(this.extractWURCSEdge(modAltNode).getBackbone());
+
+            //extract donor side WURCSEdge
+            WURCSEdge donorSideEdge = extractDonorSideWURCSEdge(modAltNode);
+
+            for (WURCSEdge inEdge : modAltNode.getLeadInEdges()) {
+                //extract position for acceptor and donor side
+                Edge edgeForAcceptor = this.parseLinkagePosition(inEdge, donorSideEdge, fragRoot);
+                fragRoot.addParentEdge(edgeForAcceptor);
+
+                und.addConnection(edgeForAcceptor);
+                und.setConnection(edgeForAcceptor);
+                und.addParentNode(this.backbone2Node.get(inEdge.getBackbone()));
+            }
+
+            und.addNode(fragRoot);
 
             glyCo.addGlycanUndefinedUnit(und);
         }
-
-        if (glyCo.getUndefinedUnit().size() != antennae.size())
-            throw new GlycanException ("Parse fragment did not correctly performed.");
     }
 
-    private Backbone extractFragmentRoot (WURCSEdge _inEdge) {
-        if (!_inEdge.getNextComponent().getChildEdges().isEmpty()) {
-            return _inEdge.getNextComponent().getChildEdges().get(0).getBackbone();
-        }
+    private void convertSubstituentFragment () throws GlycanException, WURCSFormatException {
+        for (ModificationAlternative modAltSub : this.undefinedSubstituents) {
+            GlycanUndefinedUnit und = new GlycanUndefinedUnit();
 
-        for (WURCSEdge acceptorEdge : _inEdge.getNextComponent().getParentEdges()) {
-            if (!acceptorEdge.getBackbone().isRoot()) continue;
-            int numGlycosidic = 0;
+            //define fragment node
+            Substituent fragRoot = SubstituentUtility.MAPToSubstituent(modAltSub);
 
-            for (WURCSEdge ce : acceptorEdge.getBackbone().getChildEdges()) {
-                if (ce.getNextComponent() instanceof ModificationAlternative) continue;
-                if (ce.getNextComponent() instanceof Modification) {
-                    Modification mod = (Modification) ce.getNextComponent();
-                    if (mod.isRing()) continue;
-                    if (!mod.getMAPCode().equals("")) continue;
-                    if (mod.isGlycosidic()) numGlycosidic++;
-                }
+            //extract donor side WURCSEdge
+            WURCSEdge donorSideEdge = extractDonorSideWURCSEdge(modAltSub);
+
+            for (WURCSEdge inEdge : modAltSub.getLeadInEdges()) {
+                //extract position for acceptor and donor side
+                Edge edgeForAcceptor = this.parseLinkagePosition(inEdge, donorSideEdge, fragRoot);
+                fragRoot.addParentEdge(edgeForAcceptor);
+
+                und.addConnection(edgeForAcceptor);
+                und.setConnection(edgeForAcceptor);
+                und.addParentNode(this.backbone2Node.get(inEdge.getBackbone()));
             }
-            if (numGlycosidic == 0) return acceptorEdge.getBackbone();
+
+            fragRoot.setFirstPosition(und.getConnection().getGlycosidicLinkages().get(0));
+            //fragRoot.setSecondPosition(new Linkage());
+            und.addNode(fragRoot);
+
+            glyCo.addGlycanUndefinedUnit(und);
+        }
+    }
+
+    private Edge parseLinkagePosition (WURCSEdge _inEdge, WURCSEdge _donorEdge, Node _fragRoot) throws GlycanException {
+        Edge ret = new Edge();
+
+        Linkage linkage = new Linkage();
+        ArrayList<Integer> acceptorPos = new ArrayList<>();
+        ArrayList<Integer> donorPos = new ArrayList<>();
+
+        for (LinkagePosition lp : _inEdge.getLinkages()) {
+            acceptorPos.add(lp.getBackbonePosition());
+
+            if (_fragRoot instanceof Substituent) {
+                donorPos.add(lp.getModificationPosition());
+            } else {
+                donorPos.add(_donorEdge.getLinkages().getFirst().getBackbonePosition());
+            }
+
+            linkage.setParentLinkages(acceptorPos);
+            linkage.setChildLinkages(donorPos);
+
+            linkage.setProbabilityLower(1.0d);
+            linkage.setProbabilityUpper(1.0d);
         }
 
-        return null;
+        ret.addGlycosidicLinkage(linkage);
+        if (_fragRoot instanceof Substituent) {
+            ret.setSubstituent(_fragRoot);
+        } else {
+            ret.setChild(_fragRoot);
+        }
+        ret.setParent(this.backbone2Node.get(_inEdge.getBackbone()));
+
+        return ret;
+    }
+
+    private WURCSEdge extractWURCSEdge (ModificationAlternative _modAlt) {
+        WURCSEdge ret = null;
+        for (WURCSEdge edge : _modAlt.getEdges()) {
+            if (_modAlt.getLeadInEdges().contains(edge)) continue;
+            ret = edge;
+        }
+        return ret;
+    }
+
+    private ArrayList<WURCSEdge> extractWURCSEdges (ModificationAlternative _modAlt) {
+        ArrayList<WURCSEdge> ret = new ArrayList<>();
+        for (WURCSEdge edge : _modAlt.getEdges()) {
+            if (_modAlt.getLeadInEdges().contains(edge)) continue;
+            ret.add(edge);
+        }
+
+        return ret;
+    }
+
+    private WURCSEdge extractDonorSideWURCSEdge (ModificationAlternative _modAlt) {
+        WURCSEdge ret = null;
+        for (WURCSEdge wurcsEdge : _modAlt.getEdges()) {
+            if (_modAlt.getLeadInEdges().contains(wurcsEdge)) continue;
+            ret = wurcsEdge;
+        }
+        return ret;
     }
 }

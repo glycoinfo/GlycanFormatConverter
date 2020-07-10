@@ -69,16 +69,12 @@ public class MonosaccharideAnalyzer {
 		this.anomericPos = mono.getRingStart();
 		this.anomericSymbol = mono.getAnomer().getAnomericState();
 
-		if (this.anomericSymbol == 'o' || this.anomericPos == Monosaccharide.OPEN_CHAIN) {
+		if (this.anomericPos == Monosaccharide.OPEN_CHAIN) {
 			this.anomericSymbol = 'o';
+		}
+		if (this.anomericSymbol == 'o') {
 			this.anomericPos = Monosaccharide.OPEN_CHAIN;
 		}
-
-		/*
-		if (this.anomericPos == Monosaccharide.UNKNOWN_RING && this.anomericSymbol == '?') {
-			this.anomericSymbol = 'o';
-		}
-		 */
 
 		this.numOfAtom = mono.getSuperClass().getSize();
 		this.posToChar.put(1, 'h');
@@ -94,10 +90,9 @@ public class MonosaccharideAnalyzer {
 		}
 
 		// Analyze ketose
-		if (!this.anomericPositions.isEmpty() && this.anomericPositions.getFirst() != 1) {
+		if ( !this.anomericPositions.isEmpty() && this.anomericPositions.getFirst() != 1 )
 			this.isAldose = false;
-		}
-		
+
 		// Analyze head carbon
 		if (this.isAldose) {
 			this.posToChar.put(1, 'o');
@@ -108,10 +103,6 @@ public class MonosaccharideAnalyzer {
 		if (this.anomericPositions.isEmpty()) {
 			this.anomericPos = Monosaccharide.OPEN_CHAIN;
 			this.anomericSymbol = 'o';
-		}
-
-		if (this.anomericSymbol == '?' && this.anomericPos != Monosaccharide.UNKNOWN_RING && mono.getRingEnd() != Monosaccharide.UNKNOWN_RING) {
-			this.anomericSymbol = 'x';
 		}
 
 		// Analyze anomeric position
@@ -315,5 +306,14 @@ public class MonosaccharideAnalyzer {
 	private char ModificationTempalteToCarbonDescriptor (ModificationTemplate _modT) {
 		if (_modT.equals(ModificationTemplate.KETONE_U)) return 'O';
 		return _modT.getCarbon();
+	}
+
+	private boolean checkKetose () {
+		boolean ret = false;
+		for (GlyCoModification gMod : this.mono.getModifications()) {
+			if (gMod.getPositionOne() != 2) continue;
+			if (gMod.getModificationTemplate().equals(ModificationTemplate.KETONE_U)) ret = true;
+		}
+		return ret;
 	}
 }
