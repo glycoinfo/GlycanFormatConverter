@@ -239,8 +239,9 @@ public class IUPACNotationParser {
 	private AnomericStateDescriptor convertAnomericState (Monosaccharide _mono, String _anomeric) {
 		switch (_anomeric) {
 			case "?" :
-				if (_mono.getAnomericPosition() == -1) return AnomericStateDescriptor.UNKNOWN;
-				else return AnomericStateDescriptor.UNKNOWN_STATE;
+				return AnomericStateDescriptor.UNKNOWN_STATE;
+				//if (_mono.getAnomericPosition() == -1) return AnomericStateDescriptor.UNKNOWN;
+				//else return AnomericStateDescriptor.UNKNOWN_STATE;
 
 			case "" :
 				return AnomericStateDescriptor.OPEN;

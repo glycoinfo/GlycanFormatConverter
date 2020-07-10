@@ -46,10 +46,11 @@ public class IUPACCondensedNotationParser {
         temp = temp.replace(linkage, "");
 
         // parse modification at head
-        Matcher matModi = Pattern.compile("(([\\d,?]+)+-(.*)?(deoxy|Anhydro)-)").matcher(temp);
+        Matcher matModi = Pattern.compile("(([\\d,?]+)+-(.*)?)?(aldehyde|deoxy|Anhydro)-").matcher(temp);
         if (matModi.find()) {
+            String modification = matModi.group(0);
             String position = matModi.group(2);
-            //String prefix = matModi.group(3);
+            String prefix = matModi.group(3);
             String notation = matModi.group(4);
 
             if (notation.equals("deoxy")) {
@@ -62,7 +63,10 @@ public class IUPACCondensedNotationParser {
                     subNotation.add(pos + "Anhydro");
                 }
             }
-            temp = temp.replace(matModi.group(1), "");
+            if (notation.equals("aldehyde")) {
+                modifications.add("aldehyde");
+            }
+            temp = temp.replace(modification, "");
         }
 
         // parse modification at tail
@@ -349,11 +353,37 @@ public class IUPACCondensedNotationParser {
     }
 
     private String trimSymbols (String _notation) {
-        //remove brackets
-        _notation = _notation.replaceAll("\\(","");
-        _notation = _notation.replaceAll("\\)","");
-        _notation = _notation.replaceAll("\\[","");
-        _notation = _notation.replaceAll("]","");
+        if (_notation.startsWith("[") && _notation.matches("\\[[A-Za-z\\[]+.+")) {
+            _notation = _notation.replaceFirst("\\[", "");
+        }
+
+        //check start repeating position
+        if (_notation.matches("^\\[(-[(A-Za-z)]+-)?[\\d?/]+\\).+$")) {
+            _notation = _notation.replaceFirst("^\\[(-[(A-Za-z)]+-)?[\\d?/]+\\)", "");
+        }
+
+        if (_notation.startsWith("]")) {
+            //check repeating position
+            _notation = _notation.replaceFirst("]", "");
+        }
+        //check start repeating position
+        if (_notation.matches(".+][n\\d-]+$")) {
+            _notation = _notation.replaceAll("][n\\d-]+", "");
+        }
+
+        // modify open chain
+        if (_notation.matches("^.+(-ol)(\\([\\d?]-)$")) {
+            _notation = _notation.replaceFirst("(\\([\\d?]-)$", "");
+        }
+
+        if (_notation.endsWith(")]")) {
+            _notation = _notation.replace("]", "");
+        }
+
+        //check cyclic at the right side
+        if (_notation.matches("^[\\d?]\\).+$")) {
+            _notation = _notation.replaceFirst("^[\\d?]\\)", "");
+        }
 
         //remove ambiguous anchor
         _notation = _notation.replaceAll("=?[?\\d]\\$,?", "");
@@ -364,7 +394,6 @@ public class IUPACCondensedNotationParser {
     private String extractLinkage (String _notation) {
         StringBuilder ret = new StringBuilder();
         boolean isLinkage = false;
-        //boolean isAnomeric = false;
 
         if (_notation.endsWith("-") && !_notation.matches(".*[ab?][\\d?]?-$")) {
             return "-";
@@ -376,13 +405,14 @@ public class IUPACCondensedNotationParser {
             if (item == '-') isLinkage = true;
 
             if (isLinkage) {
-                if (item == 'a' | item == 'b') break;
-                if (item == '?' && _notation.charAt(i - 1) != '?') break;
+                if (item == '(') break;
+                //if (item == 'a' | item == 'b') break;
+                //if (item == '?' && _notation.charAt(i - 1) != '?') break;
             }
         }
 
         //TODO: 結合を含まない単糖に対してどう対応するか、エラーとして扱うか
-        if (ret.toString().matches("[ab?][\\d?]?-([\\d?/]+)?")) return ret.toString();
+        if (ret.toString().matches("\\([ab?]?[\\d?]-([(A-Za-z)]+-)?([\\d?/]+)?\\)?")) return ret.toString();
         else return "";
     }
 
