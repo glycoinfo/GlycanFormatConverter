@@ -46,34 +46,43 @@ public class GCJSONEdgeParser {
             edge.addGlycosidicLinkage(lin);
 
             // extract bridge
-            SubstituentInterface subFace = JSONParamAnalyzer.extractBridge(edgeObj, _bridge);
-            if (subFace != null) {
-                JSONObject bridgeObj = JSONParamAnalyzer.extractBridgeBlock(edgeObj, _bridge);
-
-                Substituent bridge = new Substituent(subFace);
-                bridge.setFirstPosition(new Linkage());
-                bridge.setSecondPosition(new Linkage());
-
-                bridge.getFirstPosition().setParentLinkages(JSONParamAnalyzer.parsePosition(edgeObj.getJSONObject("Acceptor").getJSONArray("Position")));
-                bridge.getFirstPosition().setParentLinkageType(JSONParamAnalyzer.parseLinkageType(edgeObj.getJSONObject("Acceptor").get("LinkageType")));
-                bridge.getFirstPosition().setChildLinkages(new ArrayList<>(1));
-                bridge.getFirstPosition().setChildLinkageType(JSONParamAnalyzer.parseLinkageType(bridgeObj.getJSONObject("Donor").get("LinkageType")));
-
-                bridge.getSecondPosition().setParentLinkages(JSONParamAnalyzer.parsePosition(edgeObj.getJSONObject("Donor").getJSONArray("Position")));
-                bridge.getSecondPosition().setParentLinkageType(JSONParamAnalyzer.parseLinkageType(bridgeObj.getJSONObject("Acceptor").get("LinkageType")));
-                bridge.getSecondPosition().setChildLinkages(new ArrayList<>(1));
-                bridge.getSecondPosition().setChildLinkageType(JSONParamAnalyzer.parseLinkageType(edgeObj.getJSONObject("Donor").get("LinkageType")));
-
-                if (bridge.getFirstPosition().getParentLinkageType().equals(LinkageType.H_AT_OH)) {
-                    bridge.setHeadAtom("O");
-                }
-                if (bridge.getSecondPosition().getChildLinkageType().equals(LinkageType.H_AT_OH)) {
-                    bridge.setTailAtom("O");
-                }
-
-                edge.setSubstituent(bridge);
-                bridge.addParentEdge(edge);
+            JSONObject jsonBridge = JSONParamAnalyzer.extractBridgeBlock(edgeObj, _bridge);
+            if (jsonBridge == null || !jsonBridge.get("Target").equals(key)) {
+                ret.addNode(acceptor, edge, donor);
+                continue;
             }
+
+            SubstituentInterface subFace = JSONParamAnalyzer.extractBridge(edgeObj, _bridge);
+            if (subFace == null) {
+                ret.addNode(acceptor, edge, donor);
+                continue;
+            }
+
+            JSONObject bridgeObj = JSONParamAnalyzer.extractBridgeBlock(edgeObj, _bridge);
+
+            Substituent bridge = new Substituent(subFace);
+            bridge.setFirstPosition(new Linkage());
+            bridge.setSecondPosition(new Linkage());
+
+            bridge.getFirstPosition().setParentLinkages(JSONParamAnalyzer.parsePosition(edgeObj.getJSONObject("Acceptor").getJSONArray("Position")));
+            bridge.getFirstPosition().setParentLinkageType(JSONParamAnalyzer.parseLinkageType(edgeObj.getJSONObject("Acceptor").get("LinkageType")));
+            bridge.getFirstPosition().setChildLinkages(new ArrayList<>(1));
+            bridge.getFirstPosition().setChildLinkageType(JSONParamAnalyzer.parseLinkageType(bridgeObj.getJSONObject("Donor").get("LinkageType")));
+
+            bridge.getSecondPosition().setParentLinkages(JSONParamAnalyzer.parsePosition(edgeObj.getJSONObject("Donor").getJSONArray("Position")));
+            bridge.getSecondPosition().setParentLinkageType(JSONParamAnalyzer.parseLinkageType(bridgeObj.getJSONObject("Acceptor").get("LinkageType")));
+            bridge.getSecondPosition().setChildLinkages(new ArrayList<>(1));
+            bridge.getSecondPosition().setChildLinkageType(JSONParamAnalyzer.parseLinkageType(edgeObj.getJSONObject("Donor").get("LinkageType")));
+
+            if (bridge.getFirstPosition().getParentLinkageType().equals(LinkageType.H_AT_OH)) {
+                bridge.setHeadAtom("O");
+            }
+            if (bridge.getSecondPosition().getChildLinkageType().equals(LinkageType.H_AT_OH)) {
+                bridge.setTailAtom("O");
+            }
+
+            edge.setSubstituent(bridge);
+            bridge.addParentEdge(edge);
 
             //acceptor, edge, donor
             ret.addNode(acceptor, edge, donor);

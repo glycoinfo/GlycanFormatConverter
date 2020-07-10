@@ -89,18 +89,15 @@ public class GCJSONNodeParser {
                 _node.setRingStart(1);
                 _node.setRingEnd(4);
             } else {
-                _node.setRingEnd(2);
+                _node.setRingStart(2);
                 _node.setRingEnd(5);
             }
         }
-        if (_ringSize.equals("?") || _ringSize.equals("")) {
-            if (_node.getAnomericPosition() != -1) {
-                _node.setRingStart(_node.getAnomericPosition());
-                _node.setRingEnd(-1);
-            } else {
-                _node.setRingStart(-1);
-                _node.setRingStart(-1);
-            }
+        if (_ringSize.equals("")) {
+            _node.setRing(_node.getAnomericPosition(), 0);
+        }
+        if (_ringSize.equals("?")) {
+            _node.setRing(_node.getAnomericPosition(), -1);
         }
 
         return _node;
@@ -129,7 +126,7 @@ public class GCJSONNodeParser {
             String c = (String) _configuration.get(i);
             String t = (String) _trivialName.get(i);
             if (c.equals("?")) {
-                ret.add("x" + t);
+                ret.add(t);
             } else {
                 ret.add(c + t);
             }

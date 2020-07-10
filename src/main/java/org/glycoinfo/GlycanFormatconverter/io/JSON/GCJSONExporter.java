@@ -11,10 +11,7 @@ import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by e15d5605 on 2017/09/19.
@@ -22,6 +19,11 @@ import java.util.TreeMap;
 public class GCJSONExporter {
 
     private TreeMap<Integer, Node> nodeIndex;
+    private HashMap<Edge, String> edgeIndex;
+
+    public GCJSONExporter () {
+        this.edgeIndex = new HashMap<>();
+    }
 
     public String start(WURCSGraphToGlyContainer _wg2gc) throws GlycanException, ConverterExchangeException {
         boolean _isVisualize = true;
@@ -62,8 +64,10 @@ public class GCJSONExporter {
             monosaccharide.put("Substituents", extractSubstituents(mono));
 
             // Extract edges
-            for (Object obj : extractEdge(mono)) {
-                edge.accumulate("e" + edge.length(), obj);
+            if (!this.isFragmentRoot(glyco, mono)) {
+                for (Object obj : extractEdge(mono)) {
+                    edge.accumulate("e" + edge.length(), obj);
+                }
             }
 
             // Extract repeat
@@ -92,7 +96,7 @@ public class GCJSONExporter {
         // Extract composition
         jsonObject.put("Composition", this.extractComposition(glyco, monosaccharides));
 
-        //extract repeating notation
+        // Extract repeating notation
         jsonObject.put("Repeat", repeat);
 
         // Extract monosaccharide fragments
@@ -134,9 +138,6 @@ public class GCJSONExporter {
 
             repUnit.accumulate("Min", repMod.getMinRepeatCount());
             repUnit.accumulate("Max", repMod.getMaxRepeatCount());
-            //repUnit.accumulate("Bridge", extractBridge(_mono, true));
-            //repUnit.accumulate("Start", "m" + flip.get(parent.getChild()));
-            //repUnit.accumulate("End", "m" + flip.get(parent.getParent()));
 
             ret.put(repUnit);
         }
@@ -151,7 +152,6 @@ public class GCJSONExporter {
         for (GlycanUndefinedUnit und : _glyCo.getUndefinedUnit()) {
             if (und.isComposition()) continue;
 
-            //JSONObject unit = new JSONObject();
             Node root = und.getRootNodes().get(0);
 
             ArrayList<String> acceptors = new ArrayList<>();
@@ -159,7 +159,6 @@ public class GCJSONExporter {
                 if (flip.get(acceptor) == null) continue;
                 acceptors.add("m" + flip.get(acceptor));
             }
-            //unit.put("Acceptor", acceptors);
 
             JSONObject pos = new JSONObject();
             if (!und.isComposition()) {
@@ -169,15 +168,12 @@ public class GCJSONExporter {
             }
 
             pos.getJSONObject("Acceptor").accumulate("Node", acceptors);
-            //unit.accumulate("Edge", pos);
 
             // Substituent notation
             if (root instanceof Substituent) {
                 pos.getJSONObject("Donor").accumulate("Notation", ((Substituent) root).getNameWithIUPAC());
-                //unit.accumulate("Donor", ((Substituent) root).getNameWithIUPAC());
             } else {
                 pos.getJSONObject("Donor").accumulate("Node", "m" + flip.get(root));
-                //unit.accumulate("Donor", "m" + flip.get(root));
             }
 
             ret.accumulate("f" + _glyCo.getUndefinedUnit().indexOf(und), pos);
@@ -198,8 +194,7 @@ public class GCJSONExporter {
 
             JSONObject unit;
             //Extract position
-            unit = extractLinkage(sub.getFirstPosition());//, false);
-            //unit.put("Position", extractLinkage(sub.getFirstPosition(), false));
+            unit = extractLinkage(sub.getFirstPosition());
 
             unit.accumulate("Notation", sub.getSubstituent().getIUPACnotation());
 
@@ -221,22 +216,10 @@ public class GCJSONExporter {
         return ret;
     }
 
-    private JSONObject extractProbability (Linkage _lin) {//, boolean _isDonor) {
+    private JSONObject extractProbability (Linkage _lin) {
         JSONObject prob = new JSONObject();
-
-        //is donor side
-        //if (_isDonor) {
-            prob.accumulate("Low", _lin.getParentProbabilityLower());
-            prob.accumulate("High", _lin.getParentProbabilityUpper());
-        //}
-
-        //is acceptor side
-        /*
-        if (!_isDonor) {
-            prob.accumulate("Low", _lin.getParentProbabilityLower());
-            prob.accumulate("High", _lin.getParentProbabilityUpper());
-        }
-         */
+        prob.accumulate("Low", _lin.getParentProbabilityLower());
+        prob.accumulate("High", _lin.getParentProbabilityUpper());
 
         return prob;
     }
@@ -267,26 +250,10 @@ public class GCJSONExporter {
         donor.accumulate("LinkageType", _lin.getChildLinkageType());
 
         // extract probability annotation
-        ret.accumulate("Probability", extractProbability(_lin));//, _isDonor));
+        ret.accumulate("Probability", extractProbability(_lin));
 
         ret.accumulate("Donor", donor);
         ret.accumulate("Acceptor", acceptor);
-
-        /*
-        // extract position
-        JSONObject pos = new JSONObject();
-        pos.accumulate("Acceptor", _lin.getParentLinkages());
-        pos.accumulate("Donor", _lin.getChildLinkages());
-
-        // extract linkage type
-        JSONObject type = new JSONObject();
-        type.accumulate("Acceptor", _lin.getParentLinkageType());
-        type.accumulate("Donor", _lin.getChildLinkageType());
-
-        //
-        ret.accumulate("Position", pos);
-        ret.accumulate("LinkageType", type);
-         */
 
         return ret;
     }
@@ -308,8 +275,7 @@ public class GCJSONExporter {
             edge.getJSONObject("Donor").accumulate("Node", "m" + flip.get(acceptor.getChild()));
             edge.getJSONObject("Acceptor").accumulate("Node", "m" + flip.get(acceptor.getParent()));
 
-            //edge.accumulate("Donor", "m" + flip.get(acceptor.getChild()));
-            //edge.accumulate("Acceptor", "m" + flip.get(acceptor.getParent()));
+            this.edgeIndex.put(acceptor, "e" + this.edgeIndex.size());
 
             ret.put(edge);
         }
@@ -325,13 +291,8 @@ public class GCJSONExporter {
             Substituent sub = (Substituent) parentEdge.getSubstituent();
             if (sub == null) continue;
             if (!(sub.getSubstituent() instanceof  BaseCrossLinkedTemplate)) continue;
-            //if (sub instanceof GlycanRepeatModification && !_isRepeat) continue;
 
             unit.accumulate("Notation", sub.getNameWithIUPAC());
-
-            // define node
-            //unit.accumulate("Acceptor", "m" + flip.get(_node.getParentNode()));
-            //unit.accumulate("Donor", "m" + flip.get(_node));
 
             JSONObject acceptor = new JSONObject();
             JSONObject donor = new JSONObject();
@@ -340,30 +301,20 @@ public class GCJSONExporter {
             donor.accumulate("Node", "m" + flip.get(_node));
 
             // define linkage position
-            //JSONObject pos = new JSONObject();
             if (this.haveSubstituentDirection(sub)) {
                 donor.accumulate("Position", sub.getFirstPosition().getChildLinkages().get(0));
                 acceptor.accumulate("Position", sub.getSecondPosition().getChildLinkages().get(0));
-                //pos.accumulate("Donor", sub.getFirstPosition().getChildLinkages().get(0));
-                //pos.accumulate("Acceptor", sub.getSecondPosition().getChildLinkages().get(0));
-                //unit.accumulate("Pos", pos);
             }
 
             // define linkage type
             if (sub.getFirstPosition() != null && sub.getSecondPosition() != null) {
-                //JSONObject linType = new JSONObject();
-                //linType.accumulate("Acceptor", sub.getFirstPosition().getParentLinkageType());
-                //linType.accumulate("Donor", sub.getSecondPosition().getChildLinkageType());
-                //unit.accumulate("LinkageType", linType);
-
-                //acceptor.accumulate("LinkageType", sub.getFirstPosition().getParentLinkageType());
-                //donor.accumulate("LinkageType", sub.getSecondPosition().getChildLinkageType());
                 acceptor.accumulate("LinkageType", sub.getFirstPosition().getChildLinkageType());
                 donor.accumulate("LinkageType", sub.getSecondPosition().getParentLinkageType());
             }
 
             unit.accumulate("Donor", donor);
             unit.accumulate("Acceptor", acceptor);
+            unit.accumulate("Target", this.edgeIndex.get(parentEdge));
         }
 
         return unit;
@@ -381,12 +332,6 @@ public class GCJSONExporter {
             }
         } else {
             sorted.addAll(_sortedNodes);//nodeSim.sortAllNode(_glyco.getRootNodes().get(0));
-            // sort fragments
-            //for (GlycanUndefinedUnit und : _glyco.getUndefinedUnit()) {
-            //    Node fragRoot = und.getRootNodes().get(0);
-            //    if (fragRoot instanceof Substituent) continue;
-            //    sorted.addAll(nodeSim.sortAllNode(fragRoot));
-            //}
         }
 
         for (Node node : sorted) {
@@ -399,7 +344,7 @@ public class GCJSONExporter {
     private ArrayList<String> extractTrivialName(LinkedList<String> _stereo) {
         ArrayList<String> ret = new ArrayList<>();
         for (String unit : _stereo) {
-            unit = (unit.indexOf("-") != -1) ? unit.substring(unit.indexOf("-") + 1) : unit;
+            unit = (unit.contains("-")) ? unit.substring(unit.indexOf("-") + 1) : unit;
             BaseTypeDictionary baseType = BaseTypeDictionary.forName(unit);
 
             String name = baseType.getCoreName();
@@ -417,7 +362,7 @@ public class GCJSONExporter {
     private ArrayList<String> extractConfiguration (LinkedList<String> _stereo) {
         ArrayList<String> ret = new ArrayList<>();
         for (String unit : _stereo) {
-            unit = (unit.indexOf("-") != -1) ? unit.substring(unit.indexOf("-") + 1) : unit;
+            unit = (unit.contains("-")) ? unit.substring(unit.indexOf("-") + 1) : unit;
             BaseTypeDictionary baseType = BaseTypeDictionary.forName(unit);
 
             String name = baseType.getConfiguration();
@@ -432,14 +377,16 @@ public class GCJSONExporter {
         int ringStart = mono.getRingStart();
         int ringEnd = mono.getRingEnd();
 
-        if (ringStart == -1 && ringEnd == -1) return "";
+        if (ringStart == 0 && ringEnd == 0) return "o";
         if (ringStart == 1) {
             if (ringEnd == 4) return "f";
             if (ringEnd == 5) return "p";
+            if (ringEnd == -1) return "?";
         }
         if (ringStart == 2) {
             if (ringEnd == 5) return "f";
             if (ringEnd == 6) return "p";
+            if (ringEnd == -1) return "?";
         }
 
         return "";
@@ -531,5 +478,22 @@ public class GCJSONExporter {
         return (_modTemp.equals(ModificationTemplate.UNSATURATION_EL) ||
                 _modTemp.equals(ModificationTemplate.UNSATURATION_ZL) ||
                 _modTemp.equals(ModificationTemplate.UNSATURATION_FL));
+    }
+
+    private boolean isFragmentRoot (GlyContainer _glyco, Node _root) {
+        boolean ret = false;
+        for (GlycanUndefinedUnit und : _glyco.getUndefinedUnit()) {
+            Edge connection = und.getConnection();
+            if (connection.getChild() != null && connection.getChild().equals(_root)) {
+                ret = true;
+                break;
+            }
+            if (connection.getSubstituent() != null && connection.getSubstituent().equals(_root)) {
+                ret = true;
+                break;
+            }
+        }
+
+        return ret;
     }
 }

@@ -24,43 +24,50 @@ public class GCJSONFragmentsParser {
             GlycanUndefinedUnit und = new GlycanUndefinedUnit();
             JSONObject frgObj = _fragment.getJSONObject(id);
 
-            Edge edge = new Edge();
-            Linkage lin = new Linkage();
+            Node root = null;
 
-            // extract acceptor side
-            for (Object mid : frgObj.getJSONObject("Acceptor").getJSONArray("Node")) {
-                und.addParentNode(nodeIndex.get(mid));
+            for (Object acceptor : frgObj.getJSONObject("Acceptor").getJSONArray("Node")) {
+                Edge edge = new Edge();
+                Linkage lin = new Linkage();
+
+                // extract acceptor side
+                und.addParentNode(nodeIndex.get(acceptor));
+
+                // extract linkage position
+                lin.setParentLinkages(JSONParamAnalyzer.parsePosition(frgObj.getJSONObject("Acceptor").getJSONArray("Position")));
+                lin.setChildLinkages(JSONParamAnalyzer.parsePosition(frgObj.getJSONObject("Donor").getJSONArray("Position")));
+
+                // extract probability
+                lin.setProbabilityLower(JSONParamAnalyzer.parseProbability(frgObj.getJSONObject("Probability").get("Low")));
+                lin.setProbabilityUpper(JSONParamAnalyzer.parseProbability(frgObj.getJSONObject("Probability").get("High")));
+
+                // extract LinkageType
+                lin.setParentLinkageType(JSONParamAnalyzer.parseLinkageType(frgObj.getJSONObject("Acceptor").get("LinkageType")));
+                lin.setChildLinkageType(JSONParamAnalyzer.parseLinkageType(frgObj.getJSONObject("Donor").get("LinkageType")));
+
+                // extract donor side
+                if (isSubstituentFragment(frgObj)) {
+                    root = new Substituent(JSONParamAnalyzer.parseSubstituentTemplate((String) frgObj.getJSONObject("Donor").get("Notation")), lin);
+                    if (lin.getParentLinkageType().equals(LinkageType.H_AT_OH)) {
+                        ((Substituent) root).setHeadAtom("O");
+                    }
+                    if (lin.getParentLinkageType().equals(LinkageType.DEOXY)) {
+                        ((Substituent) root).setHeadAtom("C");
+                    }
+                    edge.setSubstituent(root);
+                } else {
+                    root = nodeIndex.get(frgObj.getJSONObject("Donor").get("Node"));
+                    edge.setChild(root);
+                }
+
+                edge.addGlycosidicLinkage(lin);
+                edge.setParent(nodeIndex.get(acceptor));
+                und.addConnection(edge);
             }
 
-            // extract linkage position
-            lin.setParentLinkages(JSONParamAnalyzer.parsePosition(frgObj.getJSONObject("Acceptor").getJSONArray("Position")));
-            lin.setChildLinkages(JSONParamAnalyzer.parsePosition(frgObj.getJSONObject("Donor").getJSONArray("Position")));
-
-            // extract probability
-            lin.setProbabilityLower(JSONParamAnalyzer.parseProbability(frgObj.getJSONObject("Probability").get("Low")));
-            lin.setProbabilityUpper(JSONParamAnalyzer.parseProbability(frgObj.getJSONObject("Probability").get("High")));
-
-            // extract LinkageType
-            lin.setParentLinkageType(JSONParamAnalyzer.parseLinkageType(frgObj.getJSONObject("Acceptor").get("LinkageType")));
-            lin.setChildLinkageType(JSONParamAnalyzer.parseLinkageType(frgObj.getJSONObject("Donor").get("LinkageType")));
-
-            // extract donor side
-            Node root;
-            if (isSubstituentFragment(frgObj)) {
-                root = new Substituent(JSONParamAnalyzer.parseSubstituentTemplate((String) frgObj.getJSONObject("Donor").get("Notation")), lin);
-                edge.setSubstituent(root);
-            } else {
-                root = nodeIndex.get(frgObj.getJSONObject("Donor").get("Node"));
-                edge.setChild(root);
-            }
-
-            if (root == null) throw new GlycanException ("fragment root is not defined.");
-
-            root.addParentEdge(edge);
-
+            root.setParentEdge(und.getConnections());
             und.addNode(root);
-            edge.addGlycosidicLinkage(lin);
-            und.setConnection(edge);
+            und.setConnection(und.getConnections().get(0));
 
             _glyCo.addGlycanUndefinedUnit(und);
         }

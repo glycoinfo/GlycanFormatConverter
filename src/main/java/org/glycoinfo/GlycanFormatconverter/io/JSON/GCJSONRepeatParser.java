@@ -30,15 +30,10 @@ public class GCJSONRepeatParser {
             repMod.setSecondPosition(new Linkage());
 
             if (bridgeObj != null) {
-                //repMod.getFirstPosition().setParentLinkages(parsePosition(repObj.getJSONObject("Acceptor").getJSONArray("Position")));
                 repMod.getFirstPosition().setParentLinkageType(JSONParamAnalyzer.parseLinkageType(repObj.getJSONObject("Acceptor").get("LinkageType")));
-                //repMod.getFirstPosition().setChildLinkages(parsePosition(null));
                 repMod.getFirstPosition().setChildLinkageType(JSONParamAnalyzer.parseLinkageType(bridgeObj.getJSONObject("Donor").get("LinkageType")));
 
-
-                //repMod.getSecondPosition().setParentLinkages(parsePosition(repObj.getJSONObject("Donor").getJSONArray("Position")));
                 repMod.getSecondPosition().setParentLinkageType(JSONParamAnalyzer.parseLinkageType(bridgeObj.getJSONObject("Acceptor").get("LinkageType")));
-                //repMod.getSecondPosition().setChildLinkages(parsePosition(null));
                 repMod.getSecondPosition().setChildLinkageType(JSONParamAnalyzer.parseLinkageType(repObj.getJSONObject("Donor").get("LinkageType")));
 
                 if (repMod.getFirstPosition().getParentLinkageType().equals(LinkageType.H_AT_OH)) {
