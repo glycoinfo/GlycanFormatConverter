@@ -130,7 +130,8 @@ public class GlyContainerToWURCSGraph {
 		}
 
 		if (backbone.getAnomericPosition() == 0) return;
-		if (backbone instanceof BackboneUnknown) return; 
+		//if (backbone instanceof BackboneUnknown) return;
+		if (backbone.hasUnknownLength()) return;
 
 		Modification ring = new Modification("");
 
