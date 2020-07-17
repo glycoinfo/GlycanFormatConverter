@@ -63,7 +63,8 @@ public class MonosaccharideToBackbone {
 		
 		int numOfAtom = mono.getSuperClass().getSize();
 		if (numOfAtom == 0) {
-			this.backbone = new BackboneUnknown_TBD(this.anomericSymbol);
+			this.backbone = new Backbone();
+			this.backbone.setAnomericSymbol(this.anomericSymbol);
 			return;
 		}
 		
@@ -111,12 +112,12 @@ public class MonosaccharideToBackbone {
 			this.replaceCarbonDescriptorByEdge(skeletonCode_b, childEdge, false);
 		}
 		
-		Backbone_TBD backbone = new Backbone_TBD();
+		Backbone backbone = new Backbone();
 		backbone.setAnomericPosition(this.anomericPos);
 		backbone.setAnomericSymbol(this.anomericSymbol);
 		for (int i = 0; i < numOfAtom; i++) {
 			char carbonDescriptor = skeletonCode_b.charAt(i);
-			CarbonDescriptor_TBD cdT = CarbonDescriptor_TBD.forCharacter(carbonDescriptor, (i == 0 || i == numOfAtom-1));
+			CarbonDescriptor cdT = CarbonDescriptor.forCharacter(carbonDescriptor, (i == 0 || i == numOfAtom-1));
 			BackboneCarbon bc = new BackboneCarbon(backbone, cdT);
 			backbone.addBackboneCarbon(bc);
 		}

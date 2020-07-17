@@ -71,7 +71,10 @@ public class MonosaccharideToBackbone {
 		int t_nCAtom = a_oMonosaccharide.getSuperclass().getCAtomCount();
 		// For unknown sugar
 		if ( t_nCAtom == 0 ) {
-			this.m_oBackbone = new BackboneUnknown_TBD(this.m_cAnomericSymbol);
+			//20200717, S.TSUCHIYA, changed
+			this.m_oBackbone = new Backbone();
+			this.m_oBackbone.setAnomericSymbol(this.m_cAnomericSymbol);
+			//this.m_oBackbone = new BackboneUnknown_TBD(this.m_cAnomericSymbol);
 			return;
 		}
 
@@ -117,6 +120,18 @@ public class MonosaccharideToBackbone {
 		}
 
 		// Construct backbone
+		//20200717, S.TSUCHIYA, changed
+		Backbone t_oBackbone = new Backbone();
+		t_oBackbone.setAnomericPosition(this.m_iAnomericPosition);
+		t_oBackbone.setAnomericSymbol(this.m_cAnomericSymbol);
+		for ( int i=0; i<t_nCAtom; i++ ) {
+			char t_cCD = t_sbSkeletonCode.charAt(i);
+			CarbonDescriptor t_enumCD = CarbonDescriptor.forCharacter(t_cCD, ( i == 0 || i == t_nCAtom-1 ) );
+			BackboneCarbon t_oBC = new BackboneCarbon(t_oBackbone, t_enumCD);
+			t_oBackbone.addBackboneCarbon(t_oBC);
+		}
+		this.m_oBackbone = t_oBackbone;
+		/*
 		Backbone_TBD t_oBackbone = new Backbone_TBD();
 		t_oBackbone.setAnomericPosition(this.m_iAnomericPosition);
 		t_oBackbone.setAnomericSymbol(this.m_cAnomericSymbol);
@@ -127,6 +142,7 @@ public class MonosaccharideToBackbone {
 			t_oBackbone.addBackboneCarbon(t_oBC);
 		}
 		this.m_oBackbone = t_oBackbone;
+		 */
 	}
 
 	private void replaceCarbonDescriptorByEdge(StringBuilder a_sbSC, GlycoEdge a_oEdge, boolean a_bIsParentSideEdge) throws WURCSExchangeException {

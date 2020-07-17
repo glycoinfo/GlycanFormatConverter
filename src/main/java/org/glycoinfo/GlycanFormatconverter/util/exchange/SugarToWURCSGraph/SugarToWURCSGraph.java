@@ -177,7 +177,10 @@ public class SugarToWURCSGraph {
 		}
 
 		if ( t_oBackbone.getAnomericPosition() == 0 ) return;
-		if ( t_oBackbone instanceof BackboneUnknown ) return;
+		//20200717, S.TSUCHIYA, changed
+		if (t_oBackbone.hasUnknownLength()) return;
+		//if ( t_oBackbone instanceof BackboneUnknown ) return;
+
 
 		// Make ring modification and edges
 		Modification t_oRingMod = new Modification("");

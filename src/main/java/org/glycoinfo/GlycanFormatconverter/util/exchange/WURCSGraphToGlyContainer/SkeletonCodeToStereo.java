@@ -33,7 +33,8 @@ public class SkeletonCodeToStereo {
         }
 
         // extract branch substituent position
-        if (!(_backbone instanceof BackboneUnknown_TBD)) {
+        if (!_backbone.hasUnknownLength()) {
+        //if (!(_backbone instanceof BackboneUnknown_TBD)) {
             extractSubstituentOnBranchPosition(_backbone, modMap);
         }
 
@@ -89,7 +90,8 @@ public class SkeletonCodeToStereo {
             CarbonDescriptor cd =
                     CarbonDescriptor.forCharacter(_ms.getSkeletonCode().charAt(i), false);
 
-            if (cd.equals(CarbonDescriptor.SS3_STEREO_X)) {
+            //if (cd.equals(CarbonDescriptor.SS3_STEREO_X)) {
+            if (cd.equals(CarbonDescriptor.SS3_STEREO_X_L)) {
                 ret = true;
             } else {
                 ret = false;

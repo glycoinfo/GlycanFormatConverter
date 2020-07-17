@@ -163,16 +163,17 @@ public class BackboneToNode {
         Substituent ret = new Substituent(bsubT, lin);
         ret.setHeadAtom(mapAnalyze.getHeadAtom());
 
-        if (_backbone instanceof BackboneUnknown_TBD) return ret;
+        //if (_backbone instanceof UnknownBackbone) ret;
+        if (_backbone.hasUnknownLength()) return ret;
 
         // When linkage type is H_LOSE, assign character of 'C' to head-atom
         if (lin.getParentLinkages().size() == 1 && !lin.getParentLinkages().contains(-1)) {
             int pos = lin.getParentLinkages().get(0);
-            if (_backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_X_U) ||
-                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_R_U) ||
-                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_r_U) ||
-                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_S_U) ||
-                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor_TBD.SS3_CHIRAL_s_U)) {
+            if (_backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor.SS3_CHIRAL_X_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor.SS3_CHIRAL_R_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor.SS3_CHIRAL_r_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor.SS3_CHIRAL_S_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor.SS3_CHIRAL_s_U)) {
                 ret.setHeadAtom("C");
             }
         }
