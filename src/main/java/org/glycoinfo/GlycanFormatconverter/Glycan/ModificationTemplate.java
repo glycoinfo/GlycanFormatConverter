@@ -29,9 +29,9 @@ public enum ModificationTemplate {
 	HLOSE_X			('X', "h", "dehydro");
 	//ONIC			('A', "a", "onic");
 	
-	private char carbon;
-	private String glycoCTNotation;
-	private String iupacNotation;
+	private final char carbon;
+	private final String glycoCTNotation;
+	private final String iupacNotation;
 	
 	public char getCarbon() {
 		return this.carbon;

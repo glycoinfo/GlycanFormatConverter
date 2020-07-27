@@ -2,7 +2,7 @@ package org.glycoinfo.GlycanFormatconverter.io.IUPAC;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
-import org.glycoinfo.GlycanFormatconverter.util.TrivialName.HexoseDescriptor;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.CoreSubstituentMonosaccharide;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameDictionary;
 
 import java.util.ArrayList;
@@ -12,17 +12,19 @@ import java.util.Iterator;
 
 public class SubstituentIUPACNotationConverter {
 
-	private StringBuilder prefixSubs;
-	private StringBuilder surfixSubs;
-	private StringBuilder surfixCore;
-	private HashMap<String, String> mapSubs;
+	private final StringBuilder prefixSubs;
+	private final StringBuilder surfixSubs;
+	private final StringBuilder surfixCore;
+	private final HashMap<String, String> mapSubs = new HashMap<>();
 
 	public SubstituentIUPACNotationConverter () {
 		prefixSubs = new StringBuilder();
 		surfixCore = new StringBuilder();
 		surfixSubs = new StringBuilder();
-		mapSubs = new HashMap<>();
+	}
 
+	public HashMap<String, String> getMapSubs () {
+		return this.mapSubs;
 	}
 
 	public String getCoreSubstituentNotaiton () {
@@ -39,7 +41,7 @@ public class SubstituentIUPACNotationConverter {
 	
 	public void start(String _code, Node _node) throws GlycanException {
 		StringBuilder nativeSub = new StringBuilder();
-		
+
 		for (Edge child : _node.getChildEdges()) {
 			if (child.getSubstituent() == null) continue;
 			
@@ -56,17 +58,18 @@ public class SubstituentIUPACNotationConverter {
 			}
 
 			if (haveNativeSubstituentInNeu(_code, sub)) {
-				nativeSub.append(makePosition(sub.getFirstPosition(), haveSecondPos(sub)) + sub.getSubstituent().getIUPACnotation());
+				nativeSub.append(makePosition(sub.getFirstPosition(), haveSecondPos(sub)));
+				nativeSub.append(sub.getSubstituent().getIUPACnotation());
 			} else if (haveNativeSubstituent(_code, sub, _node)) {
 				nativeSub.append(sub.getSubstituent().getIUPACnotation());
-			} else if (haveAnhydroxyl(sub.getSubstituent())) {
+			} else if (haveAnhydro(sub.getSubstituent())) {
 				extractAnhydroxylSubstituent(sub);
 			} else {
 				extractSubstituentWithPosition(sub);
 			}
 		}
 		
-		/**/
+		//
 		if (prefixSubs.length() != 0) {
 			prefixSubs.append("-Anhydro-");
 		}
@@ -90,7 +93,7 @@ public class SubstituentIUPACNotationConverter {
 		
 		StringBuilder ret = new StringBuilder();
 
-		/* Append linkage position */
+		// Append linkage position
 		for (Iterator<Integer> iterPos = _linkage.getParentLinkages().iterator(); iterPos.hasNext();) {
 			Integer pos = iterPos.next();
 			ret.append(pos == -1 ? "?" : pos);
@@ -101,27 +104,27 @@ public class SubstituentIUPACNotationConverter {
 			if (_linkage.getChildLinkages().contains(0))
 				ret.append("-" + 1);
 			else {
-				ret.append("-" + _linkage.getChildLinkages().get(0));
+				ret.append("-").append(_linkage.getChildLinkages().get(0));
 			}
 		}
 
-		/* Append probability annotation */
-		if (_linkage.getParentProbabilityLower() != 1.0D/* && _linkage.getParentProbabilityLower() != 1.0*/) {
+		// Append probability annotation
+		if (_linkage.getParentProbabilityLower() != 1.0D) {
 			ret.append("(");
 			if (_linkage.getParentProbabilityLower() == -1.0) {
 				ret.append("?%");
 			} else {
-				ret.append( ((int) (_linkage.getParentProbabilityLower() * 100)) + "%");
+				ret.append((int) (_linkage.getParentProbabilityLower() * 100)).append("%");
 			}
 		}
 
-		if (_linkage.getParentProbabilityUpper() != 1.0D/* && _linkage.getParentProbabilityUpper() != 1.0*/) {
+		if (_linkage.getParentProbabilityUpper() != 1.0D) {
 			if ((_linkage.getParentProbabilityUpper() != _linkage.getParentProbabilityLower())) {
 				if (ret.length() != 0) ret.append(",");
 				if (_linkage.getParentProbabilityUpper() == -1.0) {
 					ret.append("?%");
 				} else {
-					ret.append(((int) (_linkage.getParentProbabilityUpper() * 100)) + "%");
+					ret.append((int) (_linkage.getParentProbabilityUpper() * 100)).append("%");
 				}
 			}
 			ret.append(")");
@@ -147,14 +150,12 @@ public class SubstituentIUPACNotationConverter {
 	}
 
 	private boolean isUnsaturate(ModificationTemplate _modT) {
-		if (_modT.equals(ModificationTemplate.UNSATURATION_EL) ||
-				_modT.equals(ModificationTemplate.UNSATURATION_FL) || 
+		return _modT.equals(ModificationTemplate.UNSATURATION_EL) ||
+				_modT.equals(ModificationTemplate.UNSATURATION_FL) ||
 				_modT.equals(ModificationTemplate.UNSATURATION_ZL) ||
 				_modT.equals(ModificationTemplate.UNSATURATION_EU) ||
 				_modT.equals(ModificationTemplate.UNSATURATION_FU) ||
-				_modT.equals(ModificationTemplate.UNSATURATION_ZU)) return true;
-		
-		return false;
+				_modT.equals(ModificationTemplate.UNSATURATION_ZU);
 	}
 	
 	private ArrayList<String> concatSubstituents() {
@@ -195,26 +196,26 @@ public class SubstituentIUPACNotationConverter {
 		// append second position
 		if (_sub.getSecondPosition() != null) {
 			if (_sub.getSecondPosition().getChildLinkages().isEmpty())
-				sbPos.append("_" + makePosition(_sub.getSecondPosition(), haveSecond));
+				sbPos.append("_").append(makePosition(_sub.getSecondPosition(), haveSecond));
 			else
-				sbPos.append("," + makePosition(_sub.getSecondPosition(), haveSecond));
+				sbPos.append(",").append(makePosition(_sub.getSecondPosition(), haveSecond));
 		}
 
-		if (mapSubs.containsKey(subNotation.toString())) {
+		if (mapSubs.containsKey(subNotation)) {
 			StringBuilder temp = new StringBuilder(mapSubs.get(subNotation));
 			if (comparePosition(sbPos.toString(), temp.toString())) {
-				if (_sub.getFirstPosition().getParentLinkages().size() > 1) temp.append(":" + sbPos);
+				if (_sub.getFirstPosition().getParentLinkages().size() > 1) temp.append(":").append(sbPos);
 				else {
-					if (temp.indexOf(":") != -1 || temp.indexOf("-") != -1 || sbPos.indexOf(":") != -1 || sbPos.indexOf("-") != -1) temp.append(":" + sbPos);
-					else temp.append("," + sbPos);
+					if (temp.indexOf(":") != -1 || temp.indexOf("-") != -1 || sbPos.indexOf(":") != -1 || sbPos.indexOf("-") != -1) temp.append(":").append(sbPos);
+					else temp.append(",").append(sbPos);
 				}
 		
 				sbPos = temp;
 			} else {
-				if (_sub.getFirstPosition().getParentLinkages().size() > 1) sbPos.append(":" + sbPos);
+				if (_sub.getFirstPosition().getParentLinkages().size() > 1) sbPos.append(":").append(sbPos);
 				else {
-					if (temp.indexOf(":") != -1 || temp.indexOf("-") != -1 || sbPos.indexOf(":") != -1 || sbPos.indexOf("-") != -1) sbPos.append(":" + temp);
-					else sbPos.append("," + temp);
+					if (temp.indexOf(":") != -1 || temp.indexOf("-") != -1 || sbPos.indexOf(":") != -1 || sbPos.indexOf("-") != -1) sbPos.append(":").append(temp);
+					else sbPos.append(",").append(temp);
 				}
 			}
 		}
@@ -230,31 +231,26 @@ public class SubstituentIUPACNotationConverter {
 	}
 	
 	private boolean comparePosition(String onePos, String twoPos) {
-		String one = onePos.substring(0, 1);
-		String two = twoPos.substring(0, 1);
+		String one = onePos.startsWith("-") ? onePos.substring(0, 2) : onePos.substring(0, 1);
+		String two = twoPos.startsWith("-") ? twoPos.substring(0, 2) : twoPos.substring(0, 1);
 		int intone = one.equals("?") ? -1 : Integer.parseInt(one);
 		int inttwo = two.equals("?") ? -1 : Integer.parseInt(two);
 
-		if (intone > inttwo) return true;		
-		return false;
+		return intone > inttwo;
 	}
 	
-	private boolean haveAnhydroxyl (SubstituentInterface _subface) {
+	private boolean haveAnhydro (SubstituentInterface _subface) {
 		if (!(_subface instanceof BaseCrossLinkedTemplate)) return false;
 		return (_subface).equals(BaseCrossLinkedTemplate.ANHYDRO);
-		//if (!(_subface instanceof CrossLinkedTemplate)) return false;
-		//return (_subface).equals(CrossLinkedTemplate.ANHYDROXYL);
 	}
 	
 	private boolean haveNativeSubstituent(String _code, Substituent _sub, Node _node) {
 		if (_sub.getSubstituent() instanceof BaseCrossLinkedTemplate) return false;
-		//if (_sub.getSubstituent() instanceof CrossLinkedTemplate) return false;
 
 		BaseSubstituentTemplate subT = (BaseSubstituentTemplate) _sub.getSubstituent();
-		
-		if (!isHexoseWithNativeSubstituent(_code)) return false;
-		if (_sub.getFirstPosition().getParentLinkages().size() > 1 ||
-				_sub.getSecondPosition() != null) return false;
+
+		if (checkNotHavingNativeSubstituent(_code)) return false;
+		if (_sub.getFirstPosition().getParentLinkages().size() > 1 || _sub.getSecondPosition() != null) return false;
 
 		Integer firstPosition = _sub.getFirstPosition().getParentLinkages().get(0);
 
@@ -271,13 +267,10 @@ public class SubstituentIUPACNotationConverter {
 	}
 	
 	private boolean haveNativeSubstituentInNeu(String _code, Substituent _sub) {
-		if (isNeuraminicAcid(_code)) return false;
 		if (_sub.getSubstituent() instanceof BaseCrossLinkedTemplate) return false;
-		//if (_sub.getSubstituent() instanceof CrossLinkedTemplate) return false;
-
-		if (!isHexoseWithNativeSubstituent(_code)) return false;
-		if (_sub.getFirstPosition().getParentLinkages().size() > 1 ||
-				_sub.getSecondPosition() != null) return false;
+		if (_sub.getFirstPosition().getParentLinkages().size() > 1 || _sub.getSecondPosition() != null) return false;
+		if (!isNeuraminicAcid(_code)) return false;
+		if (checkNotHavingNativeSubstituent(_code)) return false;
 
 		Integer firstPosition = _sub.getFirstPosition().getParentLinkages().get(0);
 
@@ -286,23 +279,20 @@ public class SubstituentIUPACNotationConverter {
 		BaseSubstituentTemplate subT = (BaseSubstituentTemplate) _sub.getSubstituent();
 
 		// for neugc or neuac
-		return (subT.equals(BaseSubstituentTemplate.NACETYL) || subT.equals(BaseSubstituentTemplate.NGLYCOLYL));
-		//if (subT.equals(SubstituentTemplate.ACETYL)) return true;
-		//if (subT.equals(SubstituentTemplate.GLYCOLYL)) return true;
+		return (subT.equals(BaseSubstituentTemplate.ACETYL) || subT.equals(BaseSubstituentTemplate.GLYCOLYL));
 	}
 	
 	private boolean isNeuraminicAcid (String _code) {
 		TrivialNameDictionary dict = TrivialNameDictionary.forThreeLetterCode(_code);
 		if (dict == null) return false;
-		if (dict.equals(TrivialNameDictionary.NEU)) return true;
-		
-		return false;
+		return dict.equals(TrivialNameDictionary.NEU);
 	}
 	
 	protected boolean haveNativeSubstituentWithNsulfate(String _code, Substituent _sub, Node _current) {
 		if (_sub.getSubstituent() instanceof BaseCrossLinkedTemplate) return false;
-		
 		if (_sub.getFirstPosition().getParentLinkages().size() > 1) return false;
+
+		if (checkNotHavingNativeSubstituent(_code)) return false;
 
 		Integer firstPosition = _sub.getFirstPosition().getParentLinkages().get(0);
 
@@ -312,31 +302,20 @@ public class SubstituentIUPACNotationConverter {
 		if (_sub.getSubstituent().equals(BaseSubstituentTemplate.NACETYL)) return false;
 
 		return (SubstituentUtility.isNLinkedSubstituent(_sub));
-
-		//if (firstPosition == 2 && !isAcidicTail(_current)) {
-			// for hexosamine from NS
-			//if (subT.equals(SubstituentTemplate.N_SULFATE) && !is6DeoxyHexose(_code)) return true;
-		//}
-		
-		//return false;
 	}
 	
-	protected boolean isHexoseWithNativeSubstituent(String _code) {
-		HexoseDescriptor enumHex = HexoseDescriptor.forTrivialName(_code);
-		
-		return (enumHex != null);
+	protected boolean checkNotHavingNativeSubstituent(String _code) {
+		CoreSubstituentMonosaccharide enumHex = CoreSubstituentMonosaccharide.forTrivialName(_code);
+		return enumHex == null;
 	}
 	
 	protected boolean is6DeoxyHexose(String _code) {
-		HexoseDescriptor enumHex = HexoseDescriptor.forTrivialName(_code);
+		CoreSubstituentMonosaccharide enumHex = CoreSubstituentMonosaccharide.forTrivialName(_code);
 		
 		if (enumHex == null) return false;
-		
-		if (enumHex.equals(HexoseDescriptor.FUC)) return true;
-		if (enumHex.equals(HexoseDescriptor.RHA)) return true;
-		if (enumHex.equals(HexoseDescriptor.QUI)) return true;
-		
-		return false;
+		return (enumHex.equals(CoreSubstituentMonosaccharide.FUC) ||
+				enumHex.equals(CoreSubstituentMonosaccharide.RHA) ||
+				enumHex.equals(CoreSubstituentMonosaccharide.QUI));
 	}
 	
 	private boolean isAcidicTail (Node _node) {
@@ -354,7 +333,6 @@ public class SubstituentIUPACNotationConverter {
 	}	
 
 	private boolean haveSecondPos (Substituent _sub) {
-		if (_sub.getSecondPosition() != null) return true;
-		return false;
+		return _sub.getSecondPosition() != null;
 	}
 }

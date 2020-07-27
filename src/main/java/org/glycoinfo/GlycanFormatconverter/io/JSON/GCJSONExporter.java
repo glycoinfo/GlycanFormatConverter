@@ -5,6 +5,7 @@ import org.apache.commons.collections.bidimap.DualHashBidiMap;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.condensed.CondensedConverter;
 import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer.WURCSGraphToGlyContainer;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
 import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
@@ -25,7 +26,7 @@ public class GCJSONExporter {
         this.edgeIndex = new HashMap<>();
     }
 
-    public String start(WURCSGraphToGlyContainer _wg2gc) throws GlycanException, ConverterExchangeException {
+    public String start(WURCSGraphToGlyContainer _wg2gc) throws GlycanException, ConverterExchangeException, TrivialNameException {
         boolean _isVisualize = true;
         GlyContainer glyco = _wg2gc.getGlycan();
 
@@ -354,9 +355,9 @@ public class GCJSONExporter {
         return ret;
     }
 
-    private String makeTrivialNotation (Node _node) throws GlycanException {
+    private String makeTrivialNotation (Node _node) throws GlycanException, TrivialNameException {
         CondensedConverter extConv = new CondensedConverter();
-        return extConv.start(_node, false);
+        return extConv.start(_node);
     }
 
     private ArrayList<String> extractConfiguration (LinkedList<String> _stereo) {

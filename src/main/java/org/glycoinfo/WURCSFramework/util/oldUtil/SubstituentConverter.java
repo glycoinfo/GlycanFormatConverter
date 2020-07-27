@@ -1,6 +1,6 @@
 package org.glycoinfo.WURCSFramework.util.oldUtil;
 
-import org.glycoinfo.GlycanFormatconverter.util.TrivialName.HexoseDescriptor;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.CoreSubstituentMonosaccharide;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.PrefixDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.WURCSFramework.util.residuecontainer.ResidueContainer;
@@ -156,8 +156,8 @@ public class SubstituentConverter {
 	private boolean isChangeCompositeWithSubstituent(ResidueContainer a_oRC) {
 		if(a_oRC.getCommonName().size() == 2) return false;
 		
-		HexoseDescriptor enum_HexDesc = 
-				HexoseDescriptor.forTrivialName(a_oRC.getCommonName().getFirst(), a_oRC.getBackBoneSize());
+		CoreSubstituentMonosaccharide enum_HexDesc =
+				CoreSubstituentMonosaccharide.forTrivialName(a_oRC.getCommonName().getFirst(), a_oRC.getBackBoneSize());
 		
 		if(enum_HexDesc != null) return true;
 		return false;

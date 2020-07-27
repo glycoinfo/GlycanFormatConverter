@@ -100,13 +100,13 @@ public class WURCSConversionValidatorForGlycoCT {
 		boolean t_bRingForm = false;
 		int t_iAnomPos = 0;
 		for ( BackboneCarbon t_bc : a_bb.getBackboneCarbons() ) {
-			if ( t_bc.getDesctriptor().getChar() == 'u'
-			  || t_bc.getDesctriptor().getChar() == 'U' )
+			if ( t_bc.getDescriptor().getChar() == 'u'
+			  || t_bc.getDescriptor().getChar() == 'U' )
 				t_bUncertainAnomer = true;
-			if ( t_bc.getDesctriptor().getChar() == 'o'
-			  || t_bc.getDesctriptor().getChar() == 'O' )
+			if ( t_bc.getDescriptor().getChar() == 'o'
+			  || t_bc.getDescriptor().getChar() == 'O' )
 				t_bCarbonyl = true;
-			if ( t_bc.getDesctriptor().getChar() == 'a' ) {
+			if ( t_bc.getDescriptor().getChar() == 'a' ) {
 				if ( t_bRingForm ) {
 					this.m_lErrors.add("Anomer carbon must be only one in a monosaccharide.");
 					continue;
@@ -152,7 +152,7 @@ public class WURCSConversionValidatorForGlycoCT {
 			// ignore terminal carbons
 			if ( t_iPos == 1 || t_iPos == a_bb.getBackboneCarbons().size() )
 				continue;
-			char t_cd = t_bc.getDesctriptor().getChar();
+			char t_cd = t_bc.getDescriptor().getChar();
 			if ( t_cd == '1' || t_cd == '2' ) {
 				t_bHasAbsolute = true;
 			} else 
@@ -205,7 +205,7 @@ public class WURCSConversionValidatorForGlycoCT {
 		char t_cdPrev = ' ';
 		for ( BackboneCarbon t_bc : a_bb.getBackboneCarbons() ) {
 			int t_iPos = a_bb.getBackboneCarbons().indexOf(t_bc)+1;
-			char t_cd = t_bc.getDesctriptor().getChar();
+			char t_cd = t_bc.getDescriptor().getChar();
 			if ( t_cd == 'e' || t_cd == 'E' || t_cd == 'z' || t_cd == 'Z' ) {
 				t_bHasAbsolute = true;
 			} else
@@ -245,7 +245,7 @@ public class WURCSConversionValidatorForGlycoCT {
 			if ( t_iPos == 1 || t_iPos == a_bb.getBackboneCarbons().size() )
 				t_bIsTerminal = true;
 
-			char t_cd = t_bc.getDesctriptor().getChar();
+			char t_cd = t_bc.getDescriptor().getChar();
 			if ( t_cd == 'c' || t_cd == 'C' || t_cd == 'M'
 			  || t_cd == 't' || t_cd == 'T' || t_cd == 'K')
 				this.m_lErrors.add("CarbonDescriptor "+t_cd+" can not be handled for now.");

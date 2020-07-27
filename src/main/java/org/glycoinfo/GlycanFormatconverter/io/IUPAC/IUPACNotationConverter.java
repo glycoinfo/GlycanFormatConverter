@@ -9,8 +9,8 @@ import java.util.Iterator;
 public class IUPACNotationConverter {
 
 	private StringBuilder threeLetterCode = new StringBuilder();
-	private StringBuilder coreCode = new StringBuilder();
-	private SubstituentIUPACNotationConverter subConv = new SubstituentIUPACNotationConverter();
+	private final StringBuilder coreCode = new StringBuilder();
+	private final SubstituentIUPACNotationConverter subConv = new SubstituentIUPACNotationConverter();
 
 	public SubstituentIUPACNotationConverter getSubConv () {
 		return subConv;
@@ -112,7 +112,7 @@ public class IUPACNotationConverter {
 	public String makeConfiguration (String _stereo) {
 		String configuration;
 
-		_stereo = trimThreeLetterPrefix(_stereo);
+		_stereo = trimFuzzyIsomer(_stereo);
 
 		BaseTypeDictionary baseDict = BaseTypeDictionary.forName(_stereo.toLowerCase());
 		configuration = baseDict.getConfiguration();
@@ -135,8 +135,7 @@ public class IUPACNotationConverter {
 	
 	private String trimThreeLetterPrefix(String _letter, String _configuration) {
 		if(_configuration.equals("?")) {
-			if(_letter.startsWith("d/l-")) _letter = _letter.replaceFirst("d/l-", "");
-			if(_letter.startsWith("l/d-")) _letter = _letter.replaceFirst("l/d-", "");
+			_letter = this.trimFuzzyIsomer(_letter);
 		}else {
 			_letter = _letter.replaceFirst(_configuration, "");
 		}
@@ -146,16 +145,9 @@ public class IUPACNotationConverter {
 		return ret.toString();
 	}
 
-	private String trimThreeLetterPrefix (String _letter) {
+	private String trimFuzzyIsomer (String _letter) {
 		if (_letter.startsWith("d/l-")) _letter = _letter.replaceFirst("d/l-", "");
 		if (_letter.startsWith("l/d-")) _letter = _letter.replaceFirst("l/d-", "");
-
-		if (_letter.length() == 3) {
-			StringBuilder ret = new StringBuilder(_letter);
-			ret = ret.replace(0, 1, ret.substring(0, 1).toUpperCase());
-			return ret.toString();
-		}
-
 		return _letter;
 	}
 	
@@ -182,12 +174,6 @@ public class IUPACNotationConverter {
 		if(_stereo.length() == 4) {
 			return _stereo.substring(0, 1);
 		}
-		if (_stereo.startsWith("d/l-") || _stereo.startsWith("l/d-")) {
-			return "?";
-		}
-		/*if(_stereo.length() == 3 || _stereo.length() > 4) {
-			return "?";
-		}*/
 
 		return "?";
 	}
@@ -258,12 +244,13 @@ public class IUPACNotationConverter {
 		Monosaccharide mono = (Monosaccharide) _node;
 		
 		if(mono.getAnomericPosition() != 0) return false;
-		//if(mono.getSuperClass().getSize() > 6) return false;
-		
+
 		boolean ret = false;
 		for(GlyCoModification mod : mono.getModifications()) {
 			if(mod.getPositionOne() == 1 &&
 					mod.getModificationTemplate().equals(ModificationTemplate.HYDROXYL)) ret = true;
+			if(mod.getPositionOne() == 2 &&
+					mod.getModificationTemplate().equals(ModificationTemplate.KETONE)) ret = false;
 			if(mod.getPositionOne() == 2 &&
 					mod.getModificationTemplate().equals(ModificationTemplate.KETONE_U)) ret = false;
 		}		
@@ -271,11 +258,11 @@ public class IUPACNotationConverter {
 		return ret;
 	}
 	
-	public boolean isAldehyde(Node _node) {
+	public boolean isAldose(Node _node) {
 		Monosaccharide mono = (Monosaccharide) _node;
 		boolean aldehyde = false;
 		
-		if(mono.getAnomericPosition() != 0) return false;
+		if(mono.getAnomericPosition() != Monosaccharide.OPEN_CHAIN) return false;
 		
 		for(GlyCoModification mod : mono.getModifications()) {
 			ModificationTemplate modT = mod.getModificationTemplate();
@@ -288,12 +275,28 @@ public class IUPACNotationConverter {
 		return aldehyde;
 	}
 
+	public boolean isKetose (Node _node) {
+		Monosaccharide mono = (Monosaccharide) _node;
+		boolean ret = false;
+
+		if (mono.getAnomericPosition() != Monosaccharide.OPEN_CHAIN) return false;
+
+		for (GlyCoModification gMod : mono.getModifications()) {
+			ModificationTemplate modTemp = gMod.getModificationTemplate();
+			if (modTemp.equals(ModificationTemplate.KETONE) && gMod.getPositionOne() == 2) {
+				ret = true;
+				break;
+			}
+		}
+		return ret;
+	}
+
 	public String makeAcidicStatus(Node _node) {
 		Monosaccharide mono = (Monosaccharide) _node;
 		
 		boolean headAcid = false;
 		boolean tailAcid = false;
-		ModificationTemplate acid = ModificationTemplate.ALDONICACID;
+		//ModificationTemplate acid = ModificationTemplate.ALDONICACID;
 		SuperClass superclass = mono.getSuperClass();
 		
 		for(GlyCoModification mod : mono.getModifications()) {
@@ -326,7 +329,7 @@ public class IUPACNotationConverter {
 		}
 		if(mdict != null) {
 			if(mdict.equals(ModifiedMonosaccharideDescriptor.NEU5AC)) return true;
-			if(mdict.equals(ModifiedMonosaccharideDescriptor.NEU5GC)) return true;		
+			return mdict.equals(ModifiedMonosaccharideDescriptor.NEU5GC);
 		}	
 		
 		return false;
@@ -336,7 +339,8 @@ public class IUPACNotationConverter {
 		Monosaccharide mono = (Monosaccharide) _node;
 		int start = mono.getRingStart();
 		int end = mono.getRingEnd();
-		
+
+		//TODO : オープンチェーンに対してどう扱うか
 		if(start == 0 && end == 0) return "";
 		if(start == -1 && end == -1) return "";
 		if(start != -1 && end == -1) return "?";

@@ -57,7 +57,7 @@ public class execConverterResidueCode {
         CondensedConverter condConv = new CondensedConverter();
         String ret = "";
         for (Node node : gc.getNodes()) {
-            ret = condConv.start(node, false);
+            ret = condConv.start(node);
         }
 
         return ret;

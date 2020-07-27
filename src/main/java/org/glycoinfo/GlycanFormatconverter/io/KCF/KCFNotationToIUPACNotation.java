@@ -1,12 +1,11 @@
 package org.glycoinfo.GlycanFormatconverter.io.KCF;
 
-import org.eurocarbdb.resourcesdb.template.MonosaccharideDictionary;
 import org.glycoinfo.GlycanFormatconverter.Glycan.BaseSubstituentTemplate;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.BaseStereoIndex;
-import org.glycoinfo.GlycanFormatconverter.util.TrivialName.HexoseDescriptor;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.CoreSubstituentMonosaccharide;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.PrefixDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.MonosaccharideNotationAnalyzer;
@@ -276,7 +275,7 @@ public class KCFNotationToIUPACNotation {
     private StringBuilder appendAcidicStatus (StringBuilder _sb, ArrayList<String> _subs, String _code) throws GlyCoImporterException {
         String nativeSub = "";
 
-        HexoseDescriptor hexDesc = HexoseDescriptor.forTrivialName(_code);
+        CoreSubstituentMonosaccharide hexDesc = CoreSubstituentMonosaccharide.forTrivialName(_code);
 
         // append acidic status
         for (String unit : _subs) {
@@ -300,19 +299,19 @@ public class KCFNotationToIUPACNotation {
 
         // modify core substituents
         if (hexDesc != null) {
-            if (nativeSub.matches ("[GA]c") && hexDesc.equals(HexoseDescriptor.NEU)) {
+            if (nativeSub.matches ("[GA]c") && hexDesc.equals(CoreSubstituentMonosaccharide.NEU)) {
                 _subs.remove(nativeSub);
                 _subs.add(5 + modifiedSub);
             }
-            if (nativeSub.matches("N[AG]c") && hexDesc.equals(HexoseDescriptor.NEU)) {
+            if (nativeSub.matches("N[AG]c") && hexDesc.equals(CoreSubstituentMonosaccharide.NEU)) {
                 _subs.remove(nativeSub);
                 _subs.add(modifiedSub.replaceFirst("N", "5"));
             }
-            if (nativeSub.matches("[GA]c") && !hexDesc.equals(HexoseDescriptor.NEU)) {
+            if (nativeSub.matches("[GA]c") && !hexDesc.equals(CoreSubstituentMonosaccharide.NEU)) {
                 _subs.remove(nativeSub);
                 _subs.add(2 + modifiedSub);
             }
-            if (nativeSub.matches("(?!NAc)N\\w+") && !hexDesc.equals(HexoseDescriptor.NEU)) {
+            if (nativeSub.matches("(?!NAc)N\\w+") && !hexDesc.equals(CoreSubstituentMonosaccharide.NEU)) {
                 _subs.remove(nativeSub);
 
                 /*
@@ -329,7 +328,7 @@ public class KCFNotationToIUPACNotation {
                 _subs.add(2 + modifiedSub);
                 //}
             }
-            if ((nativeSub.equals("N") || nativeSub.equals("NAc")) && !hexDesc.equals(HexoseDescriptor.NEU)) {
+            if ((nativeSub.equals("N") || nativeSub.equals("NAc")) && !hexDesc.equals(CoreSubstituentMonosaccharide.NEU)) {
                 _subs.remove(nativeSub);
                 _sb.append(modifiedSub);
             }
