@@ -4,6 +4,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationStyleChecker;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStacker;
 import org.glycoinfo.GlycanFormatconverter.util.GlyContainerOptimizer;
 
@@ -45,7 +46,6 @@ public class IUPACCondensedImporter {
             IUPACStacker stacker = new IUPACStacker();
 
             //TODO: parse monosaccharide compositions
-
             stacker.setNotations(parseNotation(subst));
 
             if (subst.endsWith("$,")) stacker.setFragment();
@@ -89,8 +89,23 @@ public class IUPACCondensedImporter {
         boolean isSub = false;
         StringBuilder node = new StringBuilder();
 
+        boolean isDonorSide = false;
+        boolean isAcceptorSide = false;
+        boolean isBridge = false;
+        boolean isFragment = false;
+        boolean isBisecting = false;
+
         for (int i = 0; i < _iupac.length(); i++) {
             char item = _iupac.charAt(i);
+
+            if (isBisecting && IUPACNotationStyleChecker.isLeftBlockBracket(item)) {
+                ret.add(node.toString());
+                isLinkage = false;
+                isAcceptorSide = false;
+                isBisecting = false;
+                node = new StringBuilder();
+            }
+
             node.append(item);
 
             //End
@@ -98,6 +113,84 @@ public class IUPACCondensedImporter {
                 ret.add(node.toString());
                 break;
             }
+
+            if (IUPACNotationStyleChecker.isLeftSideBracket(item)) {
+                isLinkage = true;
+                continue;
+            }
+
+            if (isLinkage) {
+                if (!isDonorSide && !isAcceptorSide && !isBridge) {
+                    if (IUPACNotationStyleChecker.isInteger(item) || IUPACNotationStyleChecker.isAnomericState(item)) {
+                        isDonorSide = true;
+                        continue;
+                    }
+                    if (IUPACNotationStyleChecker.isAlphabet(item)) {
+                        isLinkage = false;
+                        continue;
+                    }
+                }
+
+                if (isDonorSide) {
+                    // parse anomeric state -> parse anomeric position -> parse hyphen
+
+                    // target to acceptor side
+                    if (IUPACNotationStyleChecker.isHyphen(item)) {
+                        isAcceptorSide = true;
+                        isDonorSide = false;
+                        continue;
+                    }
+                }
+
+                // parse acceptor side position
+                if (isBridge && IUPACNotationStyleChecker.isHyphen(item)) {
+                    isBridge = false;
+                    isAcceptorSide = true;
+                    continue;
+                }
+
+                if (isAcceptorSide) {
+                    // parse cross-linked substituent
+                    if (IUPACNotationStyleChecker.isAlphabet(item)) {
+                        if (IUPACNotationStyleChecker.isAnomericState(item)) continue;
+                        isAcceptorSide = false;
+                        isDonorSide = false;
+                        isBridge = true;
+                        continue;
+                    }
+                    // end linkage
+                    //TODO : 結合状態を確認する必要がある
+                    if (IUPACNotationStyleChecker.isRightSideBracket(item)) {
+                        // check bisecting
+                        if (IUPACNotationStyleChecker.isRightBlockBracket(_iupac.charAt(i + 1))) {
+                            if (IUPACNotationStyleChecker.isLeftBlockBracket(_iupac.charAt(i + 2))) {
+                                isBisecting = true;
+                                continue;
+                            }
+                        }
+                        ret.add(node.toString());
+                        isLinkage = false;
+                        isAcceptorSide = false;
+                        node = new StringBuilder();
+                        continue;
+                    }
+                    continue;
+                }
+            }
+
+
+
+            /*
+             * if (isLinkage && _iupac.charAt(i) == ')') {
+                if (_iupac.charAt(i+1) == '=') {
+                    isLinkage = false;
+                    continue;
+                }
+                ret.add(node.toString());
+                isLinkage = false;
+                node = new StringBuilder();
+             * }
+             */
 
             //Parse child of substituent
             if (!isLinkage && node.length() == 0 && String.valueOf(item).matches("[\\d?]")) {
@@ -110,34 +203,17 @@ public class IUPACCondensedImporter {
                 node = new StringBuilder();
                 isSub = false;
                 isLinkage = false;
-
-                continue;
-            }
-
-            //parse anomeric state
-            char linkage = _iupac.charAt(i+1);
-            if ((item == 'a' || item == 'b' || item == '?') &&
-                    String.valueOf(linkage).matches("[\\d?-]")) {
-                isLinkage = true;
-            }
-
-            if (isLinkage && _iupac.charAt(i) == ')') {
-                if (_iupac.charAt(i+1) == '=') {
-                    isLinkage = false;
-                    continue;
-                }
-                ret.add(node.toString());
-                isLinkage = false;
-                node = new StringBuilder();
             }
 
             //add monosaccharide notation to list.
+            /*
             char nextItem = _iupac.charAt(i+1);
             if (isLinkage && String.valueOf(nextItem).matches("[A-Z(]")) {
                 ret.add(node.toString());
                 isLinkage = false;
                 node = new StringBuilder();
             }
+             */
         }
 
         return ret;

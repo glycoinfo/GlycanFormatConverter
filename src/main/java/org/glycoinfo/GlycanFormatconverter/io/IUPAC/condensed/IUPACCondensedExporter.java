@@ -3,6 +3,8 @@ package org.glycoinfo.GlycanFormatconverter.io.IUPAC.condensed;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.ExporterInterface;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACExporterUtility;
+import org.glycoinfo.GlycanFormatconverter.io.IUPAC.glycam.GLYCAMNotationConverter;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.similarity.NodeSimilarity;
 
 import java.util.ArrayList;
@@ -12,10 +14,10 @@ import java.util.LinkedHashMap;
 
 public class IUPACCondensedExporter extends IUPACExporterUtility implements ExporterInterface {
 
-	private StringBuilder condensed = new StringBuilder();
-	private HashMap<Node, String> notationIndex = new HashMap<>();
-	private NodeSimilarity gu = new NodeSimilarity();
-	private boolean isGlycanWeb;
+	private final StringBuilder condensed = new StringBuilder();
+	private final HashMap<Node, String> notationIndex = new HashMap<>();
+	private final NodeSimilarity gu = new NodeSimilarity();
+	private final boolean isGlycanWeb;
 
 	public IUPACCondensedExporter (boolean _isGlycanWeb) {
 		this.isGlycanWeb = _isGlycanWeb;
@@ -25,7 +27,7 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 		return condensed.toString();
 	}
 
-	public void start (GlyContainer _glyCo) throws GlycanException {
+	public void start (GlyContainer _glyCo) throws GlycanException, TrivialNameException {
 		for( Node _node : _glyCo.getAllNodes()) {
 			// make core notations
 			makeMonosaccharideNotation(_node);
@@ -144,9 +146,16 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 		}
 	}
 	
-	public void makeMonosaccharideNotation (Node _node) throws GlycanException {
-		CondensedConverter condConv = new CondensedConverter();
-		if (!notationIndex.containsKey(_node)) notationIndex.put(_node, condConv.start(_node, isGlycanWeb));
+	public void makeMonosaccharideNotation (Node _node) throws GlycanException, TrivialNameException {
+		if (!notationIndex.containsKey(_node)) {
+			if (this.isGlycanWeb) {
+				GLYCAMNotationConverter glycamConv = new GLYCAMNotationConverter();
+				notationIndex.put(_node, glycamConv.start(_node));
+			} else {
+				CondensedConverter condConv = new CondensedConverter();
+				notationIndex.put(_node, condConv.start(_node));
+			}
+		}
 	}
 	
 	public void makeLinkageNotation (Node _node) {
@@ -154,7 +163,9 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 		Monosaccharide mono = (Monosaccharide) _node;
 
 		if(!mono.getParentEdges().isEmpty()) {
-			StringBuilder linkagePos = new StringBuilder("(");
+			StringBuilder linkagePos = new StringBuilder();
+			if (!this.isGlycanWeb) linkagePos.append("(");
+
 			for(Iterator<Edge> iterParent = gu.sortParentSideEdges(mono.getParentEdges()).iterator(); iterParent.hasNext();) {
 				Edge parentEdge = iterParent.next();
 				Substituent sub = (Substituent) parentEdge.getSubstituent();
@@ -178,7 +189,7 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 				// append parent linkage position
 				if (!parentEdge.isRepeat() && !parentEdge.isCyclic()) {
 					linkagePos.append(makeAcceptorPosition(parentEdge));
-					if(!iterParent.hasNext()) linkagePos.append(")");
+					if(!iterParent.hasNext() && !this.isGlycanWeb) linkagePos.append(")");
 				}
 
 				// append a separator for dual linkage position
@@ -187,17 +198,13 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 				}
 			}
 
-			if (this.isGlycanWeb) {
-				linkagePos = linkagePos.replace(0, 1, "")
-						.replace(linkagePos.length() - 1, linkagePos.length(), "");
-			}
-
 			notation.append(linkagePos);
 		}
 			
 		// for root node
-		if(mono.getParentEdges().isEmpty() && !mono.getAnomer().equals(AnomericStateDescriptor.OPEN) && !isFacingAnoms(mono.getChildEdges())) {
-			if (!this.isGlycanWeb) notation.append("(");
+		//TODO : アノマー情報の定義の仕方を変えたことにより, うまく動かないかもしれないため検証が必要
+		if(!this.isGlycanWeb && mono.getParentEdges().isEmpty() && !mono.getAnomer().equals(AnomericStateDescriptor.OPEN) && !isFacingAnoms(mono.getChildEdges())) {
+			notation.append("(");
 			char parentAnom = mono.getAnomer().getAnomericState();
 			notation.append(parentAnom == 'x' ? '?' : parentAnom == 'o' ? '?' : parentAnom);
 			
@@ -207,6 +214,13 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 			} else notation.append(mono.getAnomericPosition());
 
 			notation.append("-");
+		}
+		if (mono.getParentEdges().isEmpty() && this.isGlycanWeb) {
+			notation.append(mono.getAnomer().getAnomericState());
+			if (!isFacingAnoms(mono.getChildEdges())) {
+				notation.append(mono.getAnomericPosition());
+				notation.append("-OH");
+			}
 		}
 		
 		// append end repeating position
@@ -239,7 +253,7 @@ public class IUPACCondensedExporter extends IUPACExporterUtility implements Expo
 	private String makeAcceptorPosition(Edge _parentEdge) {
 		if(_parentEdge.getGlycosidicLinkages().size() > 1) return "";	
 		StringBuilder ret = new StringBuilder(extractPosition(_parentEdge.getGlycosidicLinkages().get(0).getParentLinkages()));
-		if(isFacingAnom(_parentEdge)) {
+		if(isFacingAnom(_parentEdge) && !this.isGlycanWeb) {
 			Monosaccharide parent = (Monosaccharide) _parentEdge.getParent();
 			char parentAnom = parent.getAnomer().getAnomericState();
 			ret.append(parentAnom == 'x' ? '?' : parentAnom);
