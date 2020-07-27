@@ -35,6 +35,10 @@ public enum BaseStereoIndex {
 	}
 	
 	public static BaseStereoIndex forCode (String _code) {
+		if (_code.length() == 4 && _code.matches("[dl][a-z]{3}")) {
+			_code = _code.substring(1);
+		}
+
 		for(BaseStereoIndex bsi : BaseStereoIndex.values()) {
 			if(bsi.code.equalsIgnoreCase(_code)) return bsi;
 		}

@@ -10,7 +10,7 @@ public enum MonosaccharideIndex {
     /* references : http://www.genome.jp/kegg/catalog/codes2.html */
 
     /* Triose */
-    GRO("Gro", "D", "p", 1),
+    GRO("Gro", "D", " ", 1),
 
     /* Tetrose */
     ERY("Ery", "D", "f", 1),
@@ -96,10 +96,10 @@ public enum MonosaccharideIndex {
     ACO("Aco", "D", "p", 1),
     PURC("PurC", "D", "p", 1);
 
-    private String trivialName;
-    private String configuration1;
-    private String ringSize;
-    private int anomerciPosition;
+    private final String trivialName;
+    private final String configuration1;
+    private final String ringSize;
+    private final int anomerciPosition;
 
     public String getTrivialName () { return this.trivialName; }
 
