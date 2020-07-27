@@ -80,28 +80,23 @@ public class MonosaccharideToBackbone {
 			this.unknownPosCoreMod.add(new Modification(map));
 		}
 		
+		if (this.anomericPos == Monosaccharide.UNKNOWN_RING) {
+			if (skeletonCode.contains("o")) {
+				this.anomericPos = skeletonCode.indexOf("o") + 1;
+				skeletonCode = skeletonCode.replaceFirst("o", "a");
+			} else if (skeletonCode.contains("O")) {
+				this.anomericPos = skeletonCode.indexOf("O") + 1;
+				skeletonCode = skeletonCode.replaceFirst("O", "a");
+			}
+		}
+
 		if (this.anomericPos == Monosaccharide.OPEN_CHAIN) {
-			//if (this.anomericSymbol == 'x' || this.anomericSymbol == 'o') {
 			if (!this.isAldehyde()) {
-				if (skeletonCode.startsWith("o") && skeletonCode.contains("O")) {
-					skeletonCode = skeletonCode.replaceFirst("o", "u");
-				} else {
-					skeletonCode = skeletonCode.replaceAll("o", "u");
-					skeletonCode = skeletonCode.replaceAll("O", "U");					
-				}
-				this.anomericPos = Monosaccharide.OPEN_CHAIN;
+				skeletonCode = skeletonCode.replaceFirst("o", "u");
 			}
-			/*
-			else {
-				if (skeletonCode.contains("o")) {
-					this.anomericPos = skeletonCode.indexOf("o") + 1;
-					skeletonCode = skeletonCode.replaceFirst("o", "a");
-				} else if (skeletonCode.contains("O")) {
-					this.anomericPos = skeletonCode.indexOf("O") + 1;
-					skeletonCode = skeletonCode.replaceFirst("O", "a");
-				}
+			if (!this.isKetone()) {
+				skeletonCode = skeletonCode.replaceFirst("O", "U");
 			}
-			 */
 		}
 
 		StringBuilder skeletonCode_b = new StringBuilder(skeletonCode);
@@ -224,6 +219,18 @@ public class MonosaccharideToBackbone {
 		for (GlyCoModification gMod : this.mono.getModifications()) {
 			if (gMod.getPositionOne() != 1) continue;
 			if (gMod.getModificationTemplate().equals(ModificationTemplate.ALDEHYDE)) {
+				ret = true;
+				break;
+			}
+		}
+		return ret;
+	}
+
+	private boolean isKetone () {
+		boolean ret = false;
+		for (GlyCoModification gMod : this.mono.getModifications()) {
+			if (gMod.getPositionOne() != 2) continue;
+			if (gMod.getModificationTemplate().equals(ModificationTemplate.KETONE_U)) {
 				ret = true;
 				break;
 			}

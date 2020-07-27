@@ -17,14 +17,16 @@ public class BackboneToNode {
 
     public Node start(Backbone _backbone) throws GlycanException, WURCSFormatException, ConverterExchangeException {
         Monosaccharide ret = new Monosaccharide();
-        String skeletonCode = _backbone.getSkeletonCode();
 
 		// set superclass
-        ret.setSuperClass(SuperClass.forSize(_backbone.getLength()));
+        if (_backbone.hasUnknownLength()) {
+            ret.setSuperClass(SuperClass.SUG);
+        } else {
+            ret.setSuperClass(SuperClass.forSize(_backbone.getLength()));
+        }
 
 		// extract anomeric state
-        char anomericstate = _backbone.getAnomericSymbol();
-        AnomericStateDescriptor enumAnom = this.parseAnomericState(skeletonCode, anomericstate);
+        AnomericStateDescriptor enumAnom = this.parseAnomericState(_backbone);
         ret.setAnomer(enumAnom);
 
 		// extract anomeric position
@@ -169,11 +171,11 @@ public class BackboneToNode {
         // When linkage type is H_LOSE, assign character of 'C' to head-atom
         if (lin.getParentLinkages().size() == 1 && !lin.getParentLinkages().contains(-1)) {
             int pos = lin.getParentLinkages().get(0);
-            if (_backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor.SS3_CHIRAL_X_U) ||
-                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor.SS3_CHIRAL_R_U) ||
-                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor.SS3_CHIRAL_r_U) ||
-                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor.SS3_CHIRAL_S_U) ||
-                    _backbone.getBackboneCarbons().get(pos-1).getDesctriptor().equals(CarbonDescriptor.SS3_CHIRAL_s_U)) {
+            if (_backbone.getBackboneCarbons().get(pos-1).getDescriptor().equals(CarbonDescriptor.SS3_CHIRAL_X_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDescriptor().equals(CarbonDescriptor.SS3_CHIRAL_R_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDescriptor().equals(CarbonDescriptor.SS3_CHIRAL_r_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDescriptor().equals(CarbonDescriptor.SS3_CHIRAL_S_U) ||
+                    _backbone.getBackboneCarbons().get(pos-1).getDescriptor().equals(CarbonDescriptor.SS3_CHIRAL_s_U)) {
                 ret.setHeadAtom("C");
             }
         }
@@ -220,12 +222,19 @@ public class BackboneToNode {
         return ret;
     }
 
-    private AnomericStateDescriptor parseAnomericState (String _skeletonCode, char _anomericState) {
-        if (_anomericState != 'o') return AnomericStateDescriptor.forAnomericState(_anomericState);
-        if (_skeletonCode.indexOf("o") == 0 || _skeletonCode.indexOf("O") == 1) return AnomericStateDescriptor.OPEN;
-        if (_skeletonCode.indexOf("u") == 0 || _skeletonCode.indexOf("U") == 1) return AnomericStateDescriptor.OPEN;
-        if (_skeletonCode.indexOf("h") == 0) return AnomericStateDescriptor.OPEN;
-        return AnomericStateDescriptor.UNKNOWN_STATE;
+    private AnomericStateDescriptor parseAnomericState (Backbone _backbone) {
+        String skeletonCode = _backbone.getSkeletonCode();
+        char anomericState = _backbone.getAnomericSymbol();
+
+        if (_backbone.getAnomericPosition() == 0) {
+            if (skeletonCode.indexOf("o") == 0 || skeletonCode.indexOf("O") == 1) return AnomericStateDescriptor.OPEN;
+            if (skeletonCode.indexOf("u") == 0 || skeletonCode.indexOf("U") == 1) return AnomericStateDescriptor.OPEN;
+            if (skeletonCode.indexOf("h") == 0) return AnomericStateDescriptor.OPEN;
+        }
+
+        AnomericStateDescriptor anomDesc = AnomericStateDescriptor.forAnomericState(anomericState);
+        if (anomDesc == null) return AnomericStateDescriptor.UNKNOWN_STATE;
+        else return anomDesc;
     }
 
     private Monosaccharide appendSubstituent (Node _node, Node _substituent) throws GlycanException {

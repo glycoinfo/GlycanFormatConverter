@@ -124,7 +124,7 @@ public class SkeletonCodeToStereo {
         boolean isNormal = false;
         boolean isWild = false;
         for (BackboneCarbon bc : _backbone.getBackboneCarbons()) {
-            char cd = bc.getDesctriptor().getChar();
+            char cd = bc.getDescriptor().getChar();
             if (cd == '1' || cd == '2' || cd == '3' || cd == '4' || cd == '5' || cd == '6' || cd == '7' || cd == '8') {
                 isNormal = true;
             }
@@ -144,7 +144,7 @@ public class SkeletonCodeToStereo {
         for (int i = 0; i < skeletonCode.length(); i++) {
             char carbon = skeletonCode.charAt(i);
             if ( carbon == '5' || carbon == '6' || carbon == '7' || carbon == '8' || carbon == 'X' )
-                _modMap.put(i+1, new ArrayList<Modification>());
+                _modMap.put(i+1, new ArrayList<>());
         //        ret.add(i+1);
         }
         return _modMap;

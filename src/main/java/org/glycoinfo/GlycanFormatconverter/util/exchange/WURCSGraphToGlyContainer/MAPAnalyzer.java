@@ -69,6 +69,7 @@ public class MAPAnalyzer {
         }
 
         // make base MAP of double linkage substituent
+        //*N*, *S*, *(CCC^ZCC^EC$2)/6NSC/9=O/9=O/3O*
         //if (_map.equals("*N*")) {
         if (_map.matches("\\*[A-Z]\\*.*")) {
             tempMAP = tempMAP.replaceFirst("\\*", "");
