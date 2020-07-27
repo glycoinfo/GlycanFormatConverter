@@ -3,6 +3,7 @@ package org.glycoinfo.GlycanFormatconverter.io.IUPAC.extended;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.ThreeLetterCodeAnalyzer;
 
@@ -59,7 +60,7 @@ public class IUPACNotationParser {
 		//group 6 : anhydro
 		//group 7 : deoxy (β-3,4-Anhydro-3,4,7-trideoxy-L-lyxHepp2,6N2-)
 		//group 8 : configuration
-		Matcher matMod = Pattern.compile("([\\d,:]*-Anhydro-)?([\\d,?]*-\\w*deoxy-)?([LD?]-\\w{3}-)?((aldehyde|\\?|\u03B1|\u03B2)-)?([\\d,:]*-Anhydro-)?([\\d,?]*-\\w*deoxy-)?([DL?])?").matcher(temp);
+		Matcher matMod = Pattern.compile("([\\d,:]*-Anhydro-)?([\\d,?]*-\\w*deoxy-)?([LD?]-\\w{3}-)?((keto|aldehyde|\\?|\u03B1|\u03B2)-)?([\\d,:]*-Anhydro-)?([\\d,?]*-\\w*deoxy-)?([DL?])?").matcher(temp);
 		
 		if(matMod.find()) {
 			// extract anomeric state
@@ -116,7 +117,9 @@ public class IUPACNotationParser {
 
 		//group 1 : trivial name ([A-Z][a-z]{2}\\d?[A-Z][a-z]{1,2} : Neu5Ac, [a-z]{2,3}[A-Z][a-z]{2} : lyxHex, araHex,  [A-Z]{1}[a-z]{2} : Glc)
 		//group 2 : ulosonic
-		Matcher matCore = Pattern.compile("(Sugar|Ko|[a-z]{2,3}[A-Z][a-z]{2}|6?d?i?[A-Z][a-z]{2})+((\\dulo)+)?").matcher(coreNotation);
+		//String partially = "[a-z]{2,3}[A-Z][a-z]{2}";
+		//String totally = "[\\dedi]*[A-Z][a-z]{2}C?";
+		Matcher matCore = Pattern.compile("(Sugar|Ko|[a-z]{2,3}[A-Z][a-z]{2}|[\\dedi]*[A-Z][a-z]{2}C?)+((\\dulo)+)?").matcher(coreNotation);
 		if(matCore.find()) {
 
 			// extract trivial name and super class
@@ -153,7 +156,7 @@ public class IUPACNotationParser {
 		mono.setAnomer(convertAnomericState(mono, anomericState));
 
 		// define anomeric position
-		mono.setAnomericPosition(extractAnomericPosition(mono, linkagePos));
+		mono.setAnomericPosition(extractAnomericPosition(mono, linkagePos, threeLetterCode));
 
 
 		// extract ring size and substituents
@@ -211,10 +214,12 @@ public class IUPACNotationParser {
 		return mono;
 	}
 
-	private int extractAnomericPosition (Monosaccharide _mono, String _linkage) {
+	private int extractAnomericPosition (Monosaccharide _mono, String _linkage, String _code) {
 		if(_linkage.equals("")) {
-			if (_mono.getAnomericPosition() != 0) return _mono.getAnomericPosition();
-			return Monosaccharide.OPEN_CHAIN;
+			if (_mono.getAnomer().equals(AnomericStateDescriptor.OPEN)) return Monosaccharide.OPEN_CHAIN;
+			else return Monosaccharide.UNKNOWN_RING;
+			//if (_mono.getAnomericPosition() != 0) return _mono.getAnomericPosition();
+			//return Monosaccharide.OPEN_CHAIN;
 		}
 		int childPos = Monosaccharide.UNKNOWN_RING;
 		AnomericStateDescriptor anomer = _mono.getAnomer();
@@ -233,6 +238,14 @@ public class IUPACNotationParser {
 		if (anomer.equals(AnomericStateDescriptor.OPEN)) return Monosaccharide.OPEN_CHAIN;
 		if (_mono.getAnomericPosition() != 0 && childPos == -1) childPos = _mono.getAnomericPosition();
 
+		// modify anomeric position
+		MonosaccharideIndex mi = MonosaccharideIndex.forTrivialNameWithIgnore(_code);
+		if (mi == null) return childPos;
+
+		if (mi.getAnomerciPosition() != childPos) {
+			return mi.getAnomerciPosition();
+		}
+
 		return childPos;
 	}
 
@@ -240,8 +253,6 @@ public class IUPACNotationParser {
 		switch (_anomeric) {
 			case "?" :
 				return AnomericStateDescriptor.UNKNOWN_STATE;
-				//if (_mono.getAnomericPosition() == -1) return AnomericStateDescriptor.UNKNOWN;
-				//else return AnomericStateDescriptor.UNKNOWN_STATE;
 
 			case "" :
 				return AnomericStateDescriptor.OPEN;

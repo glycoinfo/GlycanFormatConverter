@@ -69,7 +69,8 @@ public class ExtendedConverter extends IUPACNotationConverter {
 
 		// make modification with head
         if(isAlditol(_copy)) ret.append("-ol");
-        if(isAldehyde(_copy)) ret.insert(0, "aldehyde-");
+        if(isAldose(_copy)) ret.insert(0, "aldehyde-");
+        if(isKetose(_copy)) ret.insert(0, "keto-");
 
         return ret.toString();
     }

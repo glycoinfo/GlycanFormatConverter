@@ -156,6 +156,7 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 		
 		if (!notationIndex.containsKey(sub)) {
 			String subNotation = ((Substituent) sub).getSubstituent().getIUPACnotation();
+			subNotation = "O" + subNotation;
 			subNotation = this.extractPosition(_und.getConnection().getGlycosidicLinkages().get(0).getParentLinkages()) + subNotation;
 			notationIndex.put(sub, subNotation);
 		}
@@ -173,7 +174,8 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 
 		if(!mono.getParentEdges().isEmpty()) {
 			StringBuilder linkagePos = new StringBuilder("-(");
-			for(Iterator<Edge> iterParent = gu.sortParentSideEdges(mono.getParentEdges()).iterator(); iterParent.hasNext();) {
+			ArrayList<Edge> edges = mono.getParentEdges();
+			for(Iterator<Edge> iterParent = gu.sortParentSideEdges(edges).iterator(); iterParent.hasNext();) {
 				Edge parentEdge = iterParent.next();
 
 				if (parentEdge.isCyclic() && linkagePos.charAt(linkagePos.length() - 1) == ':') linkagePos.append("(");

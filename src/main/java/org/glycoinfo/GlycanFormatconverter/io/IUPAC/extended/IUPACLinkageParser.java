@@ -3,6 +3,7 @@ package org.glycoinfo.GlycanFormatconverter.io.IUPAC.extended;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStacker;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
+import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -107,9 +108,23 @@ public class IUPACLinkageParser extends SubstituentUtility {
 		* */
 		Matcher matStartRep = Pattern.compile("\\(([\\d?/]+)[\u2192\\-]](([n\\d]+)-?([n\\d]+)?)(-.+|:.+)?").matcher(notation);
 
+		/*
+		 * ?P=1$,
+		 * {Position}{Notation}={Number}$,
+		 * group 1 : linkage position
+		 */
+		Matcher matSubFrag = Pattern.compile("([\\d?]).+=\\d+\\$,").matcher(notation);
+
 		// parse start repetition
-		if(matStartRep.find()) {
+		if (matStartRep.find()) {
 			parseRepeating(_node, parent, matStartRep.group(5));
+		} else if (matSubFrag.find()) {
+			if (_node instanceof Substituent) {
+				parseFragmentsLinkage(_node, matSubFrag.group(1));
+			}
+			if (_node instanceof Monosaccharide) {
+				parseSimpleLinkage(_node, parent, notation);
+			}
 		} else {
 			parseSimpleLinkage(_node, parent, notation);
 		}
@@ -119,13 +134,15 @@ public class IUPACLinkageParser extends SubstituentUtility {
 			parseCyclic(_node, getIndex(nodeIndex.size() - 1));
 		}
 
-		if (parent == null && !glyCo.containsNode(_node)) {
+		if (parent == null &&
+				(!glyCo.containsNode(_node) && !glyCo.containsAntennae(_node))) {
 			glyCo.addNode(_node);
 		}
 	}
 	
 	private void parseSimpleLinkage (Node _node, Node _parent, String _notation) throws GlycanException{
 		String linkage = extractLinkageNotation(_notation);
+		int count = 0;
 
 		for(String unit : linkage.split(":")) {
 			/*
@@ -154,15 +171,12 @@ public class IUPACLinkageParser extends SubstituentUtility {
 					bridge.getFirstPosition().setParentLinkages(makeLinkageList(matLin.group(1)));
 					bridge.getSecondPosition().setParentLinkages(makeLinkageList(matLin.group(9)));
 
-					String headPos = matLin.group(5);
-					String tailPos = matLin.group(3);
-
 					// HEAD is parent, Tail is child
-					if (headPos != null) {
-						bridge.getFirstPosition().addChildLinkage(Integer.parseInt(headPos));
+					if (matLin.group(5) != null) {
+						bridge.getFirstPosition().addChildLinkage(Integer.parseInt(matLin.group(5)));
 					}
-					if (tailPos != null) {
-						bridge.getSecondPosition().addChildLinkage(Integer.parseInt(tailPos));
+					if (matLin.group(3) != null) {
+						bridge.getSecondPosition().addChildLinkage(Integer.parseInt(matLin.group(3)));
 					}
 
 					parentEdge.setSubstituent(bridge);
@@ -186,6 +200,8 @@ public class IUPACLinkageParser extends SubstituentUtility {
 				parentEdge.addGlycosidicLinkage(lin);
 
 				if(_parent != null) {
+					//Assign anomeric state for acceptor, only anomeric-anomeric linkages
+					_parent = this.modifyMonosaccharideState(_parent, matLin.group(0), matLin.group(9));
 					if (!stacker.isFragment()) glyCo.addNode(_parent, parentEdge, _node);
 					else {
 						GlycanUndefinedUnit und = glyCo.getUndefinedUnitWithIndex(stacker.getRoot());
@@ -198,9 +214,12 @@ public class IUPACLinkageParser extends SubstituentUtility {
 					_node.addParentEdge(parentEdge);
 					parentEdge.setChild(_node);
 					GlycanUndefinedUnit und = glyCo.getUndefinedUnitWithIndex(_node);
+					parentEdge.setParent(und.getParents().get(count));
 					und.setConnection(parentEdge);
+					und.addConnection(parentEdge);
 				}
-			}			
+			}
+			count++;
 		}
 	}
 	
@@ -327,7 +346,25 @@ public class IUPACLinkageParser extends SubstituentUtility {
 		
 		glyCo.addNode(_node, cyclicEdge, _startCyclic);
 	}
-	
+
+	private void parseFragmentsLinkage (Node _node, String _linkagePosition) throws GlycanException {
+		if (_node instanceof Monosaccharide) return;
+		GlycanUndefinedUnit und = glyCo.getUndefinedUnitWithIndex(_node);
+		for (Node coreNode : und.getParents()) {
+			Edge acceptor = new Edge();
+			Linkage lin = new Linkage();
+
+			lin.setParentLinkages(this.makeLinkageList(_linkagePosition));
+			lin.setChildLinkages(this.makeLinkageList("1"));
+			acceptor.setSubstituent(_node);
+			acceptor.addGlycosidicLinkage(lin);
+			acceptor.setParent(coreNode);
+			und.addConnection(acceptor);
+			_node.addParentEdge(acceptor);
+		}
+		und.setConnection(und.getConnections().get(0));
+	}
+
 	private String extractLinkageNotation (String _linkage) {
 		if (!_linkage.contains("-(")) return "";
 		_linkage = _linkage.substring(_linkage.indexOf("-(") + 1);
@@ -457,5 +494,54 @@ public class IUPACLinkageParser extends SubstituentUtility {
 		}
 		
 		return ret;
+	}
+
+	private Node modifyMonosaccharideState (Node _acceptor, String _linkage, String _acceptorPos) throws GlycanException {
+		if (_acceptor instanceof Substituent) return _acceptor;
+		if (!_linkage.matches(".+\u2194.+")) return _acceptor;
+
+		Monosaccharide acceptor = (Monosaccharide) _acceptor;
+		String acceptorNotation = nodeIndex.get(_acceptor);
+
+		// parse ring size
+		Matcher matMono = Pattern.compile(".+([pf?]).*").matcher(acceptorNotation);
+		String ringSize = "";
+		if (matMono.find()) {
+			ringSize = matMono.group(1);
+		}
+
+		// assign anomeric position
+		if (_acceptorPos.equals("1") || _acceptorPos.equals("2")) {
+			acceptor.setAnomericPosition(Integer.parseInt(_acceptorPos));
+		} else {
+			acceptor.setAnomericPosition(Monosaccharide.UNKNOWN_RING);
+		}
+
+		if (ringSize.equals("")) {
+			String stereo = acceptor.getStereos().getFirst();
+			stereo = stereo.length() == 4 ? stereo.substring(1) : stereo;
+			MonosaccharideIndex mi = MonosaccharideIndex.forTrivialNameWithIgnore(stereo);
+			ringSize = mi.getRingSize();
+		}
+
+		if (ringSize.equals("p")) {
+			if (acceptor.getAnomericPosition() == 1) {
+				acceptor.setRing(1, 5);
+			}
+			if (acceptor.getAnomericPosition() == 2) {
+				acceptor.setRing(2, 6);
+			}
+		} else if (ringSize.equals("f")) {
+			if (acceptor.getAnomericPosition() == 1) {
+				acceptor.setRing(1, 4);
+			}
+			if (acceptor.getAnomericPosition() == 2) {
+				acceptor.setRing(2, 5);
+			}
+		} else {
+			acceptor.setRing(acceptor.getAnomericPosition(), Monosaccharide.UNKNOWN_RING);
+		}
+
+		return _acceptor;
 	}
 }

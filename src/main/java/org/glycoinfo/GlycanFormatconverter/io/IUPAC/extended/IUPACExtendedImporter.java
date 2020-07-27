@@ -21,7 +21,7 @@ public class IUPACExtendedImporter {
 		LinkedHashMap<Node, String> nodeIndex = new LinkedHashMap<>();
 		List<String> notations = new ArrayList<>();
 
-		// separate glycan fragents
+		// separate glycan fragments
 		if (_iupac.contains("$,")) {
 			for (String unit : _iupac.split("\\$,")) {
 				if (unit.matches(".+=[\\d?]+")) unit += "$,";
