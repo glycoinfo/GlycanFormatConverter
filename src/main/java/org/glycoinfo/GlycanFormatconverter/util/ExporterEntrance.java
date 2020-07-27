@@ -10,6 +10,7 @@ import org.glycoinfo.GlycanFormatconverter.io.JSON.GCJSONExporter;
 import org.glycoinfo.GlycanFormatconverter.io.LinearCode.LinearCodeExporter;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerToWURCSGraph;
+import org.glycoinfo.GlycanFormatconverter.util.validator.IUPACValidator;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
 import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
@@ -30,6 +31,10 @@ public class ExporterEntrance {
 
         StringBuilder ret = new StringBuilder();
         GlyContainer copyGlyco = glyCo.copy();
+
+        //validate glycan structure
+        IUPACValidator iupacVali = new IUPACValidator();
+        iupacVali.validateGlycan(copyGlyco, _style);
 
         if (_style.equals(IUPACStyleDescriptor.SHORT)) {
             IUPACShortExporter shortExpo = new IUPACShortExporter();
@@ -60,7 +65,7 @@ public class ExporterEntrance {
         return ret.toString();
     }
 
-    public String toLinearCode () throws GlyCoExporterException, ConverterExchangeException, GlycanException {
+    public String toLinearCode () throws GlyCoExporterException, ConverterExchangeException, GlycanException, TrivialNameException {
         LinearCodeExporter lcExpo = new LinearCodeExporter();
 
         return lcExpo.start(glyCo);

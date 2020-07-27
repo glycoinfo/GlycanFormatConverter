@@ -80,6 +80,32 @@ public class MonosaccharideUtility {
         
         _mono.setRingStart(pos);
 
+        // check ring position
+        if (_mono.getAnomericPosition() == 1) {
+            if (_ringSize.equals("p")) {
+                if (_mono.getSuperClass().getSize() < SuperClass.PEN.getSize()) {
+                    throw new GlycanException("Ring position exceeds the number of carbon backbone : 5 -> " + _mono.getSuperClass().getSize());
+                }
+            }
+            if (_ringSize.equals("f")) {
+                if (_mono.getSuperClass().getSize() < SuperClass.TET.getSize()) {
+                    throw new GlycanException("Ring position exceeds the number of carbon backbone : 4 -> " + _mono.getSuperClass().getSize());
+                }
+            }
+        }
+        if (_mono.getAnomericPosition() == 2) {
+            if (_ringSize.equals("p")) {
+                if (_mono.getSuperClass().getSize() < SuperClass.HEX.getSize()) {
+                    throw new GlycanException("Ring position exceeds the number of carbon backbone : 6 -> " + _mono.getSuperClass().getSize());
+                }
+            }
+            if (_ringSize.equals("f")) {
+                if (_mono.getSuperClass().getSize() < SuperClass.PEN.getSize()) {
+                    throw new GlycanException("Ring position exceeds the number of carbon backbone : 5 -> " + _mono.getSuperClass().getSize());
+                }
+            }
+        }
+
         if(_ringSize.equals("p")) {
             if(pos == 1) _mono.setRingEnd(5);
             if(pos == 2) _mono.setRingEnd(6);
@@ -154,6 +180,10 @@ public class MonosaccharideUtility {
                 case "aldehyde" :
                     hashMod.put(1, ModificationTemplate.ALDEHYDE);
                     break;
+
+                case "keto" :
+                    hashMod.put(2, ModificationTemplate.ULOSONIC);
+                    break;
             }
 
             // parse notation with position
@@ -169,13 +199,13 @@ public class MonosaccharideUtility {
                     break;
 
                 case "(X)en" :
-                    if (hashMod.get(pos) != null && hashMod.get(pos).equals(ModificationTemplate.DEOXY)) {
+                    if (hashMod.get(pos) != null && this.isDeoxy(pos, _mono, hashMod)) { //hashMod.get(pos).equals(ModificationTemplate.DEOXY)) {
                         hashMod.put(pos, ModificationTemplate.UNSATURATION_FL);//chekcUnsaturateStatus(_mono, pos, hashMod);
                     } else {
                         hashMod.put(pos, ModificationTemplate.UNSATURATION_FU);
                     }
 
-                    if (hashMod.get(pos+1) != null && hashMod.get(pos+1).equals(ModificationTemplate.DEOXY)) {
+                    if (hashMod.get(pos+1) != null && this.isDeoxy(pos+1, _mono, hashMod)) { //hashMod.get(pos+1).equals(ModificationTemplate.DEOXY)) {
                         hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_FL);
                     } else {
                         hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_FU);
@@ -183,13 +213,13 @@ public class MonosaccharideUtility {
                     break;
 
                 case "(E)en" :
-                    if (hashMod.get(pos) != null && hashMod.get(pos).equals(ModificationTemplate.DEOXY)) {
+                    if (hashMod.get(pos) != null && this.isDeoxy(pos, _mono, hashMod)) { //hashMod.get(pos).equals(ModificationTemplate.DEOXY)) {
                         hashMod.put(pos, ModificationTemplate.UNSATURATION_EL);
                     } else {
                         hashMod.put(pos, ModificationTemplate.UNSATURATION_EU);
                     }
 
-                    if (hashMod.get(pos+1) != null && hashMod.get(pos+1).equals(ModificationTemplate.DEOXY)) {
+                    if (hashMod.get(pos+1) != null && this.isDeoxy(pos+1, _mono, hashMod)) { //hashMod.get(pos+1).equals(ModificationTemplate.DEOXY)) {
                         hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_EL);
                     } else {
                         hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_EU);
@@ -197,13 +227,13 @@ public class MonosaccharideUtility {
                     break;
 
                 case "(Z)en" :
-                    if (hashMod.get(pos) != null && hashMod.get(pos).equals(ModificationTemplate.DEOXY)) {
+                    if (hashMod.get(pos) != null && this.isDeoxy(pos, _mono, hashMod)) { //hashMod.get(pos).equals(ModificationTemplate.DEOXY)) {
                         hashMod.put(pos, ModificationTemplate.UNSATURATION_ZL);
                     } else {
                         hashMod.put(pos, ModificationTemplate.UNSATURATION_ZU);
                     }
 
-                    if (hashMod.get(pos+1) != null && hashMod.get(pos+1).equals(ModificationTemplate.DEOXY)) {
+                    if (hashMod.get(pos+1) != null && this.isDeoxy(pos+1, _mono, hashMod)) { //hashMod.get(pos+1).equals(ModificationTemplate.DEOXY)) {
                         hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_ZL);
                     } else {
                         hashMod.put(pos + 1, ModificationTemplate.UNSATURATION_ZU);
@@ -399,17 +429,10 @@ public class MonosaccharideUtility {
 
     private void modifyNsubstituent (Node _node) {
         Monosaccharide mono = (Monosaccharide) _node;
-        //SubstituentUtility subUtil = new SubstituentUtility();
 
         for (Edge edge : mono.getChildEdges()) {
             if (edge.getSubstituent() == null) continue;
             if (edge.getSubstituent() != null && edge.getChild() != null) continue;
-
-            //Substituent sub = (Substituent) edge.getSubstituent();
-
-            //if (subUtil.isNLinkedSubstituent(sub) && sub.getFirstPosition().getParentLinkages().contains(2)) {
-            //    sub.setTemplate(subUtil.convertNTypeToOType(sub.getSubstituent()));
-            //}
         }
     }
 
@@ -417,8 +440,6 @@ public class MonosaccharideUtility {
         if (_notation.equals("")) return;
 
         String[] posNot = _notation.split("\\*");
-        //BaseSubstituentTemplate subTemp = BaseSubstituentTemplate.forIUPACNotationWithIgnore(posNot[1]);
-        //SubstituentUtility subUtil = new SubstituentUtility();
 
         for (Edge edge : _node.getChildEdges()) {
             if (edge.getSubstituent() == null) continue;
@@ -461,5 +482,16 @@ public class MonosaccharideUtility {
                 _modMonoDesc.equals(ModifiedMonosaccharideDescriptor.TALN) ||
                 _modMonoDesc.equals(ModifiedMonosaccharideDescriptor.GULN)
         );
+    }
+
+    private boolean isDeoxy (Integer _pos, Node _node, HashMap<Integer, ModificationTemplate> _modMap) {
+        Monosaccharide node = (Monosaccharide) _node;
+        if (_pos == node.getSuperClass().getSize() && _modMap.get(_pos).equals(ModificationTemplate.METHYL)) {
+            return true;
+        }
+        if (_pos != node.getSuperClass().getSize() && _modMap.get(_pos).equals(ModificationTemplate.DEOXY)) {
+            return true;
+        }
+        return false;
     }
 }

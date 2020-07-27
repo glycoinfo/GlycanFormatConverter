@@ -76,6 +76,7 @@ public class NodeSimilarity {
 	 */
 	public boolean isMainChaineBranch(Node _node) {
 		if (_node.getParentEdges().isEmpty()) return false;
+		if (this.isAlternativeLinkedForAcceptor(_node)) return false;
 
 		Edge parentEdge = null;
 		for (Edge edge : _node.getParentEdges()) {
@@ -211,6 +212,28 @@ public class NodeSimilarity {
 		}
 
 		ret.sort(new EdgeComparator());
+		return ret;
+	}
+
+	private boolean isAlternativeLinkedForAcceptor (Node _node) {
+		if (_node instanceof Substituent) return false;
+		Monosaccharide mono = (Monosaccharide) _node;
+
+		boolean ret = false;
+		Edge temp = null;
+		for (Edge acceptor : mono.getParentEdges()) {
+			if (acceptor.getSubstituent() != null) {
+				if (acceptor.getSubstituent() instanceof GlycanRepeatModification) continue;
+				if (acceptor.getSubstituent() instanceof Substituent) continue;
+			}
+			if (acceptor.getParent() == null) continue;
+			if (temp == null) {
+				temp = acceptor;
+			} else {
+				ret = (!temp.getParent().equals(acceptor.getParent()));
+			}
+		}
+
 		return ret;
 	}
 }
