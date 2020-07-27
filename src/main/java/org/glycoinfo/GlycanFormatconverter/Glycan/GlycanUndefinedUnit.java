@@ -260,42 +260,41 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 	public GlycanUndefinedUnit copy () throws GlycanException {
 		GlycanUndefinedUnit und = new GlycanUndefinedUnit();
 		HashMap<Node, Node> copyIndex = new HashMap<>();
+		HashMap<Edge, Edge> copyEdge = new HashMap<>();
 
 		for (Node node : getNodes()) {
-			for (Edge parentEdge : node.getParentEdges()) {
-				Node copyParent;
-				Node copyChild;
-
-				if (parentEdge.getChild() == null || parentEdge.getParent() == null) continue;
-
-				if (!copyIndex.containsKey(parentEdge.getChild())) {
-					copyChild = parentEdge.getChild().copy();
-					copyIndex.put(parentEdge.getChild(), copyChild);
-				}
-
-				if (!copyIndex.containsKey(parentEdge.getParent())) {
-					copyParent = parentEdge.getParent().copy();
-					copyIndex.put(parentEdge.getParent(), copyParent);
-				}
+			copyIndex.put(node, node.copy());
+			for (Edge acceptorEdge : node.getParentEdges()) {
+				Edge edge = acceptorEdge.copy();
+				edge.setChild(copyIndex.get(node));
+				copyEdge.put(acceptorEdge, edge);
 			}
 		}
 
-		und.setParentNodes(parents);
+		for (Edge coreSide : this.connections) {
+			Edge edge;
+			if (!copyEdge.containsKey(coreSide)) {
+				edge = copyEdge.get(coreSide);
+			} else {
+				edge = coreSide.copy();
+				copyEdge.put(coreSide, edge);
+			}
 
-		if (this.connection != null) {
-			und.setConnection(connection.copy());
+			if (coreSide.getChild() != null) {
+				edge.setChild(copyIndex.get(coreSide.getChild()));
+			}
+			und.addConnection(edge);
 		}
+		und.connection = und.getConnections().get(0);
 
 		und.setProbability(probabilityHigh, probabilityLow);
 
 		// make copy of fragment linkages
 		for (Node node : getNodes()) {
-			if (node.getParentEdges().isEmpty()) {
-				Node copyNode = node.copy();
-				und.addNode(copyNode);
-			}
+			if (this.parents.contains(node)) continue;
+
 			for (Edge parentEdge : node.getParentEdges()) {
-				Edge copyEdge = parentEdge.copy();
+				Edge edge = copyEdge.get(parentEdge);
 				Node copyParent;
 				Node copyChild = null;
 				Node copySub;
@@ -304,10 +303,10 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 					copyChild = copyIndex.get(parentEdge.getChild());
 				} else {
 					if (parentEdge.getChild() != null) {
-						copyChild = parentEdge.getChild().copy();
+						copyChild = copyIndex.get(parentEdge.getChild());
 					}
 					if (parentEdge.getSubstituent() != null) {
-						copyChild = parentEdge.getSubstituent().copy();
+						copyChild = copyIndex.get(parentEdge.getSubstituent());
 					}
 				}
 
@@ -320,13 +319,13 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 				// copy of simple cross linked substituent
 				if (parentEdge.getChild() != null && parentEdge.getSubstituent() != null) {
 					copySub = parentEdge.getSubstituent().copy();
-					copyEdge.setSubstituent(copySub);
+					edge.setSubstituent(copySub);
 				}
 
 				if (copyParent instanceof Monosaccharide) {
-					und.addNode(copyParent, copyEdge, copyChild);
+					und.addNode(copyParent, edge, copyChild);
 				} else {
-					copyChild.addParentEdge(copyEdge);
+					copyChild.addParentEdge(edge);
 					und.addNode(copyChild);
 				}
 			}

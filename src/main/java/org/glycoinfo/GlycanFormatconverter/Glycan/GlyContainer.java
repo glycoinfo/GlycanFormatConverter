@@ -359,9 +359,13 @@ public class GlyContainer implements GlycanGraph {
 
 			ArrayList<Node> acceptorNodes = new ArrayList<>();
 			for (Node acceptor : und.getParents()) {
-				acceptorNodes.add(copyIndex.get(acceptor));
+				if (copyIndex.containsKey(acceptor)) {
+					acceptorNodes.add(copyIndex.get(acceptor));
+					copyUnd.getConnections().get(und.getParents().indexOf(acceptor)).setParent(copyIndex.get(acceptor));
+				}
 			}
 			copyUnd.setParentNodes(acceptorNodes);
+			copyUnd.setConnection(copyUnd.getConnections().get(0));
 		}
 
 		// make copy of core
