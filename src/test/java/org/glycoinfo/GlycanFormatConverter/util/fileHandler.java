@@ -1,28 +1,70 @@
 package org.glycoinfo.GlycanFormatConverter.util;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Created by e15d5605 on 2019/04/05.
  */
 public class fileHandler {
 
+    public static String openTSV (String _path) {
+        String fileStrings = "";
+        try {
+            File file = new File(_path);
 
-    public static void writeFile (String _result, String _error, String _fileName) throws IOException {
-		/* file open */
-        File file = new File(_fileName);
-        FileWriter fw = new FileWriter(file);
-        BufferedWriter bw = new BufferedWriter(fw);
+            //for (File item : file.listFiles()) {
+                if (file.exists()) {
+                    Path path = file.toPath();
+                    String fileName = path.getFileName().toString();
+                    String ext = "";
+                    if (fileName.length() > 3) {
+                        ext = fileName.substring(fileName.length() - 4);
+                    }
 
-		/* write file */
-        PrintWriter pw = new PrintWriter(bw);
-        pw.println(_result);
-        pw.println(_error);
+                    if (ext.equals(".tsv")) {
+                        String filePath = file.toPath().toString();
+                        DataFileReader reader = new DataFileReader(filePath);
+                        fileStrings = reader.getFileStrings();
+                    }
+                } else {
+                    throw new Exception(file.toPath().toString() + " is not exists.");
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        pw.close();
+        return fileStrings;
+    }
 
-        return;
+    public static void writeFile (String _filePath, HashMap<String, ArrayList<String>> _resultMap, String _format) {
+        try {
+            Date date = new Date();
+            SimpleDateFormat simpleDate = new SimpleDateFormat("-yyyy-MM-dd-HH-mm");
+            String outputStr = simpleDate.format(date);
+
+            FileWriter writeFile = new FileWriter(_filePath + outputStr + _format, true);
+            PrintWriter printWriter = new PrintWriter(new BufferedWriter(writeFile));
+
+            for (String key : _resultMap.keySet()) {
+                ArrayList<String> results = _resultMap.get(key);
+                String content = "";
+                for (Iterator<String> iter = results.iterator(); iter.hasNext();) {
+                    content += iter.next();
+                    if (iter.hasNext()) content += "\t";
+                }
+                printWriter.print(key + "\t" + content + "\n");
+            }
+
+            printWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static String openErrorFile (String _efile) throws Exception {
@@ -73,7 +115,7 @@ public class fileHandler {
      */
     public static HashMap<String, String> readWURCS(BufferedReader a_bfFile) throws IOException {
         String line = "";
-        HashMap<String, String> wret = new HashMap<String, String>();
+        HashMap<String, String> wret = new HashMap<>();
         wret.clear();
 
         while((line = a_bfFile.readLine()) != null) {
@@ -81,12 +123,12 @@ public class fileHandler {
 
             if (line.startsWith("%")) continue;
 
-            if (line.indexOf("#") != -1) {
+            if (line.contains("#")) {
                 line = line.substring(0, line.indexOf("#"));
             }
 
-            if(line.indexOf("WURCS") != -1) {
-                if(line.indexOf(" ") != -1) line = line.replace(" ", "\t");
+            if(line.contains("WURCS")) {
+                if(line.contains(" ")) line = line.replace(" ", "\t");
                 String[] IDandWURCS = line.split("\t");
                 if (IDandWURCS.length == 2) {
                     wret.put(IDandWURCS[0].trim(), IDandWURCS[1]);
