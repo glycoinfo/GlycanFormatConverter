@@ -2,6 +2,8 @@ package org.glycoinfo.GlycanFormatconverter.util.validator;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 
+import java.util.ArrayList;
+
 public class IUPACShortValidator implements TextValidator {
 
     public void validateShort (GlyContainer _glyCo) throws GlycanException {
@@ -27,6 +29,11 @@ public class IUPACShortValidator implements TextValidator {
             this.checkForBridgeSubstituent(edge);
         }
 
+        //check for glycan having multiple root node
+        if (!_glyCo.isComposition()) {
+            this.checkForRoot(_glyCo.getAllNodes());
+        }
+
         for (Node node : _glyCo.getAllNodes()) {
             //check for unknown monosaccharide
             this.checkForMonosaccharide(node);
@@ -46,6 +53,19 @@ public class IUPACShortValidator implements TextValidator {
 
             //check for modifications
             this.checkForModifications(node);
+        }
+    }
+
+    @Override
+    public void checkForRoot(ArrayList<Node> _nodes) throws GlycanException {
+        int count = 0;
+        for (Node node : _nodes) {
+            if (!node.getParentEdges().isEmpty()) continue;
+            count++;
+        }
+
+        if (count > 1) {
+            throw new GlycanException("IUPAC-Short format can not handle multiple root glycan.");
         }
     }
 
@@ -77,12 +97,19 @@ public class IUPACShortValidator implements TextValidator {
 
     @Override
     public void checkForBridgeSubstituent(Edge _edge) throws GlycanException {
-
+        if (_edge.getSubstituent() == null) return;
+        Substituent bridge = (Substituent) _edge.getSubstituent();
+        if (bridge.getSubstituent() instanceof BaseCrossLinkedTemplate) {
+            throw new GlycanException("IUPAC-Short format can not support cross-linked substituent.");
+        }
     }
 
     @Override
     public void checkForMonosaccharide(Node _node) throws GlycanException {
-
+        Monosaccharide mono = (Monosaccharide) _node;
+        if (mono.getSuperClass().equals(SuperClass.SUG)) {
+            throw new GlycanException("IUPAC-Short format can not handle unknown monosaccharide.");
+        }
     }
 
     @Override

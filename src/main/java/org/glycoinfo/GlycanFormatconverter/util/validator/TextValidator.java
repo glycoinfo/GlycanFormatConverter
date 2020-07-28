@@ -4,7 +4,11 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.Edge;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
 import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
 
+import java.util.ArrayList;
+
 public interface TextValidator {
+
+    void checkForRoot (ArrayList<Node> _nodes) throws GlycanException;
 
     void checkForRepeat(Edge _edge) throws GlycanException;
 

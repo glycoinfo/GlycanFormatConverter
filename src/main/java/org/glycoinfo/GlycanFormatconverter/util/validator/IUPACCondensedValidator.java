@@ -5,6 +5,9 @@ import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationConverter;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.SNFGNodeDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.ThreeLetterCodeConverter;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+
 public class IUPACCondensedValidator implements TextValidator {
 
     public void validateCondensed (GlyContainer _glyCo) throws GlycanException {
@@ -30,6 +33,11 @@ public class IUPACCondensedValidator implements TextValidator {
             this.checkForBridgeSubstituent(edge);
         }
 
+        //check for glycan having multiple root node
+        if (!_glyCo.isComposition()) {
+            this.checkForRoot(_glyCo.getAllNodes());
+        }
+
         for (Node node : _glyCo.getAllNodes()) {
             //check for unknown monosaccharide
             this.checkForMonosaccharide(node);
@@ -49,6 +57,19 @@ public class IUPACCondensedValidator implements TextValidator {
 
             //check for modifications
             this.checkForModifications(node);
+        }
+    }
+
+    @Override
+    public void checkForRoot(ArrayList<Node> _nodes) throws GlycanException {
+        int count = 0;
+        for (Node node : _nodes) {
+            if (!node.getParentEdges().isEmpty()) continue;
+            count++;
+        }
+
+        if (count > 1) {
+            throw new GlycanException("IUPAC-Condensed format can not handle multiple root glycan.");
         }
     }
 

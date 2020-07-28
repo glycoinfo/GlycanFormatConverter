@@ -2,6 +2,9 @@ package org.glycoinfo.GlycanFormatconverter.util.validator;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+
 public class IUPACExtendedValidator implements TextValidator {
 
     public void validatedExtended (GlyContainer _glyCo) throws GlycanException {
@@ -27,6 +30,11 @@ public class IUPACExtendedValidator implements TextValidator {
             this.checkForBridgeSubstituent(edge);
         }
 
+        //check for glycan having multiple root node
+        if (!_glyCo.isComposition()) {
+            this.checkForRoot(_glyCo.getAllNodes());
+        }
+
         for (Node node : _glyCo.getAllNodes()) {
             //check for unknown monosaccharide
             this.checkForMonosaccharide(node);
@@ -46,6 +54,19 @@ public class IUPACExtendedValidator implements TextValidator {
 
             //check for modifications
             this.checkForModifications(node);
+        }
+    }
+
+    @Override
+    public void checkForRoot(ArrayList<Node> _nodes) throws GlycanException {
+        int count = 0;
+        for (Node node : _nodes) {
+            if (!node.getParentEdges().isEmpty()) continue;
+            count++;
+        }
+
+        if (count > 1) {
+            throw new GlycanException("IUPAC-Extended format can not handle multiple root glycan.");
         }
     }
 
