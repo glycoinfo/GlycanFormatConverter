@@ -130,7 +130,8 @@ public class ThreeLetterCodeConverter {
 					continue;
 				}
 
-				if(tempSub.getSubstituent().equals(sub.getSubstituent())) subPoint++;
+				if(tempSub.getSubstituent().equals(sub.getSubstituent()) &&
+				tempSub.getHeadAtom().equals(sub.getHeadAtom())) subPoint++;
 			}
 		}
 
@@ -196,18 +197,24 @@ public class ThreeLetterCodeConverter {
 	}
 	
 	private ArrayList<Substituent> extractSubstituents (String _item) {
-		ArrayList<Substituent> ret = new ArrayList<Substituent>();
+		ArrayList<Substituent> ret = new ArrayList<>();
 		if(_item.equals("")) return ret;
 
 		for(String unit : _item.split("_")) {
 			String[] split_unit = unit.split("\\*");
-			LinkedList<Integer> pos = new LinkedList<Integer>();
+			LinkedList<Integer> pos = new LinkedList<>();
 			pos.addLast(Integer.parseInt(String.valueOf(split_unit[0])));
 			Linkage lin = new Linkage();
 			lin.setParentLinkages(pos);
-			
-			BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotation(makePlaneNotation(split_unit[1]));
-			if(bsubT != null) ret.add(new Substituent(bsubT, lin));
+
+			String planeNotation = this.makePlaneNotation(split_unit[1]);
+			BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotation(planeNotation);
+			if(bsubT != null) {
+				Substituent item = new Substituent(bsubT, lin);
+				String headAtom = this.extractHeadAtom(split_unit[1]);
+				item.setHeadAtom(headAtom);
+				ret.add(item);
+			}
 		}
 
 		return ret;
@@ -243,7 +250,7 @@ public class ThreeLetterCodeConverter {
 
 	private String makePlaneNotation (String _notation) {
 		if (_notation.startsWith("O") || _notation.startsWith("C"))
-			return (_notation.substring(1, _notation.length()));
+			return (_notation.substring(1));
 
 		if (_notation.startsWith("(")) {
 			String bracket = _notation.substring(0, _notation.indexOf(")")+1);
@@ -254,13 +261,34 @@ public class ThreeLetterCodeConverter {
 				_notation = _notation.replaceFirst("O", "");
 			}
 			if (_notation.startsWith("C") && _notation.length() == 3) {
-				_notation = _notation.substring(1, _notation.length());
+				_notation = _notation.substring(1);
 			}
 
 			_notation = bracket + _notation;
 		}
 
 		return _notation;
+	}
+
+	private String extractHeadAtom (String _notation) {
+		if (_notation.startsWith("C") || _notation.startsWith("O") || _notation.equals("N")) {
+			return _notation.substring(0, 1);
+		}
+
+		if (_notation.startsWith("(")) {
+			String bracket = _notation.substring(0, _notation.indexOf(")")+1);
+			String regex = bracket.replace("(", "\\(").replace(")", "\\)");
+			_notation = _notation.replaceFirst(regex, "");
+
+			if (_notation.startsWith("O")) {
+				return _notation.substring(0, 1);
+			}
+			if (_notation.startsWith("C") && _notation.length() == 3) {
+				return _notation.substring(0, 1);
+			}
+		}
+
+		return "";
 	}
 
 	private boolean isProbability (Substituent _sub) {
