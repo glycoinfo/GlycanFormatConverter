@@ -10,3 +10,4 @@ api.log
 .flattened-pom.xml
 .idea
 *.iml
+*.tsv
