@@ -91,10 +91,10 @@ public class MonosaccharideToBackbone {
 		}
 
 		if (this.anomericPos == Monosaccharide.OPEN_CHAIN) {
-			if (!this.isAldehyde()) {
+			if (skeletonCode.startsWith("o") && !this.isAldehyde()) {
 				skeletonCode = skeletonCode.replaceFirst("o", "u");
 			}
-			if (!this.isKetone()) {
+			if (skeletonCode.indexOf("O") == 1 && !this.isKetone()) {
 				skeletonCode = skeletonCode.replaceFirst("O", "U");
 			}
 		}
@@ -120,7 +120,7 @@ public class MonosaccharideToBackbone {
 	}
 	
 	private void replaceCarbonDescriptorByEdge (StringBuilder skeletonCode_b, Edge _edge, boolean _isParentSide) throws WURCSExchangeException {
-		Node node = (_isParentSide) ? _edge.getParent() : _edge.getChild();
+		Node node = (_isParentSide) ? _edge.getParent() : _edge.getSubstituent();
 		Substituent sub = (node instanceof Substituent) ? (Substituent) node : null;
 		boolean isSwapChirality = false;
 
