@@ -5,6 +5,7 @@ import org.glycoinfo.GlycanFormatconverter.util.TrivialName.ModifiedMonosacchari
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.GlyCoModificationComparater;
+import org.glycoinfo.WURCSFramework.wurcs.graph.ModificationRepeat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -486,6 +487,9 @@ public class MonosaccharideUtility {
 
     private boolean isDeoxy (Integer _pos, Node _node, HashMap<Integer, ModificationTemplate> _modMap) {
         Monosaccharide node = (Monosaccharide) _node;
+        if (_pos == 1 && _modMap.get(_pos).equals(ModificationTemplate.METHYL)) {
+            return true;
+        }
         if (_pos == node.getSuperClass().getSize() && _modMap.get(_pos).equals(ModificationTemplate.METHYL)) {
             return true;
         }

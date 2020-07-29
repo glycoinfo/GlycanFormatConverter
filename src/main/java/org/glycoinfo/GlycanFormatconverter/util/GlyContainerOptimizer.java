@@ -209,18 +209,29 @@ public class GlyContainerOptimizer {
             // Check phospho-ethanol amine
             if (_sub.getSubstituent().equals(BaseCrossLinkedTemplate.PHOSPHO_ETHANOLAMINE)) {
                 first.setParentLinkageType(LinkageType.H_AT_OH);
-                //second.setChildLinkageType(LinkageType.H_AT_OH);
+                second.setChildLinkageType(LinkageType.H_AT_OH);
             }
 
             if (_sub.getSubstituent().equals(BaseCrossLinkedTemplate.AMINO)) {
                 first.setParentLinkageType(LinkageType.DEOXY);
                 second.setChildLinkageType(LinkageType.DEOXY);
             }
-        }
-
-        if (_edge.getChild() == null) {
-            first.setParentLinkageType(LinkageType.H_AT_OH);
-            second.setChildLinkageType(LinkageType.H_AT_OH);
+        } else {
+            if (_sub.getSubstituent().equals(BaseCrossLinkedTemplate.AMINO)) {
+                if (!_sub.getHeadAtom().equals("O")) {
+                    first.setParentLinkageType(LinkageType.DEOXY);
+                } else {
+                    first.setParentLinkageType(LinkageType.H_AT_OH);
+                }
+                if (!_sub.getTailAtom().equals("O")) {
+                    second.setChildLinkageType(LinkageType.DEOXY);
+                } else {
+                    second.setChildLinkageType(LinkageType.H_AT_OH);
+                }
+            } else {
+                first.setParentLinkageType(LinkageType.H_AT_OH);
+                second.setChildLinkageType(LinkageType.H_AT_OH);
+            }
         }
 
         // Optimize linkage type between monosaccharides
