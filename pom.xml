@@ -166,13 +166,6 @@
 				<version>3.0.1</version>
 				<executions>
 					<execution>
-						<id>attach-sources</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-					<execution>
 						<id>install</id>
 						<phase>deploy</phase>
 						<goals>
