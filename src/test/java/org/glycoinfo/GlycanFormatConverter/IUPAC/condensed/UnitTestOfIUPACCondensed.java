@@ -134,6 +134,87 @@ public class UnitTestOfIUPACCondensed {
         System.out.println(toWURCS(input));
     }
 
+    @Test
+    public void unknownSubstituent () {
+        String input = "Glc2OMe3OMe(a1-4)Glc2OMe3OMe(a1-";
+        System.out.println(toWURCS(input));
+    }
+
+    @Test
+    public void alditol () {
+        String input = "Rha(a1-2)[Rha(a1-3)Gal(a1-3)GlcNAc(b1-4)]Rha(a1-2)Rha(a1-1)[Rha(a1-3)]Glc-ol";
+        System.out.println(toWURCS(input));
+    }
+
+    @Test
+    public void wrongCase () {
+        //TODO : bisectingのパースが適切でない
+        String input = "Man(a1-3)[Gal4OMe(b1-3)[Gal3OMe(b1-6)]GalNAc(b1-4)GlcNAc(b1-2)Man(a1-6)][Xyl(b1-2)]Man(b1-4)GlcNAc(b1-4)[Fuc(a1-6)]GlcNAc-ol";
+        System.out.println(this.toWURCS(input));
+    }
+
+    @Test
+    public void wrongCase1 () {
+        String input = "GlcNAc?OAc(a1-2)[Glc(a1-3)]L-gro-D-manHepp(a1-3)[Gal(b1-4)GlcNAc(b1-3)Gal(b1-4)Glc(b1-4)Glc(b1-4)]L-gro-D-manHepp(a1-5)Kdn";
+        System.out.println(this.toWURCS(input));
+    }
+
+    @Test
+    public void wrongCase2 () {
+        String input = "Glc6OAc(?1-?)Glc(?1-?)Glc?6OAc(?1-";
+        System.out.println(this.toWURCS(input));
+    }
+
+    @Test
+    public void wrongCase3 () {
+        String input = "Glc6OAc(?1-?)Glc(?1-?)Glc?OAc(?1-";
+        System.out.println(this.toWURCS(input));
+    }
+
+    @Test
+    public void wrongCase4 () {
+        String input = "Glc6OAc(?1-?)Glc(?1-?)Glcf3OAc(?1-";
+        System.out.println(this.toWURCS(input));
+    }
+
+    @Test
+    public void wrongCase5 () {
+        String input = "GlcN2S(a1-4)IdoA(a1-4)GlcN2S(a1-4)IdoA(a1-4)GlcN2S(?1-";
+        System.out.println(this.toWURCS(input));
+    }
+
+    @Test
+    public void wrongCase6 () {
+        //String input = "Man4-2,6-1(R)OPy(b1-4)GlcA(b1-";
+        String input = "GalNAc4-1,6-1OPy(b1-3)Gal(a1-4)Rha(b1-";
+        System.out.println(this.toWURCS(input));
+    }
+
+    @Test
+    public void wrongCase7 () {
+        String input = "Neu5Ac(?2-?)Hex?(?1-?)Hex?NAc6OS(?1-?)Hex?(?1-?)[Hex?(?1-?)Hex?NAc(?1-?)Hex?(?1-?)]Hex?(?1-?)Hex?NAc(?1-?)[Hex?(?1-?)]Hex?NAc(?1-";
+        System.out.println(this.toWURCS(input));
+    }
+
+    @Test
+    public void wrongCase8 () {
+        String input = "Grop(?1-";
+        System.out.println(this.toWURCS(input));
+    }
+
+    @Test
+    public void multiMonosaccharide () {
+        String input = "Rha(?1-?)QuiNAc(?1-?)L-gro-D-manHepp(?1-?)[Glc(?1-?)]Gal(?1-?)[L-gro-D-manHepp(?1-?)]L-gro-D-manHepp(?1-?)[Glc(?1-?)]L-gro-D-manHepp(?1-?)[Ara4N(?1-?)Ko(?2-?)]Kdo(?2-";
+        System.out.println(this.toWURCS(input));
+    }
+
+    @Test
+    public void unknownAnomer () {
+        //String input = "L-Aco2,4OMe2(?1-?)?-Thr";
+        String input = "L-Aco2OMe3S4OAc5N(?1-?)?-Thr";
+        System.out.println(this.toWURCS(input));
+    }
+
     public String toWURCS(String _iupac) {
         try {
             IUPACCondensedImporter ici = new IUPACCondensedImporter();

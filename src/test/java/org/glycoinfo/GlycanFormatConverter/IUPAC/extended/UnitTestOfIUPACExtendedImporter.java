@@ -112,6 +112,14 @@ public class UnitTestOfIUPACExtendedImporter {
         Assert.assertEquals(input, wurcs);
     }
 
+    @Test
+    public void unknownAnomer () {
+        String input = "WURCS=2.0/3,3,3/[u2122h_2*NCC/3=O][a2122h-1b_1-5_2*NCC/3=O][a2122h-1b_1-5_2*N]/1-2-3/a4-b1_b4-c1_b1-b4~2-3";
+        String iupac = toIUPAC(input);
+        String wurcs = toWURCS(iupac);
+        Assert.assertEquals(input, wurcs);
+    }
+
     private String toWURCS (String _iupac) {
         try {
             IUPACExtendedImporter iei = new IUPACExtendedImporter();
