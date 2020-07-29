@@ -173,10 +173,12 @@ public class IUPACLinkageParser extends SubstituentUtility {
 
 					// HEAD is parent, Tail is child
 					if (matLin.group(5) != null) {
-						bridge.getFirstPosition().addChildLinkage(Integer.parseInt(matLin.group(5)));
+						bridge.getSecondPosition().addChildLinkage(Integer.parseInt(matLin.group(5)));
+						//bridge.getFirstPosition().addChildLinkage(Integer.parseInt(matLin.group(5)));
 					}
 					if (matLin.group(3) != null) {
-						bridge.getSecondPosition().addChildLinkage(Integer.parseInt(matLin.group(3)));
+						bridge.getFirstPosition().addChildLinkage(Integer.parseInt(matLin.group(3)));
+						//bridge.getSecondPosition().addChildLinkage(Integer.parseInt(matLin.group(3)));
 					}
 
 					parentEdge.setSubstituent(bridge);

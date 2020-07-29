@@ -8,6 +8,7 @@ import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotatio
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.ThreeLetterCodeAnalyzer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -156,7 +157,7 @@ public class IUPACNotationParser {
 		mono.setAnomer(convertAnomericState(mono, anomericState));
 
 		// define anomeric position
-		mono.setAnomericPosition(extractAnomericPosition(mono, linkagePos, threeLetterCode));
+		mono.setAnomericPosition(extractAnomericPosition(mono, linkagePos, threeLetterCode, modifications));
 
 
 		// extract ring size and substituents
@@ -214,7 +215,7 @@ public class IUPACNotationParser {
 		return mono;
 	}
 
-	private int extractAnomericPosition (Monosaccharide _mono, String _linkage, String _code) {
+	private int extractAnomericPosition (Monosaccharide _mono, String _linkage, String _code, ArrayList<String> _mods) {
 		if(_linkage.equals("")) {
 			if (_mono.getAnomer().equals(AnomericStateDescriptor.OPEN)) return Monosaccharide.OPEN_CHAIN;
 			else return Monosaccharide.UNKNOWN_RING;
@@ -237,6 +238,11 @@ public class IUPACNotationParser {
 
 		if (anomer.equals(AnomericStateDescriptor.OPEN)) return Monosaccharide.OPEN_CHAIN;
 		if (_mono.getAnomericPosition() != 0 && childPos == -1) childPos = _mono.getAnomericPosition();
+
+		String ulosonate = this.extractAnomericUlosonate(_mods);
+		if (!ulosonate.equals("")) {
+			return Integer.parseInt(ulosonate);
+		}
 
 		// modify anomeric position
 		MonosaccharideIndex mi = MonosaccharideIndex.forTrivialNameWithIgnore(_code);
@@ -265,6 +271,18 @@ public class IUPACNotationParser {
 		}
 
 		return null;
+	}
+
+	private String extractAnomericUlosonate (ArrayList<String> _mods) {
+		ArrayList<String> ret = new ArrayList<>();
+		for (String mod : _mods) {
+			if (mod.contains("ulo")) ret.add(mod);
+		}
+
+		Collections.sort(ret);
+
+		if (ret.isEmpty()) return "";
+		else return String.valueOf(ret.get(0).charAt(0));
 	}
 
 	private int charToInt (char _char) {
