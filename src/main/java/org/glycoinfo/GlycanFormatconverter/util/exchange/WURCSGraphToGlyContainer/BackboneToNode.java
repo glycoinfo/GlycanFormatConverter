@@ -18,6 +18,9 @@ public class BackboneToNode {
     public Node start(Backbone _backbone) throws GlycanException, WURCSFormatException, ConverterExchangeException {
         Monosaccharide ret = new Monosaccharide();
 
+        // check for carbon descriptor
+        this.checkForCarbonDescriptor(_backbone);
+
 		// set superclass
         if (_backbone.hasUnknownLength()) {
             ret.setSuperClass(SuperClass.SUG);
@@ -71,6 +74,18 @@ public class BackboneToNode {
 
             ret.add(mod);
 
+            if (modT.equals(ModificationTemplate.KETONE) || modT.equals(ModificationTemplate.KETONE_U)) {
+                if (i + 1 == _mono.getSuperClass().getSize()) continue;
+                boolean haveMod = false;
+                for (GlyCoModification gMod : ret) {
+                    if (gMod.getPositionOne() == 1) haveMod = true;
+                }
+                if (!haveMod) {
+                    mod = new GlyCoModification(modT,1);
+                    ret.add(mod);
+                }
+            }
+            /*
             if (i != 1 && i+1 != _mono.getSuperClass().getSize() &&
                     (modT.equals(ModificationTemplate.KETONE) || modT.equals(ModificationTemplate.KETONE_U))) {
                 boolean haveMod = false;
@@ -82,6 +97,7 @@ public class BackboneToNode {
                     ret.add(mod);
                 }
             }
+             */
         }
 
         // extract deoxy from Modification
@@ -107,7 +123,10 @@ public class BackboneToNode {
         ArrayList<Modification> tempMods = new ArrayList<>();
         for(WURCSEdge we : _backbone.getChildEdges()) {
             Modification mod = we.getModification();
-            if (isRingPosition(mod, _mono) || mod.isGlycosidic() || mod instanceof ModificationRepeat) continue;
+            if (mod.isRing()) continue;
+            if (mod.isGlycosidic()) continue;
+            if (mod instanceof ModificationRepeat) continue;
+            //if (isRingPosition(mod, _mono) || mod.isGlycosidic() || mod instanceof ModificationRepeat) continue;
             if (mod.getMAPCode().equals("*")) continue;
 
             // extract simple substituent
@@ -115,7 +134,7 @@ public class BackboneToNode {
                 _mono = appendSubstituent(_mono, ModificationToSubstituent(_backbone, mod));
             }
 
-            // extract cross-linked substituent and an-hydro
+            // extract cross-linked substituent and anhydro
             if (mod.getParentEdges().size() == 2 /*&& !mod.getMAPCode().equals("")*/) {
                 if (tempMods.contains(mod)) continue;
                 _mono = appendSubstituent(_mono, ModificationToCrossLinkedSubstituent(mod));
@@ -311,6 +330,16 @@ public class BackboneToNode {
             }
         } else {
             Collections.sort(ring);
+            int end = ring.get(0);
+            if (ring.size() > 1) {
+                throw new GlycanException("GlycanFormatConverter can not handle multiple ring structure.");
+            }
+            if (start == 1 && (end != 4 && end != 5)) {
+                throw new GlycanException("GlycanFormatConverter can not handle this ring end : " + end);
+            }
+            if (start == 2 && (end != 5 && end != 6)) {
+                throw new GlycanException("GlycanFormatConverter can not handle this ring end : " + end);
+            }
             _mono.setRing(start, ring.get(0));
         }
 
@@ -322,5 +351,19 @@ public class BackboneToNode {
         int start = _mod.getParentEdges().get(0).getLinkages().get(0).getBackbonePosition();
         int end = _mod.getParentEdges().get(1).getLinkages().get(0).getBackbonePosition();
         return (_mono.getRingStart() == start && _mono.getRingEnd() == end);
+    }
+
+    private void checkForCarbonDescriptor (Backbone _backbone) throws WURCSFormatException {
+        for (BackboneCarbon bc : _backbone.getBackboneCarbons()) {
+            if (bc.getDescriptor().equals(CarbonDescriptor.SZ3_ACETAL_L)) {
+                throw new WURCSFormatException("GlycanFormatConverter can not handle acetal : " + bc.getDescriptor().getChar());
+            }
+            if (bc.getDescriptor().equals(CarbonDescriptor.SZ3_ACETAL_U)) {
+                throw new WURCSFormatException("GlycanFormatConverter can not handle acetal : " + bc.getDescriptor().getChar());
+            }
+            if (bc.getDescriptor().equals(CarbonDescriptor.SS3_ACETAL)) {
+                throw new WURCSFormatException("GlycanFormatConverter can not handle acetal : " + bc.getDescriptor().getChar());
+            }
+        }
     }
 }

@@ -587,10 +587,27 @@ public class WURCSGraphToGlyContainer {
 
 		if (_graph.getBackbones().size() == 1) return false;
 		for (Backbone bb : _graph.getBackbones()) {
-			if (bb.isRoot()) count++;
+			for (WURCSEdge wurcsEdge : bb.getChildEdges()) {
+				Modification mod = wurcsEdge.getModification();
+
+				if (!mod.getMAPCode().equals("")) {
+					if (mod.getEdges().size() > 1) count++;
+					else continue;
+				}
+				if (mod.isRing()) continue;
+
+				if (mod instanceof ModificationAlternative) {
+					if (((ModificationAlternative) mod).getLeadOutEdges().isEmpty() ||
+					((ModificationAlternative) mod).getLeadInEdges().isEmpty()) {
+						count++;
+					}
+				} else {
+					count++;
+				}
+			}
 		}
 
-		return (_graph.getBackbones().size() == count);
+		return count == 0;
 	}
 
 	private boolean isDefinedLinkage (Backbone _acceptor, Edge _edge, Backbone _donor) {

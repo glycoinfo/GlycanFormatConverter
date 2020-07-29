@@ -64,7 +64,9 @@ public class MAPAnalyzer {
 
         this.baseTemp = BaseSubstituentTemplate.forMAP(tempMAP);
         if (this.baseTemp != null) {
-            if (baseTemp.equals(BaseSubstituentTemplate.AMINE)) this.headAtom = "N";
+            if (baseTemp.equals(BaseSubstituentTemplate.AMINE) && this.headAtom.equals("")) {
+                this.headAtom = "N";
+            }
             return;
         }
 
@@ -74,6 +76,10 @@ public class MAPAnalyzer {
         if (_map.matches("\\*[A-Z]\\*.*")) {
             tempMAP = tempMAP.replaceFirst("\\*", "");
             this.baseCrossTemp = BaseCrossLinkedTemplate.forMAP(tempMAP);
+            if (baseCrossTemp.equals(BaseCrossLinkedTemplate.AMINO) && this.headAtom.equals("")) {
+                this.headAtom = "N";
+                this.tailAtom = "N";
+            }
             return;
         }
 
