@@ -365,7 +365,9 @@ public class GlyContainer implements GlycanGraph {
 				}
 			}
 			copyUnd.setParentNodes(acceptorNodes);
-			copyUnd.setConnection(copyUnd.getConnections().get(0));
+			if (!copyUnd.getConnections().isEmpty()) {
+				copyUnd.setConnection(copyUnd.getConnections().get(0));
+			}
 		}
 
 		// make copy of core

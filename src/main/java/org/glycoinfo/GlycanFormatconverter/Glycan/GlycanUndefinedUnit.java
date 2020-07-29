@@ -285,7 +285,9 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 			}
 			und.addConnection(edge);
 		}
-		und.connection = und.getConnections().get(0);
+		if (!und.getConnections().isEmpty()) {
+			und.connection = und.getConnections().get(0);
+		}
 
 		und.setProbability(probabilityHigh, probabilityLow);
 
@@ -293,6 +295,10 @@ public class GlycanUndefinedUnit implements GlycanGraph {
 		for (Node node : getNodes()) {
 			if (this.parents.contains(node)) continue;
 
+			if (node.getParentEdges().isEmpty()) {
+				und.addNode(copyIndex.get(node));
+				continue;
+			}
 			for (Edge parentEdge : node.getParentEdges()) {
 				Edge edge = copyEdge.get(parentEdge);
 				Node copyParent;
