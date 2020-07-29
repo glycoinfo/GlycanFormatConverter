@@ -178,7 +178,7 @@ public class IUPACCondensedNotationParser {
         if (matMono.find()) {
             String isomer = "";
             String prefix = "";
-            String coreName;
+            String coreName = "";
 
             //extract sub side monosaccharide
             if (matSubMono.find()) {
@@ -253,9 +253,19 @@ public class IUPACCondensedNotationParser {
                 if (sub.equals("A")) {
                     modifications.add("6A");
                 }
-                //TODO : シアル酸のときに結合位置を持たない修飾をコアとして取り出してしまっている
-                if (sub.matches("N[GA]c") || sub.equals("N") || sub.matches("5[GA]c")) {
-                    subNotations.add(sub);
+                if (coreName.equals("Neu")) {
+                    if (sub.matches("5[AG]c")) {
+                        subNotations.add(sub);
+                    } else {
+                        if (ringSize.equals("?") && !sub.matches("\\d.+")) {
+                            ringSize = "";
+                            subNotations.add("?" + sub);
+                        }
+                    }
+                } else {
+                    if (sub.matches("N[AG]c") || sub.equals("N")) {
+                        subNotations.add(sub);
+                    }
                 }
                 temp = replaceTemplate(temp, sub);
             }
