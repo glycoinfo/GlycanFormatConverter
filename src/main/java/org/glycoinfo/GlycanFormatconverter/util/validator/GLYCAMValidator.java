@@ -90,6 +90,11 @@ public class GLYCAMValidator implements TextValidator {
         }
     }
 
+    @Override
+    public void checkForLinkagePositions(Edge _edge) throws GlycanException {
+
+    }
+
     public void checkForProbability(Edge _edge) throws GlycanException {
         for (Linkage linkage : _edge.getGlycosidicLinkages()) {
             if (linkage.getChildProbabilityLower() != 1.0D) {

@@ -25,6 +25,7 @@ public class IUPACCondensedValidator implements TextValidator {
             //check for unknown linkages and probability
             this.checkForUnknownLinkages(edge);
             this.checkForProbability(edge);
+            this.checkForLinkagePositions(edge);
 
             //check for substituents
             this.checkForSubstituents(edge);
@@ -79,12 +80,33 @@ public class IUPACCondensedValidator implements TextValidator {
         Substituent repMod = (Substituent) _edge.getSubstituent();
         if (!(repMod instanceof GlycanRepeatModification)) return;
 
-        throw new GlycanException("IUPAC-Condensed format can not handle repeating unit.");
+        if (((GlycanRepeatModification) repMod).getMaxRepeatCount() == 1 &&
+        ((GlycanRepeatModification) repMod).getMinRepeatCount() == 1) {
+            throw new GlycanException("IUPAC-Condensed format can not handle cyclic structure.");
+        } else {
+            throw new GlycanException("IUPAC-Condensed format can not handle repeating unit.");
+        }
     }
 
     @Override
     public void checkForUnknownLinkages(Edge _edge) throws GlycanException {
 
+    }
+
+    @Override
+    public void checkForLinkagePositions(Edge _edge) throws GlycanException {
+        if (_edge.getChild() == null) return;
+
+        Monosaccharide donor = (Monosaccharide) _edge.getChild();
+        if (donor.getAnomericPosition() == Monosaccharide.OPEN_CHAIN &&
+        donor.getAnomer().equals(AnomericStateDescriptor.OPEN)) return;
+
+        for (Linkage lin : _edge.getGlycosidicLinkages()) {
+            if (lin.getChildLinkages().contains(-1)) continue;
+            if (!lin.getChildLinkages().contains(donor.getAnomericPosition())) {
+                throw new GlycanException("IUPAC-Condensed format can not handle a glycosidic linkage other than anomeric position.");
+            }
+        }
     }
 
     @Override
@@ -168,7 +190,7 @@ public class IUPACCondensedValidator implements TextValidator {
                 isUnknownAldose = true;
             }
         }
-        if (!isUnknownAldose) {
+        if (isUnknownAldose) {
             throw new GlycanException("IUPAC-Condensed format can not handle unknown aldose.");
         }
     }

@@ -75,11 +75,21 @@ public class IUPACShortValidator implements TextValidator {
         Substituent repMod = (Substituent) _edge.getSubstituent();
         if (!(repMod instanceof GlycanRepeatModification)) return;
 
-        throw new GlycanException("IUPAC-Short format can not support repeating unit.");
+        if (((GlycanRepeatModification) repMod).getMaxRepeatCount() == 1 &&
+                ((GlycanRepeatModification) repMod).getMinRepeatCount() == 1) {
+            throw new GlycanException("IUPAC-Short format can not handle cyclic structure.");
+        } else {
+            throw new GlycanException("IUPAC-Short format can not handle repeating unit.");
+        }
     }
 
     @Override
     public void checkForUnknownLinkages(Edge _edge) throws GlycanException {
+
+    }
+
+    @Override
+    public void checkForLinkagePositions(Edge _edge) throws GlycanException {
 
     }
 

@@ -14,6 +14,8 @@ public interface TextValidator {
 
     void checkForUnknownLinkages (Edge _edge) throws GlycanException;
 
+    void checkForLinkagePositions (Edge _edge) throws GlycanException;
+
     void checkForProbability (Edge _edge) throws GlycanException;
 
     void checkForBridgeSubstituent (Edge _edge) throws GlycanException;

@@ -3,7 +3,6 @@ package org.glycoinfo.GlycanFormatconverter.util.validator;
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class IUPACExtendedValidator implements TextValidator {
 
@@ -72,11 +71,23 @@ public class IUPACExtendedValidator implements TextValidator {
 
     @Override
     public void checkForRepeat(Edge _edge) throws GlycanException {
+        if (_edge.getSubstituent() == null) return;
+        Substituent repMod = (Substituent) _edge.getSubstituent();
+        if (!(repMod instanceof GlycanRepeatModification)) return;
 
+        if (((GlycanRepeatModification) repMod).getMaxRepeatCount() == 1 &&
+                ((GlycanRepeatModification) repMod).getMinRepeatCount() == 1) {
+            throw new GlycanException("IUPAC-Extended can not handle cyclic structure.");
+        }
     }
 
     @Override
     public void checkForUnknownLinkages(Edge _edge) throws GlycanException {
+
+    }
+
+    @Override
+    public void checkForLinkagePositions(Edge _edge) throws GlycanException {
 
     }
 
@@ -152,9 +163,9 @@ public class IUPACExtendedValidator implements TextValidator {
                 isUnknownAldose = true;
             }
         }
-        if (!isUnknownAldose) {
-            throw new GlycanException("IUPAC-Extended format can not handle unknown aldose.");
-        }
+        //if (!isUnknownAldose) {
+        //    throw new GlycanException("IUPAC-Extended format can not handle unknown aldose.");
+        //}
     }
 
     @Override
