@@ -28,6 +28,8 @@ public interface TextValidator {
 
     void checkForAnomericity (Node _node) throws GlycanException;
 
+    void checkForAnomericPosition (Node _node) throws GlycanException;
+
     void checkForIsomer (Node _node) throws GlycanException;
 
     void checkForRingSize (Node _node) throws GlycanException;
