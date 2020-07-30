@@ -326,7 +326,7 @@ public class BackboneToNode {
             if (_mono.getAnomer().equals(AnomericStateDescriptor.OPEN)) {
                 _mono.setRing(0, 0);
             } else {
-                _mono.setRing(start, -1);
+                throw new GlycanException("GlycanFormatConverter can not handle a monosaccharide having anomer without ring position.");
             }
         } else {
             Collections.sort(ring);
