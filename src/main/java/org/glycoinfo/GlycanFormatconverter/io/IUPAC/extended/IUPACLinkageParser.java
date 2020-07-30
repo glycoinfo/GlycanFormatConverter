@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
 
 public class IUPACLinkageParser extends SubstituentUtility {
 
-	private HashMap<Node, String> nodeIndex;
-	private GlyContainer glyCo;
-	private IUPACStacker stacker;
+	private final HashMap<Node, String> nodeIndex;
+	private final GlyContainer glyCo;
+	private final IUPACStacker stacker;
 	
 	public GlyContainer getGlyCo () {
 		return this.glyCo;
@@ -284,7 +284,6 @@ public class IUPACLinkageParser extends SubstituentUtility {
 
 				glyCo.addNode(endRep, repeatEdge, _node);
 			}
-
 		}
 
 		if (_parent != null) {
@@ -324,19 +323,14 @@ public class IUPACLinkageParser extends SubstituentUtility {
 	
 	private void parseCyclic (Node _node, Node _startCyclic) throws GlycanException {
 		String start = nodeIndex.get(_startCyclic);
-		String current = nodeIndex.get(_node).replace("]-", "");
-		String childPos = start.substring(start.length() - 2, start.length() - 1); //extractLinkageNotation(start).substring(0, 1);
+		String end = nodeIndex.get(_node).replaceFirst("([]\\-]+)", "");
+		String startPos = start.substring(start.length() - 2, start.length() - 1);
 		
 		Linkage lin = new Linkage();		
-		lin.addChildLinkage(childPos.equals("?") ? -1 : Integer.parseInt(childPos));
+		lin.addChildLinkage(startPos.equals("?") ? -1 : Integer.parseInt(startPos));
 
-		String child = "";
-		for (int i =0; i < current.length(); i++) {
-			char uni = current.charAt(i);
-			if (uni == ')') break;
-			if (String.valueOf(uni).matches("\\d")) child = child + uni;
-		}
-		lin.setParentLinkages(makeLinkageList(child));
+		String endPos = String.valueOf(end.charAt(0));
+		lin.setParentLinkages(makeLinkageList(endPos));
 
 		Edge cyclicEdge = new Edge();
 		cyclicEdge.addGlycosidicLinkage(lin);
@@ -442,7 +436,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 		int key = 1;
 		for (String pos : repStart.substring(repStart.indexOf("-(") + 2).split(":")) {
 			if (isStartRep(pos)) {
-				repPosMap.put(key, pos);//repPos.add(pos);
+				repPosMap.put(key, pos);
 				key++;
 			}
 		}
@@ -469,9 +463,8 @@ public class IUPACLinkageParser extends SubstituentUtility {
 	}
 	
 	private boolean isEndCyclic (String _notation) {
-		if(_notation.indexOf("]-") == 0) _notation = _notation.substring(2);
-		if (_notation.indexOf("-") == 0) _notation = _notation.substring(1);
-		return (_notation.matches("^\\d\\).+"));
+		_notation = _notation.replaceFirst("([]\\-]+)", "");
+		return (_notation.matches("^[\\d?]\\).+"));
 	}
 	
 	private boolean isStartRep (String _notation) {

@@ -98,7 +98,7 @@ public class IUPACCondensedLinkageParser {
             //group6 :
             //group7 : linkage position of acceptor
             //group8 : anomeric state for acceptor side
-            Matcher matPos = Pattern.compile("([\\d?])-(([\\d?])?([(A-Za-z)]+)([\\d?])?-)?(([\\d?/])([ab?])?)").matcher(unit);
+            Matcher matPos = Pattern.compile("([\\d?])-(([\\d?])?([(A-Za-z)]+)([\\d?])?-)?(([\\d?/]+)([ab?])?)").matcher(unit);
             if (matPos.find()) {
                 Edge edge = new Edge();
                 Linkage linkage = new Linkage();

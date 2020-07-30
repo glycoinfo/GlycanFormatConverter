@@ -80,10 +80,12 @@ public class IUPACExtendedValidator implements TextValidator {
         Substituent repMod = (Substituent) _edge.getSubstituent();
         if (!(repMod instanceof GlycanRepeatModification)) return;
 
+        /*
         if (((GlycanRepeatModification) repMod).getMaxRepeatCount() == 1 &&
                 ((GlycanRepeatModification) repMod).getMinRepeatCount() == 1) {
             throw new GlycanException("IUPAC-Extended can not handle cyclic structure.");
         }
+         */
     }
 
     @Override
