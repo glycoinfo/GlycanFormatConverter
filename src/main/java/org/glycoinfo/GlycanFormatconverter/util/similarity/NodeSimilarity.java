@@ -39,6 +39,7 @@ public class NodeSimilarity {
 		ArrayList<Edge> picked = new ArrayList<>();
 		for (Edge edge : _node.getChildEdges()) {
 			if (edge.isRepeat()) continue;
+			if (edge.isCyclic()) continue;
 			picked.add(edge);
 		}
 
