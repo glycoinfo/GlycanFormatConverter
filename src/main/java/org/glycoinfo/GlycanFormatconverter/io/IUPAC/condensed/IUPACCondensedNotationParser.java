@@ -45,6 +45,7 @@ public class IUPACCondensedNotationParser {
         temp = temp.replace(linkage, "");
 
         // parse aldehyde or ketone
+        //TODO :head以外のaldehyde
         Matcher matModiAlde = Pattern.compile("(aldehyde|keto)-").matcher(temp);
         if (matModiAlde.find()) {
             String modification = matModiAlde.group(1);
@@ -78,14 +79,17 @@ public class IUPACCondensedNotationParser {
             if (matModiSuf.group(2) != null) {
                 String acidic = matModiSuf.group(2);
                 if (acidic.equals("aric")) {
-                    modifications.add("1A");
-                    modifications.add("6A");
+                    modifications.add("aric");
+                    //modifications.add("1A");
+                    //modifications.add("6A");
                 }
                 if (acidic.equals("onic")) {
-                    modifications.add("1A");
+                    modifications.add("onic");
+                    //modifications.add("1A");
                 }
-                if (acidic.equals("ulonic")) {
-                    modifications.add("6A");
+                if (acidic.equals("uronic")) {
+                    modifications.add("uronic");
+                    //modifications.add("6A");
                 }
                 temp = temp.replace(matModiSuf.group(1), "");
             }
@@ -94,7 +98,7 @@ public class IUPACCondensedNotationParser {
         //parse alditol
         Matcher matAldi = Pattern.compile("-ol").matcher(temp);
         if (matAldi.find()) {
-            modifications.add("1h");
+            modifications.add("ol");
             temp = temp.replace(matAldi.group(0), "");
         }
 
@@ -253,17 +257,13 @@ public class IUPACCondensedNotationParser {
                 if (sub.equals("A")) {
                     modifications.add("6A");
                 }
-                if (coreName.equals("Neu")) {
-                    if (sub.matches("5[AG]c")) {
-                        subNotations.add(sub);
-                    } else {
-                        if (ringSize.equals("?") && !sub.matches("\\d.+")) {
-                            ringSize = "";
-                            subNotations.add("?" + sub);
-                        }
-                    }
+                if (sub.matches("5[AG]c")) {
+                    subNotations.add(sub);
                 } else {
-                    if (sub.matches("N[AG]c") || sub.equals("N")) {
+                    if (ringSize.equals("?")) {
+                        ringSize = "";
+                        subNotations.add("?" + sub);
+                    } else {
                         subNotations.add(sub);
                     }
                 }
@@ -547,8 +547,8 @@ public class IUPACCondensedNotationParser {
         if (isModification(_notation)) return false;
         String simple = "[\\d?]";
         String bridge = "[\\d?](-[\\d?])?,[\\d?](-[\\d?])?";
-        String multiple = "([\\d?],[\\d?])+";
-        String fuzzy = "([\\d?]/[\\d?])+";
+        String multiple = "([\\d?,]+[\\d?])";
+        String fuzzy = "([\\d?/]+[\\d?])";
         String regex = "(" + simple + ":?|" + bridge + ":?|" + multiple + ":?|" + fuzzy + ":?)+";
         String notation = "(Tri-)?([(A-Za-z)]+)\\d?";
 
