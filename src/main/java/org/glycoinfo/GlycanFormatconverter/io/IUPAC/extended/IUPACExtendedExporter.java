@@ -13,9 +13,9 @@ import java.util.LinkedHashMap;
 
 public class IUPACExtendedExporter extends IUPACExporterUtility implements ExporterInterface{
 
-	private StringBuilder extended;
-	private HashMap<Node, String> notationIndex;
-	private NodeSimilarity gu;
+	private final StringBuilder extended;
+	private final HashMap<Node, String> notationIndex;
+	private final NodeSimilarity gu;
 
 	public IUPACExtendedExporter () {
 		this.extended = new StringBuilder();
@@ -113,16 +113,16 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 		int branch = 0;
 		StringBuilder encode = new StringBuilder();
 
-		for(Node skey : _nodes) {
-			StringBuilder notation = new StringBuilder(notationIndex.get(skey));
-			if(gu.isMainChaineBranch(skey)) {
+		for (Node node : _nodes) {
+			StringBuilder notation = new StringBuilder(notationIndex.get(node));
+			if (gu.isMainChaineBranch(node)) {
 				notation.append("]");
 				branch++;
 			}
-			
-			int numOfChildren = gu.countChildren(skey);
-			if(numOfChildren > 0) notation.insert(0, "-");
-			if(numOfChildren == 0 && branch > 0) {
+
+			int numOfChildren = gu.countChildren(node);
+			if (numOfChildren > 0) notation.insert(0, "-");
+			if (numOfChildren == 0 && branch > 0) {
 				notation.insert(0, "[");
 				branch--;
 			}
