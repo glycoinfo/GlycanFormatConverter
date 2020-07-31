@@ -325,6 +325,7 @@ public class GlyContainerOptimizer {
     }
 
     public boolean withH_LOSE (Monosaccharide _mono, Substituent _sub) {
+        if (_sub.getHeadAtom().equals("O")) return false;
         if (_sub.getHeadAtom().equals("C")) return true;
         //if (_mono.getModifications().isEmpty()) return false;
 
