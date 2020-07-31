@@ -160,7 +160,7 @@ public class IUPACCondensedValidator implements TextValidator {
         if (mono.getAnomericPosition() == -1) return;
 
         if (mono.getAnomericPosition() == 3) {
-            throw new GlycanException("IUPAC-Extended format can not handle an anomeric position : " + mono.getAnomericPosition());
+            throw new GlycanException("IUPAC-Condensed format can not handle an anomeric position : " + mono.getAnomericPosition());
         }
 
         ThreeLetterCodeConverter threeConv = new ThreeLetterCodeConverter();
@@ -185,7 +185,7 @@ public class IUPACCondensedValidator implements TextValidator {
         if (mono.getAnomericPosition() == -1) return;
 
         if (mono.getAnomericPosition() == 3) {
-            throw new GlycanException("IUPAC-Extended format can not handle an anomeric position : " + mono.getAnomericPosition());
+            throw new GlycanException("IUPAC-Condensed format can not handle an anomeric position : " + mono.getAnomericPosition());
         }
 
         ThreeLetterCodeConverter threeConv = new ThreeLetterCodeConverter();

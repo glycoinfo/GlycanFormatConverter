@@ -112,7 +112,7 @@ public class IUPACExtendedValidator implements TextValidator {
     public void checkForMonosaccharide(Node _node) throws GlycanException {
         Monosaccharide mono = (Monosaccharide) _node;
         if (mono.getSuperClass().equals(SuperClass.SUG)) {
-            throw new GlycanException ("IUPAC-Extended format can not handle unknown monosaccharide.");
+        //    throw new GlycanException ("IUPAC-Extended format can not handle unknown monosaccharide.");
         }
     }
 
@@ -174,11 +174,19 @@ public class IUPACExtendedValidator implements TextValidator {
     public void checkForModifications(Node _node) throws GlycanException {
         Monosaccharide mono = (Monosaccharide) _node;
 
+        for (GlyCoModification gMod : mono.getModifications()) {
+            //check for aldehyde
+            if (gMod.getPositionOne() != 1 &&
+                    gMod.getModificationTemplate().equals(ModificationTemplate.ALDEHYDE)) {
+                throw new GlycanException("IUPAC-Extended format can not handle aldehyde expect in anomeric position.");
+            }
+        }
+
         if (!mono.getAnomer().equals(AnomericStateDescriptor.OPEN) &&
         mono.getAnomericPosition() != Monosaccharide.OPEN_CHAIN) return;
 
-        //check for unknown keto-monosaccharide
         for (GlyCoModification gMod : mono.getModifications()) {
+            //check for unknown keto-monosaccharide
             if (gMod.getPositionOne() == 2 &&
                     gMod.getModificationTemplate().equals(ModificationTemplate.KETONE_U)) {
                 throw new GlycanException("IUPAC-Extended format can not handle ketose with unknown anomer state.");
@@ -192,11 +200,8 @@ public class IUPACExtendedValidator implements TextValidator {
             if (gMod.getPositionOne() == 1 &&
                     (gMod.getModificationTemplate().equals(ModificationTemplate.ALDEHYDE) ||
                             gMod.getModificationTemplate().equals(ModificationTemplate.HYDROXYL))) {
-                isUnknownAldose = true;
+                throw new GlycanException("IUPAC-Extended format can not handle unknown aldose.");
             }
-        }
-        if (!isUnknownAldose) {
-            throw new GlycanException("IUPAC-Extended format can not handle unknown aldose.");
         }
          */
     }
