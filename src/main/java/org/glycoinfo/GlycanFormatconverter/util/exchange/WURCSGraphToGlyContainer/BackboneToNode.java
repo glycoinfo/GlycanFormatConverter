@@ -60,8 +60,15 @@ public class BackboneToNode {
             char carbon = skeletonCode.charAt(i);
             ModificationTemplate modT = ModificationTemplate.forCarbon(carbon);
 
+            if (carbon == 'o') {
+                if (i == 0 || i == skeletonCode.length() - 1) {
+                    modT = ModificationTemplate.ALDEHYDE;
+                } else {
+                    modT = ModificationTemplate.KETONE;
+                }
+            }
+
             if (i != 0) {
-                if (carbon == 'o') modT = ModificationTemplate.KETONE;
                 if (carbon == 'O' || carbon == 'a') modT = ModificationTemplate.KETONE_U;
             }
             if (i == (_mono.getSuperClass().getSize() -1 ) && carbon == 'A') {
@@ -126,7 +133,6 @@ public class BackboneToNode {
             if (mod.isRing()) continue;
             if (mod.isGlycosidic()) continue;
             if (mod instanceof ModificationRepeat) continue;
-            //if (isRingPosition(mod, _mono) || mod.isGlycosidic() || mod instanceof ModificationRepeat) continue;
             if (mod.getMAPCode().equals("*")) continue;
 
             // extract simple substituent
@@ -135,7 +141,7 @@ public class BackboneToNode {
             }
 
             // extract cross-linked substituent and anhydro
-            if (mod.getParentEdges().size() == 2 /*&& !mod.getMAPCode().equals("")*/) {
+            if (mod.getParentEdges().size() == 2) {
                 if (tempMods.contains(mod)) continue;
                 _mono = appendSubstituent(_mono, ModificationToCrossLinkedSubstituent(mod));
                 tempMods.add(mod);
@@ -188,7 +194,7 @@ public class BackboneToNode {
         if (_backbone.hasUnknownLength()) return ret;
 
         // When linkage type is H_LOSE, assign character of 'C' to head-atom
-        if (lin.getParentLinkages().size() == 1 && !lin.getParentLinkages().contains(-1)) {
+        if (!ret.getHeadAtom().equals("O") && (lin.getParentLinkages().size() == 1 && !lin.getParentLinkages().contains(-1))) {
             int pos = lin.getParentLinkages().get(0);
             if (_backbone.getBackboneCarbons().get(pos-1).getDescriptor().equals(CarbonDescriptor.SS3_CHIRAL_X_U) ||
                     _backbone.getBackboneCarbons().get(pos-1).getDescriptor().equals(CarbonDescriptor.SS3_CHIRAL_R_U) ||
@@ -294,17 +300,6 @@ public class BackboneToNode {
         return (Monosaccharide) _node;
     }
 
-    private int checkAnomericPosition (Backbone _backbone) {
-        int anomericPosition = _backbone.getAnomericPosition();
-        String skeletonCode = _backbone.getSkeletonCode();
-
-        if (skeletonCode.indexOf("u") == 0 || skeletonCode.indexOf("U") == 1) {
-            anomericPosition = -1;
-        }
-
-        return anomericPosition;
-    }
-
     private Monosaccharide extractRingPosition (Backbone _backbone, Monosaccharide _mono) throws GlycanException {
         int anomericPos = _backbone.getAnomericPosition();
         ArrayList<Integer> ring = new ArrayList<>();
@@ -326,7 +321,9 @@ public class BackboneToNode {
             if (_mono.getAnomer().equals(AnomericStateDescriptor.OPEN)) {
                 _mono.setRing(0, 0);
             } else {
-                throw new GlycanException("GlycanFormatConverter can not handle a monosaccharide having anomer without ring position.");
+                if (!_backbone.hasUnknownLength()) {
+                    throw new GlycanException("GlycanFormatConverter can not handle a monosaccharide having anomer without ring position.");
+                }
             }
         } else {
             Collections.sort(ring);
@@ -334,10 +331,10 @@ public class BackboneToNode {
             if (ring.size() > 1) {
                 throw new GlycanException("GlycanFormatConverter can not handle multiple ring structure.");
             }
-            if (start == 1 && (end != 4 && end != 5)) {
+            if (start == 1 && (end != 4 && end != 5 && end != -1)) {
                 throw new GlycanException("GlycanFormatConverter can not handle this ring end : " + end);
             }
-            if (start == 2 && (end != 5 && end != 6)) {
+            if (start == 2 && (end != 5 && end != 6 && end != -1)) {
                 throw new GlycanException("GlycanFormatConverter can not handle this ring end : " + end);
             }
             _mono.setRing(start, ring.get(0));
