@@ -97,7 +97,10 @@ public class GCJSONNodeParser {
             _node.setRing(_node.getAnomericPosition(), 0);
         }
         if (_ringSize.equals("?")) {
-            _node.setRing(_node.getAnomericPosition(), -1);
+            _node.setRing(_node.getAnomericPosition(), Monosaccharide.UNKNOWN_RING);
+        }
+        if (_ringSize.equals("o")) {
+            _node.setRing(_node.getAnomericPosition(), Monosaccharide.OPEN_CHAIN);
         }
 
         return _node;

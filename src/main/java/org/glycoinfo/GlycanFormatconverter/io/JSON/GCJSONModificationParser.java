@@ -61,6 +61,7 @@ public class GCJSONModificationParser {
         }
 
         subEdge.setSubstituent(sub);
+        sub.addParentEdge(subEdge);
         subEdge.addGlycosidicLinkage(positionOne);
 
         return subEdge;

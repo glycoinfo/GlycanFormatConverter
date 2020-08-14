@@ -242,16 +242,8 @@ public class groupTestForWURCStoIUPAC {
 
     @Test
     public void errorCase17_simple () {
-        String wurcs = "WURCS=2.0/1,1,1/[<Q>-?a_5*OCC/3=O_8*OCC/3=O_9*OCC/3=O]/1/a1-a7~n";
-        String extended = this.toExtended(wurcs);
-
-        System.out.println(extended);
-        System.out.println(this.wurcsExporterFromExtended(extended));
-    }
-
-    @Test
-    public void errorCase19_simple () {
-        String wurcs = "WURCS=2.0/1,1,0/[o2Om_2*NC]/1/";
+        //String wurcs = "WURCS=2.0/1,1,1/[<Q>-?a_5*OCC/3=O_8*OCC/3=O_9*OCC/3=O]/1/a1-a7~n";
+        String wurcs = "WURCS=2.0/1,1,1/[<Q>-?a_1-?]/1/a1-a7~n";
         String extended = this.toExtended(wurcs);
 
         System.out.println(extended);
@@ -260,7 +252,7 @@ public class groupTestForWURCStoIUPAC {
 
     @Test
     public void errorCase20_simple () {
-        String wurcs = "WURCS=2.0/3,10,9/[hxh][a2122h-1x_1-5_2*NCC/3=O][a1122h-1x_1-5]/1-2-2-3-3-3-3-3-3-3/a?-b1n1*1NCCOP^XO*2/6O/6=O_b?-c1_c?-d1_d?-e1_d?-h1_e?-f1_f?-g1_h?-i1_h?-j1";
+        String wurcs = "WURCS=2.0/7,10,9/[AUd1122h][a11221h-1x_1-5_7*OP^XOCCN/3O/3=O][a11221h-1x_1-5][a11222h-1x_1-5][a2122h-1x_1-5_2*NCC/3=O][a2112h-1x_1-5][a2122h-1x_1-5]/1-2-3-4-4-5-6-6-7-7/a?-b1_b?-c1_c?-d1_d?-e1_d?-h1_e?-f1_f?-g1_h?-i1_i?-j1";
         String optWURCS = this.wurcsNormalize(wurcs);
         String extended = this.toExtended(wurcs);
         String condensed = this.toCondensed(wurcs);
@@ -274,15 +266,28 @@ public class groupTestForWURCStoIUPAC {
 
     @Test
     public void errorCase21_simple () {
-        String wurcs = "WURCS=2.0/3,10,9/[hxh][a2122h-1x_1-5_2*NCC/3=O][a1122h-1x_1-5]/1-2-2-3-3-3-3-3-3-3/a?-b1n1*1NCCOP^XO*2/6O/6=O_b?-c1_c?-d1_d?-e1_d?-h1_e?-f1_f?-g1_h?-i1_h?-j1";
+        //String wurcs = "WURCS=2.0/1,1,0/[ad611m-1a_1-5_3*C_3*N]/1/";
+        //String wurcs = "WURCS=2.0/1,1,0/[Ad6dh_3*C_3*OPO/3O/3=O_5*OPO/3O/3=O]/1/";
+        String wurcs = "WURCS=2.0/1,1,0/[a2125h-1a_1-5_5*F]/1/";
         String optWURCS = this.wurcsNormalize(wurcs);
+        String condensed = this.toCondensed(wurcs);
         String extended = this.toExtended(wurcs);
+
+        System.out.println(optWURCS);
+        System.out.println(condensed);
+        System.out.println(extended);
+        System.out.println(this.wurcsExporterFromCondensed(condensed));
+        System.out.println(this.wurcsExporterFromExtended(extended));
+    }
+
+    @Test
+    public void errorCase22_simple () {
+        String wurcs = "WURCS=2.0/1,7,7/[a2122h-1a_1-5_2*OC_3*OC_6*N]/1-1-1-1-1-1-1/a1-g4_a4-b1_b4-c1_c4-d1_d4-e1_e4-f1_f4-g1";
+        String optWURCS = this.wurcsNormalize(wurcs);
         String condensed = this.toCondensed(wurcs);
 
         System.out.println(optWURCS);
-        System.out.println(extended);
         System.out.println(condensed);
-        System.out.println(this.wurcsExporterFromExtended(extended));
         System.out.println(this.wurcsExporterFromCondensed(condensed));
     }
 

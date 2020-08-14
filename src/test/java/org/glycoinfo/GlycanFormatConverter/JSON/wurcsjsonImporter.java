@@ -5,6 +5,9 @@ import org.glycoinfo.GlycanFormatconverter.io.JSON.GCJSONExporter;
 import org.glycoinfo.GlycanFormatconverter.io.JSON.GCJSONImporter;
 import org.glycoinfo.GlycanFormatconverter.io.WURCS.WURCSImporter;
 import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
+import org.glycoinfo.WURCSFramework.util.WURCSFactory;
+import org.glycoinfo.WURCSFramework.util.graph.WURCSGraphNormalizer;
+import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSGraph;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,6 +45,7 @@ public class wurcsjsonImporter {
         //https://glytoucan.org/Structures/Glycans/G00020MO
         String testWURCS = "WURCS=2.0/3,4,3/[u2122h_2*NCC/3=O_6*OSO/3=O/3=O][a2112h-1b_1-5][a2122h-1b_1-5_2*NCC/3=O_6*OSO/3=O/3=O]/1-2-3-2/a4-b1_b3-c1_c4-d1";
         String json = toWURCSJSON(testWURCS);
+        System.out.println(json);
         String wurcs = parseWURCSJSON(json);
         Assert.assertEquals(testWURCS, wurcs);
     }
@@ -59,9 +63,10 @@ public class wurcsjsonImporter {
     public void fragment () {
         //https://glytoucan.org/Structures/Glycans/G00025YC
         String testWURCS = "WURCS=2.0/6,11,10/[a2122h-1x_1-5_2*NCC/3=O][a2122h-1b_1-5_2*NCC/3=O][a1122h-1b_1-5][a1122h-1a_1-5][a2112h-1b_1-5][a1221m-1a_1-5]/1-2-3-4-2-5-2-5-4-2-6/a4-b1_a6-k1_b4-c1_c3-d1_c6-i1_d2-g1_e4-f1_g4-h1_i2-j1_e1-d4|d6|i4|i6}";
-        String json = toWURCSJSON(testWURCS);
-        //String wurcs = parseWURCSJSON(json);
-        //Assert.assertEquals(testWURCS, wurcs);
+        String optWURCS = this.opitmizeWURCS(testWURCS);
+        String json = toWURCSJSON(optWURCS);
+        String wurcs = parseWURCSJSON(json);
+        Assert.assertEquals(optWURCS, wurcs);
     }
 
     @Test
@@ -142,6 +147,19 @@ public class wurcsjsonImporter {
         String json = toWURCSJSON(testWURCS);
         String wurcs = parseWURCSJSON(json);
         Assert.assertEquals(testWURCS, wurcs);
+    }
+
+    private String opitmizeWURCS (String _wurcs) {
+        try {
+            WURCSFactory wf = new WURCSFactory(_wurcs);
+            WURCSGraphNormalizer wn = new WURCSGraphNormalizer();
+            WURCSGraph graph = wf.getGraph();
+            wn.start(graph);
+            wf = new WURCSFactory(graph);
+            return wf.getWURCS();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     private String toWURCSJSON (String _wurcs) {
