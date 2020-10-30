@@ -68,4 +68,4 @@ LIN
 
 ## Anything else
 This tool is released as web API.
-* https://test.api.gfc.glycosmos.org/swagger-ui.html#/converter-controller
+* https://api.glycosmos.org/glycanformatconverter/
