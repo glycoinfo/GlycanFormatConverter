@@ -66,6 +66,19 @@ LIN
 12:12d(5+1)13n
 ```
 
+## Restrictions
+If input the text of IUPAC (-Extended, -Condensed, -Short) format contains inappropriate structural characters, a conversion error based on the restrictions will be returned.
+Such restrictions are takes into account when converting from IUPAC format to WURCS format.
+An examples of the restrictions is shown below:
+- Containing repeating units
+- Containing cyclic units
+- Containing cross-linked substituent
+- Containing repeating units with cross-linked substituent
+- Containing cyclic substituent in any monosaccharide
+- Containing monosaccharide fragments
+- Containing substituent fragments
+- Containing monosaccharide modifications such as deoxy
+
 ## Anything else
 This tool is released as web API.
 * https://api.glycosmos.org/glycanformatconverter/
