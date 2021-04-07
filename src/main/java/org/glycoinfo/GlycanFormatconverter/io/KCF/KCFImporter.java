@@ -18,9 +18,9 @@ import java.util.HashMap;
  */
 public class KCFImporter {
 
-    private KCFUtility kcfUtil;
-    private HashMap<String, Node> nodeIndex;
-    private GlyContainer glyco;
+    private final KCFUtility kcfUtil;
+    private final HashMap<String, Node> nodeIndex;
+    private final GlyContainer glyco;
 
     public KCFImporter () {
         kcfUtil = new KCFUtility();
@@ -88,6 +88,14 @@ public class KCFImporter {
         GlyContainerOptimizer gcOpt = new GlyContainerOptimizer();
         gcOpt.start(glyco);
 
+        // node validator
+        /*
+        KCFNodeValidator kcfValidator = new KCFNodeValidator();
+        for (Node node : glyco.getAllNodes()) {
+            kcfValidator.start(node);
+        }
+         */
+
         return glyco;
     }
 
@@ -121,8 +129,24 @@ public class KCFImporter {
             anomericState = kcfUtil.extractAnomerixState(units.get(1));
         }
 
-        if (childNode == null && parentNode == null || parentNode == null && childNode instanceof Substituent) return;
-        if (childNode instanceof Substituent && parentNode instanceof Substituent) return;
+        if (childNode == null && parentNode == null) return;
+
+        // donor node is substituent, acceptor node is null
+        if ((childNode instanceof Substituent) && parentNode == null) {
+            ArrayList<String> acceptorEdge = kcfUtil.extractAcceptorEdgeByID(cID);
+            if (acceptorEdge.isEmpty()) return;
+
+            _node = acceptorEdge.get(0);
+
+            units = kcfUtil.splitNotation(_node);
+            childLin = kcfUtil.extractLinkagePosition(units.get(1));
+            parentLin = kcfUtil.extractLinkagePosition(units.get(2));
+
+            //ArrayList<String> edges = kcfUtil.splitNotation(_node);
+            parentNode = nodeIndex.get(kcfUtil.extractID(childLin));
+        }
+
+        if (childNode instanceof Substituent && (parentNode instanceof Substituent || parentNode == null)) return;
 
         Edge edge = new Edge();
 
@@ -163,56 +187,58 @@ public class KCFImporter {
             edge.addGlycosidicLinkage(lin);
 
             glyco.addNode(parentNode, edge, childNode);
+
+            return;
+        }
+
+        // define substituent edge with anomer position
+        if (this.isSubstituent(childNode) && pID.equals("1")) {
+            String childPos = "?";
+            String parentPos = "1";
+
+            if (childLin != null) {
+                childPos = childLin;
+            }
+            if (parentLin != null) {
+                parentPos = parentLin;
+            }
+
+            Linkage linkage = new Linkage();
+            linkage.setParentLinkages(makeLinkages(parentPos));
+            linkage.setChildLinkages(makeLinkages(childPos));
+            edge.addGlycosidicLinkage(linkage);
+            edge.setParent(parentNode);
+            edge.setSubstituent(childNode);
+
+            Linkage first = new Linkage();
+            first.setParentLinkages(makeLinkages(parentPos));
+            first.setChildLinkages(makeLinkages(childPos));
+            ((Substituent) childNode).setFirstPosition(first);
+
+            glyco.addNodeWithSubstituent(parentNode, edge, (Substituent) childNode);
+
+            return;
         }
 
         // define edge with substituent
         if (childNode instanceof Substituent) {
             //TODO: 親を持っているかの確認が必要
-            String bridgeChild = kcfUtil.extractEdgeByID(kcfUtil.extractID(units.get(1)), true);
 
-            if (!bridgeChild.equals("")) {
-                String childID = kcfUtil.extractID(kcfUtil.splitNotation(bridgeChild).get(1));
-                System.out.println(nodeIndex.get(childID) + " " + childID + " " + kcfUtil.extractAcceptorEdgeByID(kcfUtil.extractID(units.get(1))));
-                if (nodeIndex.get(childID) == null) {
-                    if (!isRepeat(kcfUtil.extractEdgeByID(units.get(1), true))) {
-                        // check pyrophoshate
-                        Linkage first = ((Substituent) childNode).getFirstPosition();
-                        first.setParentLinkages(makeLinkages(parentLin));
-                        ((Substituent) childNode).setFirstPosition(first);
-                        edge.addGlycosidicLinkage(first);
-                        edge.setParent(parentNode);
-                        childNode.addParentEdge(edge);
-
-                        glyco.addNodeWithSubstituent(parentNode, edge, ((Substituent) childNode));
-
-                    }
+            // define cross-linked substituent
+            if (this.isCrossLinkedSubstituent(childNode)) {
+                String bridgeChild = kcfUtil.extractEdgeByID(cID, true);
+                if (!bridgeChild.equals("")) {
+                    this.makeBridgeSubstituent(cID, bridgeChild, childNode, parentNode, parentLin);
                     return;
                 }
-
-                Node bridge = childNode;
-                childNode = nodeIndex.get(childID);
-
-                //childLin = kcfUtil.extractLinkagePosition(kcfUtil.splitNotation(kcfUtil.extractEdgeByID(childID, false)).get(1));
-                childLin = kcfUtil.extractLinkagePosition(kcfUtil.splitNotation(kcfUtil.extractDonorEdgeByID(childID)).get(1));
-                String childPos = childLin.length() == 1 ? String.valueOf(childLin.charAt(0)) : String.valueOf(childLin.charAt(1));
-
-                Linkage first = new Linkage();
-                first.setParentLinkages(makeLinkages(parentLin));
-                first.setChildLinkages(makeLinkages(childPos));
-                edge.addGlycosidicLinkage(first);
-
-                glyco.addNode(parentNode, edge, childNode);
-                glyco.addNodeWithSubstituent(parentNode, edge, ((Substituent) bridge));
-            } else {
-                Linkage first = ((Substituent) childNode).getFirstPosition();
-                first.setParentLinkages(makeLinkages(parentLin));
-                ((Substituent) childNode).setFirstPosition(first);
-                edge.addGlycosidicLinkage(first);
-                edge.setParent(parentNode);
-                childNode.addParentEdge(edge);
-
-                glyco.addNodeWithSubstituent(parentNode, edge, ((Substituent) childNode));
             }
+
+            Linkage first = ((Substituent) childNode).getFirstPosition();
+            first.setParentLinkages(makeLinkages(parentLin));
+            ((Substituent) childNode).setFirstPosition(first);
+            edge.addGlycosidicLinkage(first);
+
+            glyco.addNodeWithSubstituent(parentNode, edge, ((Substituent) childNode));
         }
     }
 
@@ -478,6 +504,7 @@ public class KCFImporter {
     private boolean isFacingAnoms (Node _node) {
         int anomericPos = ((Monosaccharide) _node).getAnomericPosition();
         for (Edge childEdge : _node.getChildEdges()) {
+            if (!(childEdge.getChild() instanceof Monosaccharide)) continue;
             Monosaccharide child = (Monosaccharide) childEdge.getChild();
             if (child == null) continue;
             if (child.getAnomericPosition() == Monosaccharide.UNKNOWN_RING) continue;
@@ -501,4 +528,54 @@ public class KCFImporter {
 
         return (nodeItems.get(1).equals("*"));
     }
+
+    private void makeBridgeSubstituent (String cID, String bridgeChild, Node childNode, Node parentNode, String parentLin) throws GlycanException {
+        Edge edge = new Edge();
+
+        String childID = kcfUtil.extractID(kcfUtil.splitNotation(bridgeChild).get(1));
+        if (nodeIndex.get(childID) == null) {
+            if (!isRepeat(kcfUtil.extractEdgeByID(cID, true))) {
+                // check pyrophoshate
+                Linkage first = ((Substituent) childNode).getFirstPosition();
+                first.setParentLinkages(makeLinkages(parentLin));
+                ((Substituent) childNode).setFirstPosition(first);
+                edge.addGlycosidicLinkage(first);
+
+                glyco.addNodeWithSubstituent(parentNode, edge, ((Substituent) childNode));
+            }
+            return;
+        }
+
+        Node bridge = childNode;
+        childNode = nodeIndex.get(childID);
+
+        //childLin = kcfUtil.extractLinkagePosition(kcfUtil.splitNotation(kcfUtil.extractEdgeByID(childID, false)).get(1));
+        String childLin = kcfUtil.extractLinkagePosition(kcfUtil.splitNotation(kcfUtil.extractDonorEdgeByID(childID)).get(1));
+        String childPos = childLin.length() == 1 ? String.valueOf(childLin.charAt(0)) : String.valueOf(childLin.charAt(1));
+
+        Linkage first = new Linkage();
+        first.setParentLinkages(makeLinkages(parentLin));
+        first.setChildLinkages(makeLinkages(childPos));
+        edge.addGlycosidicLinkage(first);
+
+        glyco.addNode(parentNode, edge, childNode);
+        glyco.addNodeWithSubstituent(parentNode, edge, ((Substituent) bridge));
+    }
+
+    private boolean isMonosaccharide (Node _node) {
+        return (_node instanceof Monosaccharide);
+    }
+
+    private boolean isCrossLinkedSubstituent (Node _node) {
+        if (!(_node instanceof Substituent)) return false;
+        Substituent sub = (Substituent) _node;
+        return (sub.getSubstituent() instanceof BaseCrossLinkedTemplate);
+    }
+
+    private boolean isSubstituent (Node _node) {
+        if (!(_node instanceof Substituent)) return false;
+        Substituent sub = (Substituent) _node;
+        return (sub.getSubstituent() instanceof BaseSubstituentTemplate);
+    }
+
 }

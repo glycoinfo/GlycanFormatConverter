@@ -15,9 +15,9 @@ import java.util.ArrayList;
  */
 public class KCFNodeConverter {
 
-    private KCFUtility kcfUtil;
+    private final KCFUtility kcfUtil;
 
-    KCFNodeConverter (KCFUtility _kcfUtil) {
+    public KCFNodeConverter (KCFUtility _kcfUtil) {
         kcfUtil = _kcfUtil;
     }
 
@@ -31,7 +31,7 @@ public class KCFNodeConverter {
         if (units.get(0).equals("2") && currentAglycon != null) {
             String parentNotation = kcfUtil.splitNotation(kcfUtil.getNodeByID("1")).get(1);
             IUPACAglyconDescriptor parentAglycon = IUPACAglyconDescriptor.forNotation(parentNotation);
-            if (parentAglycon == null && !currentAglycon.equals(IUPACAglyconDescriptor.PHOSPHATE)) return null;
+            //if (parentAglycon == null && !currentAglycon.equals(IUPACAglyconDescriptor.PHOSPHATE)) return null;
             if (parentAglycon != null) return null;
         }
         if (units.get(1).equals("*")) return null;
@@ -46,6 +46,7 @@ public class KCFNodeConverter {
 
             modifyMonosaccharide(node);
             modifyHeadAtom(node);
+            modifyCrosslinkedSubstituent(node);
         }
 
         return node;
@@ -56,9 +57,9 @@ public class KCFNodeConverter {
 
         if (!isSubstituent(unit)) return null;
 
-        Substituent ret = null;
-
-        if (isBridge(_notation)) {
+        if (this.isDuplicatedSubstituent(_notation)) {
+            return this.makeLinkedSubstituent(_notation);
+        } else if (isBridge(_notation)) {
             return this.makeLinkedSubstituent(_notation);
         } else if (isBranches(_notation)) {
             return this.makeLinkedSubstituent(_notation);
@@ -90,6 +91,12 @@ public class KCFNodeConverter {
         }
 
         return null;
+    }
+
+    private boolean isAglycon (String _notation) {
+        IUPACAglyconDescriptor iupacAglyconDescriptor = IUPACAglyconDescriptor.forNotation(_notation);
+
+        return (iupacAglyconDescriptor != null);
     }
 
     private boolean isSubstituent (String _notation) {
@@ -132,13 +139,39 @@ public class KCFNodeConverter {
         return _node;
     }
 
+    private boolean isDuplicatedSubstituent (String _notation) {
+        String currentID = kcfUtil.splitNotation(_notation).get(0);
+        ArrayList<String> acceptorEdges = kcfUtil.extractAcceptorEdgeByID(currentID);
+
+        if (acceptorEdges.size() != 1) return false;
+        String acceptorEdge = acceptorEdges.get(0);
+        ArrayList<String> units = kcfUtil.splitNotation(acceptorEdge);
+
+        String donorLinkage = kcfUtil.extractLinkagePosition(units.get(1));
+        String acceptorLinkage = kcfUtil.extractLinkagePosition(units.get(2));
+        return (donorLinkage == null && acceptorLinkage == null);
+    }
+
     private boolean isBridge(String _notation) {
         String currentID = kcfUtil.splitNotation(_notation).get(0);
-        //String donorEdge = kcfUtil.extractEdgeByID(currentID, false);
         String donorEdge = kcfUtil.extractDonorEdgeByID(currentID);
         String acceptorEdge = kcfUtil.extractEdgeByID(currentID, true);
 
-        return (!donorEdge.equals("") && !acceptorEdge.equals(""));
+        if (donorEdge.equals("") || acceptorEdge.equals("")) return false;
+
+        // check node state
+        ArrayList<String> donorSide = kcfUtil.splitNotation(donorEdge);
+        ArrayList<String> acceptorSide = kcfUtil.splitNotation(acceptorEdge);
+
+        String donorNotation = kcfUtil.getNodeByID(kcfUtil.extractID(donorSide.get(2)));
+        String acceptorNotation = kcfUtil.getNodeByID(kcfUtil.extractID(acceptorSide.get(1)));
+
+        String donorNode = kcfUtil.splitNotation(donorNotation).get(1);
+        String acceptorNode = kcfUtil.splitNotation(acceptorNotation).get(1);
+
+        if (this.isAglycon(donorNode)) return false;
+
+        return (!this.isSubstituent(donorNode) && !this.isSubstituent(acceptorNode));
     }
 
     private boolean isBranches (String _notation) {
@@ -190,7 +223,7 @@ public class KCFNodeConverter {
                     BaseSubstituentTemplate.forIUPACNotationWithIgnore(kcfUtil.splitNotation(childNode).get(1));
 
             if (parentT == null || childT == null) return false;
-            if (parentT.equals(BaseSubstituentTemplate.PHOSPHATE) && childT.equals(BaseSubstituentTemplate.PHOSPHATE)) return true;
+            return parentT.equals(BaseSubstituentTemplate.PHOSPHATE) && childT.equals(BaseSubstituentTemplate.PHOSPHATE);
         }
 
         return false;
@@ -203,9 +236,7 @@ public class KCFNodeConverter {
         if (isPhosphoEthanolamineForDonorSide(currentID)) return true;
 
         //check for acceptor side
-        if (isPhosphoEthanolamineForAcceptorSide(currentID)) return true;
-
-        return false;
+        return isPhosphoEthanolamineForAcceptorSide(currentID);
     }
 
     private boolean isPhosphoEthanolamineForDonorSide (String _currentID) {
@@ -246,7 +277,7 @@ public class KCFNodeConverter {
     
     private boolean isLinkageSubstituents (String _notation) {
         String currentID = kcfUtil.splitNotation(_notation).get(0);
-        String parentSideNotation = kcfUtil.extractDonorEdgeByID(currentID);//extractEdgeByID(currentID, false);
+        String parentSideNotation = kcfUtil.extractDonorEdgeByID(currentID);
 
         if (parentSideNotation.equals("")) return false;
 
@@ -260,12 +291,10 @@ public class KCFNodeConverter {
         			kcfUtil.splitNotation(kcfUtil.getNodeByID(parentID)).get(1).equals("P")) return true;
 
         //Di-phosphate
-        if (kcfUtil.splitNotation(kcfUtil.getNodeByID(childID)).get(1).equals("P") &&
-                kcfUtil.splitNotation(kcfUtil.getNodeByID(parentID)).get(1).equals("P")) return true;
+        return kcfUtil.splitNotation(kcfUtil.getNodeByID(childID)).get(1).equals("P") &&
+                kcfUtil.splitNotation(kcfUtil.getNodeByID(parentID)).get(1).equals("P");
         //if (isSubstituent(kcfUtil.splitNotation(kcfUtil.getNodeByID(childID)).get(1)) &&
         //        isSubstituent(kcfUtil.splitNotation(kcfUtil.getNodeByID(parentID)).get(1))) return true;
-
-        return false;
     }
 
     private Node makeSubstituentNotation (SubstituentInterface _subInf) throws GlycanException {
@@ -300,10 +329,46 @@ public class KCFNodeConverter {
         for (Edge donorEdge : _node.getChildEdges()) {
             if (donorEdge.getSubstituent() == null) continue;
             Substituent sub = (Substituent) donorEdge.getSubstituent();
-
             if (sub instanceof GlycanRepeatModification) continue;
-        }
 
-        return;
+        }
+    }
+
+    private void modifyCrosslinkedSubstituent (Node _node) throws GlycanException {
+        Monosaccharide mono = (Monosaccharide) _node;
+        if (mono.getRingStart() == -1 || mono.getRingEnd() == -1) return;
+
+        for (Edge donorEdge : mono.getChildEdges()) {
+            if (donorEdge.getSubstituent() == null) continue;
+            Substituent sub = (Substituent) donorEdge.getSubstituent();
+            Linkage lin = donorEdge.getGlycosidicLinkages().get(0);
+
+            if (sub.getSubstituent() instanceof BaseCrossLinkedTemplate) continue;
+
+            BaseCrossLinkedTemplate baseCross = BaseCrossLinkedTemplate.forIUPACNotation(sub.getNameWithIUPAC());
+
+            if (baseCross == null) continue;
+
+            if (lin.getChildLinkages().contains(mono.getRingStart()) && lin.getParentLinkages().contains(mono.getRingEnd())) {
+                Substituent newSub = new Substituent(baseCross);
+
+                Linkage first = new Linkage();
+                first.setParentLinkages(sub.getFirstPosition().getChildLinkages());
+                first.setChildLinkages(sub.getFirstPosition().getChildLinkages());
+                newSub.setFirstPosition(first);
+
+                Linkage second = new Linkage();
+                second.setParentLinkages(sub.getFirstPosition().getParentLinkages());
+                second.setChildLinkages(sub.getFirstPosition().getChildLinkages());
+                newSub.setSecondPosition(second);
+
+                donorEdge.setGlycosidicLinkages(new ArrayList<>());
+                donorEdge.addGlycosidicLinkage(first);
+                donorEdge.addGlycosidicLinkage(second);
+
+                newSub.addParentEdge(donorEdge);
+                donorEdge.setSubstituent(newSub);
+            }
+        }
     }
 }

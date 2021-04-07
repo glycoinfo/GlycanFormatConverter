@@ -6,14 +6,17 @@ import org.glycoinfo.GlycanFormatconverter.io.IUPAC.condensed.IUPACCondensedExpo
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.extended.IUPACExtendedExporter;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACShortExporter;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACStyleDescriptor;
-import org.glycoinfo.GlycanFormatconverter.io.JSON.GCJSONExporter;
 import org.glycoinfo.GlycanFormatconverter.io.LinearCode.LinearCodeExporter;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.exchange.GlyContainerToWURCSGraph.GlyContainerToWURCSGraph;
 import org.glycoinfo.GlycanFormatconverter.util.validator.IUPACValidator;
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
+import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.oldUtil.ConverterExchangeException;
+import org.glycoinfo.WURCSFramework.util.validation.WURCSValidator;
+
+import java.util.Iterator;
 
 /**
  * Created by e15d5605 on 2017/10/23.
@@ -90,7 +93,22 @@ public class ExporterEntrance {
         gc2wg.start(glyCo);
 
         WURCSFactory wf = new WURCSFactory(gc2wg.getGraph());
+        String wurcs = wf.getWURCS();
 
-        return wf.getWURCS();
+        // WURCS validator
+        WURCSValidator wv = new WURCSValidator();
+        wv.start(wurcs);
+        if (!wv.getReport().getErrors().isEmpty()) {
+            StringBuilder message = new StringBuilder("");
+            for (Iterator<String> iterError = wv.getReport().getErrors().iterator(); iterError.hasNext();) {
+                message.append(iterError.next());
+                if (iterError.hasNext()) {
+                    message.append("\n");
+                }
+            }
+            throw new WURCSFormatException(message.toString());
+        }
+
+        return wurcs;
     }
 }

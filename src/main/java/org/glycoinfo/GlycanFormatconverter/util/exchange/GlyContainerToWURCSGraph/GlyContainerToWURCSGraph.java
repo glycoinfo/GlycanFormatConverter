@@ -15,7 +15,7 @@ import java.util.LinkedList;
 public class GlyContainerToWURCSGraph {
 
 	private WURCSGraph graph;
-	private HashMap<Node, Backbone> node2Backbone = new HashMap<>();
+	private final HashMap<Node, Backbone> node2Backbone = new HashMap<>();
 
 	public WURCSGraph getGraph () {
 		return this.graph;
@@ -130,10 +130,9 @@ public class GlyContainerToWURCSGraph {
 		}
 
 		if (backbone.getAnomericPosition() == 0) return;
-		//if (backbone instanceof BackboneUnknown) return;
 		if (backbone.hasUnknownLength()) return;
 
-		Modification ring = new Modification("");
+		Modification ring = mono2bb.getRingModification();
 
 		WURCSEdge start = new WURCSEdge();
 		WURCSEdge end = new WURCSEdge();

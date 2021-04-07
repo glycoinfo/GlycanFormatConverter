@@ -21,7 +21,8 @@ public class MonosaccharideToBackbone {
 	private boolean isRootOfSubgraph = false;
 	
 	private LinkedList<Modification> unknownPosCoreMod = new LinkedList<>();
-	
+	private Modification ringModification;
+
 	public Backbone getBackbone() {
 		return this.backbone;
 	}
@@ -29,7 +30,11 @@ public class MonosaccharideToBackbone {
 	public LinkedList<Modification> getCoreModification() {
 		return this.unknownPosCoreMod;
 	}
-	
+
+	public Modification getRingModification () {
+		return this.ringModification;
+	}
+
 	public void setRootOfSubgraph () {
 		this.isRootOfSubgraph = true;
 	}
@@ -70,7 +75,16 @@ public class MonosaccharideToBackbone {
 		
 		MonosaccharideAnalyzer monoAnalyzer = new MonosaccharideAnalyzer();
 		monoAnalyzer.analyze(_node);
-		
+
+		// make ring modification
+		if (monoAnalyzer.getRingModification() != null) {
+			Edge ringEdge = monoAnalyzer.getRingModification();
+			Substituent sub = (Substituent) ringEdge.getSubstituent();
+			this.ringModification = new Modification("*" + sub.getSubstituent().getMAP());
+		} else {
+			this.ringModification = new Modification("");
+		}
+
 		this.anomericPos = monoAnalyzer.getAnomericPosition();
 		this.anomericSymbol = monoAnalyzer.getAnomericSymbol();
 		this.configuration = monoAnalyzer.getConfiguration();

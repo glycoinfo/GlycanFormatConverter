@@ -18,9 +18,11 @@ public class MonosaccharideAnalyzer {
 	private char configuration;
 	private String skeletonCode;
 	
-	private LinkedList<Integer> anomericPositions;
-	private TreeMap<Integer, Character> posToChar;
-	private LinkedList<String> unknownPosMap;
+	private final LinkedList<Integer> anomericPositions;
+	private final TreeMap<Integer, Character> posToChar;
+	private final LinkedList<String> unknownPosMap;
+
+	private Edge ringModification;
 
 	public MonosaccharideAnalyzer() {
 		this.mono = null;
@@ -35,6 +37,8 @@ public class MonosaccharideAnalyzer {
 		this.unknownPosMap = new LinkedList<>();
 		this.anomericPositions = new LinkedList<>();
 	}
+
+	public Edge getRingModification() { return this.ringModification; }
 
 	public int getAnomericPosition() {
 		return this.anomericPos;
@@ -75,6 +79,8 @@ public class MonosaccharideAnalyzer {
 		if (this.anomericSymbol == 'o') {
 			this.anomericPos = Monosaccharide.OPEN_CHAIN;
 		}
+
+		this.extractRingModification(_node);
 
 		this.numOfAtom = mono.getSuperClass().getSize();
 		this.posToChar.put(1, 'h');
@@ -299,8 +305,7 @@ public class MonosaccharideAnalyzer {
 		if (modT.equals(ModificationTemplate.UNSATURATION_ZL)) return true;
 		if (modT.equals(ModificationTemplate.UNSATURATION_EU)) return true;
 		if (modT.equals(ModificationTemplate.UNSATURATION_FU)) return true;
-		if (modT.equals(ModificationTemplate.UNSATURATION_ZU)) return true;
-		return false;
+		return modT.equals(ModificationTemplate.UNSATURATION_ZU);
 	}
 
 	private char ModificationTempalteToCarbonDescriptor (ModificationTemplate _modT) {
@@ -315,5 +320,20 @@ public class MonosaccharideAnalyzer {
 			if (gMod.getModificationTemplate().equals(ModificationTemplate.KETONE_U)) ret = true;
 		}
 		return ret;
+	}
+
+	private void extractRingModification (Node _node) {
+		Monosaccharide mono = (Monosaccharide) _node;
+		if (mono.getRingStart() == -1 || mono.getRingEnd() == -1) return;
+		for (Edge donorEdge : mono.getChildEdges()) {
+			if (donorEdge.getSubstituent() == null) continue;
+			Substituent sub = (Substituent) donorEdge.getSubstituent();
+			if (sub.getSubstituent() instanceof BaseSubstituentTemplate) continue;
+
+			if (sub.getFirstPosition().getParentLinkages().contains(mono.getRingStart()) &&
+			sub.getSecondPosition().getParentLinkages().contains(mono.getRingEnd())) {
+				this.ringModification = donorEdge;
+			}
+		}
 	}
 }

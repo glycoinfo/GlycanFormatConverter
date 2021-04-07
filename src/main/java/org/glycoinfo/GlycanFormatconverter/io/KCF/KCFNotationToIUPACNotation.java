@@ -34,7 +34,7 @@ public class KCFNotationToIUPACNotation {
         ArrayList<String> mods = new ArrayList<>();
 
         // check monosaccharide notation
-        if (MonosaccharideNotationAnalyzer.start(_input) == false)
+        if (!MonosaccharideNotationAnalyzer.start(_input))
             throw new GlyCoImporterException(_input + " is not found!");
 
         // extract prefix annotation

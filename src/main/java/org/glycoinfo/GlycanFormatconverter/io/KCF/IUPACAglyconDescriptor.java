@@ -13,7 +13,7 @@ public enum IUPACAglyconDescriptor {
     PDOLICHOL("P-Dol"),
     PPDOLICHOL("PP-Dol"),
     PPUND("PP-Und"),
-    PHOSPHATE("P"),
+    //PHOSPHATE("P"),
     PHOSPHOETANE("PE"),
     CERAMIDE("Cer"),
     MYOINO("myo-Ino"),

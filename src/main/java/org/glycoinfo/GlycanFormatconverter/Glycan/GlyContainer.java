@@ -150,9 +150,11 @@ public class GlyContainer implements GlycanGraph {
 		}
 		if(!containsNode(_parent))
 			throw new GlycanException ("Critical error imposible to add residue.");
-		
+
+		_child.addParentEdge(_linkage);
 		_parent.addChildEdge(_linkage);
-		_linkage.setSubstituent(_child);
+		_linkage.setSubstituent(_child); //TODO : setChildに置き換える
+		_linkage.setParent(_parent);
 	}
 	
 	public void addEdge(Node _parent, Node _child, Edge _linkage) throws GlycanException {

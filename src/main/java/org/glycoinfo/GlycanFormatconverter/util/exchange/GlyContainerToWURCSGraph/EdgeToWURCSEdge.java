@@ -62,7 +62,10 @@ public class EdgeToWURCSEdge {
 
 		this.setParent(_edge);
 		this.setChild(_edge);
-		
+
+		// check ring modification
+		if (this.isRingModification(_edge)) return;
+
 		this.makeModification();
 		
 		this.setWURCSEdge(true);
@@ -184,6 +187,16 @@ public class EdgeToWURCSEdge {
 			this.childSidePos = subst2mod.getChildSidePosition();
 		}
 		this.mod = mod;
+	}
+
+	private boolean isRingModification (Edge _edge) {
+		if (_edge.getSubstituent() == null) return false;
+		Substituent sub = (Substituent) _edge.getSubstituent();
+		if (sub.getSubstituent() instanceof BaseSubstituentTemplate) return false;
+
+		Monosaccharide acceptor = (Monosaccharide) _edge.getParent();
+		return (sub.getFirstPosition().getParentLinkages().contains(acceptor.getRingStart()) &&
+				sub.getSecondPosition().getParentLinkages().contains(acceptor.getRingEnd()));
 	}
 
 	private void init () {
