@@ -10,27 +10,29 @@ import java.util.Iterator;
 
 public class IUPACShortExporter extends IUPACExporterUtility implements ExporterInterface{
 
-	private StringBuilder shortIUPAC = new StringBuilder();
-	private HashMap<Node, String> notationIndex = new HashMap<>();;
-	private NodeSimilarity gu = new NodeSimilarity();;
-	
+	private final StringBuilder shortIUPAC = new StringBuilder();
+	private final HashMap<Node, String> notationIndex = new HashMap<>();
+	private final NodeSimilarity gu = new NodeSimilarity();
+
 	public String getIUPACShort() {
 		return shortIUPAC.toString();
 	}
 	
 	public void start (GlyContainer _glyCo) throws GlycanException {
-
-		for( Node _node : _glyCo.getAllNodes()) {
+		for( Node node : _glyCo.getAllNodes()) {
 			// make core notations
-			makeMonosaccharideNotation(_node);
+			makeMonosaccharideNotation(node);
 			// append linkage position to core notation
-			makeLinkageNotation(_node);
+			makeLinkageNotation(node);
 		}
 		
 		// for fragments of substituent
 		for (GlycanUndefinedUnit und : _glyCo.getUndefinedUnit()) {
-			if (und.getNodes().get(0) instanceof Substituent)
-				makeSubstituentNotation(und);
+			for (Node node : und.getRootNodes()) {
+				if (node instanceof Substituent) {
+					makeSubstituentNotation(und);
+				}
+			}
 		}
 		
 		makeFragmentsAnchor(_glyCo);
@@ -90,6 +92,11 @@ public class IUPACShortExporter extends IUPACExporterUtility implements Exporter
 		return ret.toString();
 	}
 
+	@Override
+	public boolean isFragmentsRoot(GlyContainer _glyco, Node _node) throws Exception {
+		return false;
+	}
+
 	public void makeFragmentsAnchor(GlyContainer _glyCo) throws GlycanException {
 		if (_glyCo.isComposition()) return;
 		
@@ -107,7 +114,44 @@ public class IUPACShortExporter extends IUPACExporterUtility implements Exporter
 			}
 		}
 	}
-	
+
+	@Override
+	public void makeLinkageNotationFragmentSide(Node _node) {
+
+	}
+
+	@Override
+	public String makeSimpleLinkageNotation (ArrayList<Edge> _edges) {
+		StringBuilder linkagePos = new StringBuilder();
+		for(Iterator<Edge> iterParent = gu.sortParentSideEdges(_edges).iterator(); iterParent.hasNext();) {
+			Edge parentEdge = iterParent.next();
+			Substituent sub = (Substituent) parentEdge.getSubstituent();
+
+			// append anomeric position
+			linkagePos.append(makeDonorPosition(parentEdge));
+
+			// append start repeating position
+			if(sub != null && sub instanceof GlycanRepeatModification && !parentEdge.isCyclic()) {
+				linkagePos.append("]");
+				linkagePos.append(makeRepeatingCount((GlycanRepeatModification) parentEdge.getSubstituent()));
+			}
+
+			// append probability annotation
+			linkagePos.append(makeProbabilityAnnotation(parentEdge));
+
+			// append parent linkage position
+			//if(sub != null && !(sub instanceof GlycanRepeatModification)) {
+			if (!parentEdge.isRepeat() && !parentEdge.isCyclic()) {
+				linkagePos.append(makeAcceptorPosition(parentEdge));
+			}
+
+			// append a separator for dual linkage position
+			if(iterParent.hasNext()) linkagePos.append(":");
+		}
+
+		return linkagePos.toString();
+	}
+
 	public String makeSequence (ArrayList<Node> _nodes) {
 		int branch = 0;
 		StringBuilder encode = new StringBuilder();
@@ -149,38 +193,13 @@ public class IUPACShortExporter extends IUPACExporterUtility implements Exporter
 		if(!notationIndex.containsKey(_node)) notationIndex.put(_node, monoIUPAC.getCoreCode());
 	}
 	
-	public void makeLinkageNotation(Node _node) {
+	public void makeLinkageNotation (Node _node) {
 		StringBuilder notation = new StringBuilder(notationIndex.get(_node));
 		Monosaccharide mono = (Monosaccharide) _node;
 
+		// append simple linkage notation
 		if(!mono.getParentEdges().isEmpty()) {
-			StringBuilder linkagePos = new StringBuilder();
-			for(Iterator<Edge> iterParent = gu.sortParentSideEdges(mono.getParentEdges()).iterator(); iterParent.hasNext();) {
-				Edge parentEdge = iterParent.next();
-				Substituent sub = (Substituent) parentEdge.getSubstituent();
-
-				// append anomeric position
-				linkagePos.append(makeChildSidePosition(parentEdge));
-
-				// append start repeating position
-				if(sub != null && sub instanceof GlycanRepeatModification && !parentEdge.isCyclic()) {
-					linkagePos.append("]");
-					linkagePos.append(makeRepeatingCount((GlycanRepeatModification) parentEdge.getSubstituent()));
-				}
-
-				// append probability annotation
-				linkagePos.append(makeProbabilityAnnotation(parentEdge));
-
-				// append parent linkage position
-				//if(sub != null && !(sub instanceof GlycanRepeatModification)) {
-				if (!parentEdge.isRepeat() && !parentEdge.isCyclic()) {
-					linkagePos.append(makeParentSidePosition(parentEdge));
-				}
-
-				// append a separator for dual linkage position
-				if(iterParent.hasNext()) linkagePos.append(":");
-			}
-			notation.append(linkagePos);
+			notation.append(this.makeSimpleLinkageNotation(_node.getParentEdges()));
 		}
 
 		// for root node
@@ -203,7 +222,7 @@ public class IUPACShortExporter extends IUPACExporterUtility implements Exporter
 				if(sub.getSubstituent() != null) {
 					endReppos.append(sub.getNameWithIUPAC());
 				}
-				endReppos.append(makeParentSidePosition(edge));
+				endReppos.append(makeAcceptorPosition(edge));
 				notation.insert(0, endReppos);
 			}
 		}
@@ -211,11 +230,11 @@ public class IUPACShortExporter extends IUPACExporterUtility implements Exporter
 		this.notationIndex.put(mono, notation.toString());
 	}
 	
-	private String makeParentSidePosition (Edge _parentEdge) {
-		if(_parentEdge.getGlycosidicLinkages().size() > 1) return "";	
-		StringBuilder ret = new StringBuilder(extractPosition(_parentEdge.getGlycosidicLinkages().get(0).getParentLinkages()));
-		if(isFacingAnom(_parentEdge)) {
-			Monosaccharide parent = (Monosaccharide) _parentEdge.getParent();
+	public String makeAcceptorPosition (Edge _edge) {
+		if(_edge.getGlycosidicLinkages().size() > 1) return "";
+		StringBuilder ret = new StringBuilder(extractPosition(_edge.getGlycosidicLinkages().get(0).getParentLinkages()));
+		if(isFacingAnom(_edge)) {
+			Monosaccharide parent = (Monosaccharide) _edge.getParent();
 			char parentAnom = parent.getAnomer().getAnomericState();
 			ret.append(parentAnom == 'x' ? '?' : parentAnom);
 		}
@@ -223,14 +242,14 @@ public class IUPACShortExporter extends IUPACExporterUtility implements Exporter
 		return ret.toString();
 	}
 	
-	private String makeChildSidePosition (Edge _parentEdge) {
+	public String makeDonorPosition (Edge _edge) {
 		StringBuilder ret = new StringBuilder();
 		// append anomeric state
-		Node child = _parentEdge.getChild();
+		Node child = _edge.getChild();
 		if(child != null) {
 			char childAnom = ((Monosaccharide) child).getAnomer().getAnomericState();
 			int childAnomPos = ((Monosaccharide) child).getAnomericPosition();
-			int childPos = _parentEdge.getGlycosidicLinkages().get(0).getChildLinkages().get(0);
+			int childPos = _edge.getGlycosidicLinkages().get(0).getChildLinkages().get(0);
 		
 			if(childPos == childAnomPos)
 				ret.append(childAnom == 'x' ? '?' : childAnom == 'o' ? '?' : childAnom);
@@ -243,8 +262,8 @@ public class IUPACShortExporter extends IUPACExporterUtility implements Exporter
 		//	ret.append(extractPosition(_parentEdge.getGlycosidicLinkages().get(0).getChildLinkages()));
 		
 		// append cross linked substituent
-		if(_parentEdge.getSubstituent() != null && !(_parentEdge.getSubstituent() instanceof GlycanRepeatModification)) {
-			ret.append(((Substituent) _parentEdge.getSubstituent()).getNameWithIUPAC());
+		if(_edge.getSubstituent() != null && !(_edge.getSubstituent() instanceof GlycanRepeatModification)) {
+			ret.append(((Substituent) _edge.getSubstituent()).getNameWithIUPAC());
 		}
 		
 		return ret.toString();

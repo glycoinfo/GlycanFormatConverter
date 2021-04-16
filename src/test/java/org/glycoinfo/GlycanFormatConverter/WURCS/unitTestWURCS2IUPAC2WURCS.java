@@ -284,11 +284,9 @@ public class unitTestWURCS2IUPAC2WURCS {
 
     @Test
     public void errorCase () {
-        String inWURCS = "WURCS=2.0/1,4,3/[a222h-1x_1-4]/1-1-1-1/a1-b1_c1-d1_b?-d?*OPO*/3O/3=O";
+        String inWURCS = "WURCS=2.0/5,8,7/[a2122h-1b_1-5_1*N_2*NCC/3=O][a2122h-1b_1-5_2*NCC/3=O][a1122h-1b_1-5][a1122h-1a_1-5][a2112h-1b_1-5_6*OC/2C]/1-2-3-4-2-4-2-5/a4-b1_b4-c1_c3-d1_c6-f1_d4-e1_f4-g1_g4-h1";
         // WURCS2IUPAC
         String iupac = this.toIUPAC(this.inWURCS(inWURCS));
-
-        System.out.println(iupac);
 
         // IUPAC2WURCS
         String outWURCS = this.toWURCS(this.inIUPAC(iupac));

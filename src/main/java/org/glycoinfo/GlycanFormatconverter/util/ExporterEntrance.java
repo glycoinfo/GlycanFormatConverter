@@ -69,8 +69,9 @@ public class ExporterEntrance {
 
     public String toLinearCode () throws GlyCoExporterException, ConverterExchangeException, GlycanException {
         LinearCodeExporter lcExpo = new LinearCodeExporter();
+        lcExpo.start(glyCo);
 
-        return lcExpo.start(glyCo);
+        return lcExpo.getLinearCode();
     }
 
     /*
@@ -97,6 +98,7 @@ public class ExporterEntrance {
         // WURCS validator
         WURCSValidator wv = new WURCSValidator();
         wv.start(wurcs);
+
         if (!wv.getReport().getErrors().isEmpty()) {
             StringBuilder message = new StringBuilder("");
             for (Iterator<String> iterError = wv.getReport().getErrors().iterator(); iterError.hasNext();) {

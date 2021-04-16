@@ -48,7 +48,7 @@ public class fileHandler {
             SimpleDateFormat simpleDate = new SimpleDateFormat("-yyyy-MM-dd");
             String outputStr = simpleDate.format(date);
 
-            FileWriter writeFile = new FileWriter(_filePath + outputStr + _format, true);
+            FileWriter writeFile = new FileWriter(_filePath + outputStr + _format, false);
             PrintWriter printWriter = new PrintWriter(new BufferedWriter(writeFile));
 
             for (String key : _resultMap.keySet()) {

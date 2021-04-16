@@ -65,14 +65,7 @@ public class MonosaccharideToBackbone {
 		if (this.anomericPos == Monosaccharide.OPEN_CHAIN) {
 			this.anomericSymbol = 'o';
 		}
-		
-		int numOfAtom = mono.getSuperClass().getSize();
-		if (numOfAtom == 0) {
-			this.backbone = new Backbone();
-			this.backbone.setAnomericSymbol(this.anomericSymbol);
-			return;
-		}
-		
+
 		MonosaccharideAnalyzer monoAnalyzer = new MonosaccharideAnalyzer();
 		monoAnalyzer.analyze(_node);
 
@@ -83,6 +76,15 @@ public class MonosaccharideToBackbone {
 			this.ringModification = new Modification("*" + sub.getSubstituent().getMAP());
 		} else {
 			this.ringModification = new Modification("");
+		}
+
+		int numOfAtom = mono.getSuperClass().getSize();
+		if (numOfAtom == 0) {
+			this.backbone = new Backbone();
+			BackboneCarbon bc = new BackboneCarbon(this.backbone, CarbonDescriptor.SZX_UNDEF_ALL, true);
+			this.backbone.addBackboneCarbon(bc);
+			this.backbone.setAnomericSymbol(this.anomericSymbol);
+			return;
 		}
 
 		this.anomericPos = monoAnalyzer.getAnomericPosition();

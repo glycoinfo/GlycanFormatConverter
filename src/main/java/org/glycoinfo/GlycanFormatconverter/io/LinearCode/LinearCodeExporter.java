@@ -15,12 +15,15 @@ import java.util.HashMap;
  */
 public class LinearCodeExporter extends IUPACExporterUtility implements ExporterInterface {
 
-    LinearCodeNodeSimilarity lcSim = new LinearCodeNodeSimilarity();
-    HashMap<Node, String> LCMap = new HashMap<>();
+    private final StringBuilder linearCode = new StringBuilder();
+    private final LinearCodeNodeSimilarity lcSim = new LinearCodeNodeSimilarity();
+    private final HashMap<Node, String> LCMap = new HashMap<>();
 
-    public String start (GlyContainer _glyCo) throws GlyCoExporterException, GlycanException, ConverterExchangeException {
-        StringBuilder ret = new StringBuilder();
+    public String getLinearCode () {
+        return this.linearCode.toString();
+    }
 
+    public void start (GlyContainer _glyCo) throws GlyCoExporterException, GlycanException, ConverterExchangeException {
         for (Node node : _glyCo.getAllNodes()) {
             makeMonosaccharideNotation(node);
             makeLinkageNotation(node);
@@ -28,28 +31,29 @@ public class LinearCodeExporter extends IUPACExporterUtility implements Exporter
 
         // for fragments of substituent
         for (GlycanUndefinedUnit und : _glyCo.getUndefinedUnit()) {
-            if (und.getNodes().get(0) instanceof Substituent)
-                makeSubstituentNotation(und);
+            for (Node node : und.getRootNodes()) {
+                if (node instanceof Substituent) {
+                    makeSubstituentNotation(und);
+                }
+            }
         }
 
         // append fragments anchor
         makeFragmentsAnchor(_glyCo);
 
         // sort core nodes
-        ret.insert(0, makeSequence(lcSim.sortAllNode(_glyCo.getRootNodes().get(0))));
+        this.linearCode.insert(0, makeSequence(lcSim.sortAllNode(_glyCo.getRootNodes().get(0))));
 
         // sort fragments
         String[] fragments = makeFragmentsSequence(_glyCo.getUndefinedUnit()).split("\\+");
         if (fragments.length > 0) {
             if (fragments[0].length() != 0) {
-                ret.insert(0, fragments[0]);
+                this.linearCode.insert(0, fragments[0]);
             }
             if (fragments.length > 1) {
-                ret.append(fragments[1]);
+                this.linearCode.append(fragments[1]);
             }
         }
-
-        return ret.toString();
     }
 
     public String makeFragmentsSequence (ArrayList<GlycanUndefinedUnit> _fragments) throws GlycanException, GlyCoExporterException, ConverterExchangeException {
@@ -80,6 +84,21 @@ public class LinearCodeExporter extends IUPACExporterUtility implements Exporter
         ret.append("+");
         ret.append(unknownLink);
         return ret.toString();
+    }
+
+    @Override
+    public String makeAcceptorPosition(Edge _edge) {
+        return null;
+    }
+
+    @Override
+    public String makeDonorPosition(Edge _edge) {
+        return null;
+    }
+
+    @Override
+    public boolean isFragmentsRoot(GlyContainer _glyco, Node _node) {
+        return false;
     }
 
     public String makeSequence(ArrayList<Node> _nodes) throws GlyCoExporterException, GlycanException, ConverterExchangeException {
@@ -124,7 +143,7 @@ public class LinearCodeExporter extends IUPACExporterUtility implements Exporter
             }
         }
 
-        /* append a symbol of repeating for end node */
+        // append a symbol of repeating for end node
         for (Edge childEdge : _node.getChildEdges()) {
             Substituent sub = (Substituent) childEdge.getSubstituent();
             if (sub != null && sub instanceof GlycanRepeatModification) {
@@ -152,6 +171,16 @@ public class LinearCodeExporter extends IUPACExporterUtility implements Exporter
                 }
             }
         }
+    }
+
+    @Override
+    public void makeLinkageNotationFragmentSide(Node _node) {
+
+    }
+
+    @Override
+    public String makeSimpleLinkageNotation(ArrayList<Edge> _edges) {
+        return null;
     }
 
     @Override

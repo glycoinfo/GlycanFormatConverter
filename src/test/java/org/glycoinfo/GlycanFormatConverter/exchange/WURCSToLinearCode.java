@@ -37,7 +37,8 @@ public class WURCSToLinearCode {
                     wg2gc.start(factory.getGraph());
 
                     System.out.println(input);
-                    System.out.println(lcExpo.start(wg2gc.getGlycan()));
+                    lcExpo.start(wg2gc.getGlycan());
+                    System.out.println(lcExpo.getLinearCode());
                 } catch (Exception e) {
                     e.printStackTrace();
                     //System.out.println(key + "	" + input);

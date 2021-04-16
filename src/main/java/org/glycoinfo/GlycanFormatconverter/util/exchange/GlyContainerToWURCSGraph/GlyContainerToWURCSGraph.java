@@ -139,14 +139,14 @@ public class GlyContainerToWURCSGraph {
 		if (mono.getRingStart() != Monosaccharide.UNKNOWN_RING) {
 			start.addLinkage(new LinkagePosition(mono.getRingStart(), DirectionDescriptor.L, 0));
 			end.addLinkage(new LinkagePosition(mono.getRingEnd(), DirectionDescriptor.L, 0));
-		} else if (backbone.getAnomericPosition() != Monosaccharide.UNKNOWN_RING) { 
+		} else if (backbone.getAnomericPosition() != Monosaccharide.UNKNOWN_RING) {
 			start.addLinkage(new LinkagePosition(backbone.getAnomericPosition(), DirectionDescriptor.L, 0));
 			end.addLinkage(new LinkagePosition(Monosaccharide.UNKNOWN_RING, DirectionDescriptor.L, 0));
-		} 
+		}
 
 		LinkedList<WURCSEdge> edges = new LinkedList<>();
-		edges.add(start);
-		edges.add(end);
+		if (!start.getLinkages().isEmpty()) edges.add(start);
+		if (!end.getLinkages().isEmpty()) edges.add(end);
 		this.makeLinkage(backbone, edges, ring);
 	}
 
@@ -158,6 +158,15 @@ public class GlyContainerToWURCSGraph {
 		} catch (WURCSException e) {
 			throw new WURCSExchangeException(e.getErrorMessage());
 		}
+	}
+
+	private boolean isSugar (Backbone _backbone) {
+		if (_backbone.getBackboneCarbons().size() != 1) return false;
+		boolean ret = false;
+		for (BackboneCarbon bc : _backbone.getBackboneCarbons()) {
+			if (bc.getDescriptor().equals(CarbonDescriptor.SZX_UNDEF_ALL)) ret = true;
+		}
+		return ret;
 	}
 
 	private boolean isFacingAnom (Edge _edge) {

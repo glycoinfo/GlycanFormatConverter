@@ -1,13 +1,19 @@
 package org.glycoinfo.GlycanFormatConverter.KCF;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
+import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.io.KCF.KCFImporter;
 import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
+import org.glycoinfo.WURCSFramework.util.WURCSFactory;
+import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
+import org.glycoinfo.WURCSFramework.util.validation.WURCSValidationReport;
+import org.glycoinfo.WURCSFramework.util.validation.WURCSValidator;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 /**
@@ -16,9 +22,11 @@ import java.util.LinkedHashMap;
 public class KCF2WURCS {
 
     public static void main(String[] args) throws Exception {
-        String input =
-               //"src/test/resources/20171212_GlyTouCan_KCFsamples";
-               "src/test/resources/KCFSample";
+        //KCF_errorlist.txt
+        //20171212_GlyTouCan_KCFsamples
+        //KCFSample
+        String filename = "KCFSample";
+        String input = "src/test/resources/KCF/" + filename;
 
         File file = new File(input);
 
@@ -40,14 +48,11 @@ public class KCF2WURCS {
                     String wurcs = ee.toWURCS();
 
                     //ret.append(key + "\t" + wurcs + "\n");
-
-                    System.out.println(key + "\t" + wurcs);
-                    
                     done++;
                 } catch (Exception e) {
                     ret.append(key + "\t" + e.getMessage() + "\n");
                     errorList.append(kcfDictionary.get(key) + "\n");
-                    System.out.println(key + " " + e.getMessage());
+                    //System.out.println(key + " " + e.getMessage());
                     e.printStackTrace();
                 }
             }

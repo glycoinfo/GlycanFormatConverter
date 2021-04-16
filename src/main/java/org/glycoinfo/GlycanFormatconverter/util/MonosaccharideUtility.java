@@ -77,7 +77,7 @@ public class MonosaccharideUtility {
             }
         }
 
-        /*
+        // if anomeric position is undefined
         if (!_ringSize.equals("?") && pos == -1) {
             MonosaccharideIndex mi = MonosaccharideIndex.forTrivialNameWithIgnore(_code);
             if (mi != null) {
@@ -85,7 +85,6 @@ public class MonosaccharideUtility {
                 _mono.setAnomericPosition(pos);
             }
         }
-         */
         _mono.setRingStart(pos);
 
         // check ring position
