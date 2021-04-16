@@ -140,10 +140,10 @@ public class BackboneToNode {
                 _mono = appendSubstituent(_mono, ModificationToSubstituent(_backbone, mod));
             }
 
-            // extract cross-linked substituent and anhydro
+            // extract cyclic substituent and anhydro
             if (mod.getParentEdges().size() == 2) {
                 if (tempMods.contains(mod)) continue;
-                _mono = appendSubstituent(_mono, ModificationToCrossLinkedSubstituent(mod));
+                _mono = appendSubstituent(_mono, ModificationToCyclicSubstituent(mod));
                 tempMods.add(mod);
             }
 
@@ -165,7 +165,7 @@ public class BackboneToNode {
         return _mono;
     }
 
-  private Substituent ModificationToSubstituent(Backbone _backbone, Modification _mod) throws ConverterExchangeException, GlycanException, WURCSFormatException {
+  private Substituent ModificationToSubstituent(Backbone _backbone, Modification _mod) throws ConverterExchangeException, WURCSFormatException {
         MAPAnalyzer mapAnalyze = new MAPAnalyzer();
         mapAnalyze.start(_mod.getMAPCode());
 
@@ -208,9 +208,9 @@ public class BackboneToNode {
         return ret;
     }
 
-    private Substituent ModificationToCrossLinkedSubstituent(Modification _mod) throws ConverterExchangeException, GlycanException, WURCSFormatException {
+    private Substituent ModificationToCyclicSubstituent (Modification _mod) throws ConverterExchangeException, WURCSFormatException {
         MAPAnalyzer mapAnalyze = new MAPAnalyzer();
-        mapAnalyze.start(_mod.getMAPCode().equals("") ? "*o" : _mod.getMAPCode());
+        mapAnalyze.start(_mod.getMAPCode().equals("") ? "*O*" : _mod.getMAPCode());
 
         SubstituentInterface subT = mapAnalyze.getCrossTemplate();
 

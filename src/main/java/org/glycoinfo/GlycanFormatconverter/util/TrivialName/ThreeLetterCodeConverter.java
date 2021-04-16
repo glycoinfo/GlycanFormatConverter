@@ -4,6 +4,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -101,10 +102,10 @@ public class ThreeLetterCodeConverter {
 		}
 
 		// extract modifications
-		ArrayList<GlyCoModification> mods = extractModifications(_dict.getModifications());
+		HashMap<Integer, GlyCoModification> mods = extractModifications(_dict.getModifications());
 
 		// extract substituents
-		ArrayList<Substituent> subs = extractSubstituents(_dict.getSubstituents());
+		ArrayList<Substituent> subs = extractSubstituents(_dict, mods);
 
 		// compare substituents
 		int subPoint = 0;
@@ -115,7 +116,6 @@ public class ThreeLetterCodeConverter {
 
 			//ignore cross linked substituent
 			if (sub.getSubstituent() instanceof BaseCrossLinkedTemplate) continue;
-//			if(childEdge.getSubstituent() != null && childEdge.getChild() != null) continue;
 			//ignore wrong substituent
 			if(sub.getFirstPosition() == null || sub.getSecondPosition() != null) continue;
 			//ignore ambiguous linkage position
@@ -137,22 +137,22 @@ public class ThreeLetterCodeConverter {
 
 		// compare modificaitons
 		int modPoint = 0;
-		for(GlyCoModification tempMod : mods) {
-			if(((Monosaccharide) _node).hasModification(tempMod, tempMod.getPositionOne())) modPoint++;
+		for(Integer key : mods.keySet()) {
+			GlyCoModification gMod = mods.get(key);
+			if(((Monosaccharide) _node).hasModification(gMod, gMod.getPositionOne())) modPoint++;
 		}
 
-		if(subs.size() == subPoint && mods.size() == modPoint) return true;
-		return false;
+		return (subs.size() == subPoint && mods.size() == modPoint);
 	}
 	
 	private void modifySubstituentAndModification (Node _node, TrivialNameDictionary _dict) throws GlycanException{
 		Monosaccharide mono = ((Monosaccharide) _node);
 		
 		// extract modifications
-		ArrayList<GlyCoModification> mods = extractModifications(_dict.getModifications());
+		HashMap<Integer, GlyCoModification> mods = extractModifications(_dict.getModifications());
 		
 		// extract substituents
-		ArrayList<Substituent> subs = extractSubstituents(_dict.getSubstituents());
+		ArrayList<Substituent> subs = extractSubstituents(_dict, mods);
 		
 		// modify substituent
 		for(Edge childEdge : _node.getChildEdges()) {
@@ -180,8 +180,9 @@ public class ThreeLetterCodeConverter {
 		}
 		
 		// remove modification
-		for(GlyCoModification tempMod : mods) {
-			mono.removeModification(getModIndex(_node, tempMod));
+		for(Integer key : mods.keySet()) {
+			GlyCoModification gMod = mods.get(key);
+			mono.removeModification(getModIndex(_node, gMod));
 		}
 	}
 	
@@ -196,32 +197,32 @@ public class ThreeLetterCodeConverter {
 		return ret;
 	}
 	
-	private ArrayList<Substituent> extractSubstituents (String _item) {
+	private ArrayList<Substituent> extractSubstituents (TrivialNameDictionary _dict, HashMap<Integer, GlyCoModification> _mods) {
 		ArrayList<Substituent> ret = new ArrayList<>();
-		if(_item.equals("")) return ret;
+		String nativeSubstituent = _dict.getSubstituents();
+		if(nativeSubstituent.equals("")) return ret;
 
-		for(String unit : _item.split("_")) {
+		for(String unit : nativeSubstituent.split("_")) {
 			String[] split_unit = unit.split("\\*");
 			LinkedList<Integer> pos = new LinkedList<>();
 			pos.addLast(Integer.parseInt(String.valueOf(split_unit[0])));
 			Linkage lin = new Linkage();
 			lin.setParentLinkages(pos);
 
-			String planeNotation = this.makePlaneNotation(split_unit[1]);
-			BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotation(planeNotation);
-			if(bsubT != null) {
-				Substituent item = new Substituent(bsubT, lin);
-				String headAtom = this.extractHeadAtom(split_unit[1]);
-				item.setHeadAtom(headAtom);
-				ret.add(item);
-			}
+			//String planeNotation = this.makePlaneNotation(split_unit[1]);
+			BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotation(split_unit[1]);
+			if (bsubT == null) continue;
+			Substituent item = new Substituent(bsubT, lin);
+			String headAtom = this.extractHeadAtom(item, _mods);
+			item.setHeadAtom(headAtom);
+			ret.add(item);
 		}
 
 		return ret;
 	}
 	
-	private ArrayList<GlyCoModification> extractModifications (String _item) throws GlycanException {
-		ArrayList<GlyCoModification> ret = new ArrayList<>();
+	private HashMap<Integer, GlyCoModification> extractModifications (String _item) throws GlycanException {
+		HashMap<Integer, GlyCoModification> ret = new HashMap<>();
 		if(_item.equals("")) return ret;
 
 		for(String unit : _item.split("_")) {
@@ -234,7 +235,7 @@ public class ThreeLetterCodeConverter {
 				if (_item.startsWith("1*A") && !split_unit[0].equals("1") && modT.equals(ModificationTemplate.ALDONICACID)) {
 					modT = ModificationTemplate.URONICACID;
 				}
-				ret.add(new GlyCoModification(modT, Integer.parseInt(String.valueOf(split_unit[0]))));
+				ret.put(Integer.parseInt(split_unit[0]), new GlyCoModification(modT, Integer.parseInt(String.valueOf(split_unit[0]))));
 			}
 		}
 		
@@ -270,25 +271,36 @@ public class ThreeLetterCodeConverter {
 		return _notation;
 	}
 
-	private String extractHeadAtom (String _notation) {
-		if (_notation.startsWith("C") || _notation.startsWith("O") || _notation.equals("N")) {
-			return _notation.substring(0, 1);
+	private String extractHeadAtom (Substituent _sub, HashMap<Integer, GlyCoModification> _mods) {
+		BaseSubstituentTemplate subTemp = (BaseSubstituentTemplate) _sub.getSubstituent();
+		int pos = _sub.getFirstPosition().getParentLinkages().get(0);
+
+		if (_mods.containsKey(pos)) {
+			GlyCoModification gMod = _mods.get(pos);
+			if (gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_5) ||
+					gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_6) ||
+					gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_7) ||
+					gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_8) ||
+					gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_X)) return "C";
 		}
 
-		if (_notation.startsWith("(")) {
-			String bracket = _notation.substring(0, _notation.indexOf(")")+1);
-			String regex = bracket.replace("(", "\\(").replace(")", "\\)");
-			_notation = _notation.replaceFirst(regex, "");
-
-			if (_notation.startsWith("O")) {
-				return _notation.substring(0, 1);
-			}
-			if (_notation.startsWith("C") && _notation.length() == 3) {
-				return _notation.substring(0, 1);
-			}
+		if (subTemp.getMAP().startsWith("*O")) {
+			return "O";
 		}
 
+		if (subTemp.getMAP().startsWith("*N")) {
+			return "N";
+		}
 		return "";
+	}
+
+	private HashMap<Integer, String> extractModificaitons (String _nativeModifications) {
+		HashMap<Integer, String> ret = new HashMap<>();
+		for (String mod : _nativeModifications.split("_")) {
+			String[] items = mod.split("\\*");
+			ret.put(Integer.parseInt(items[0]), items[1]);
+		}
+		return ret;
 	}
 
 	private boolean isProbability (Substituent _sub) {

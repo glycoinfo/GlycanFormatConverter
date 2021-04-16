@@ -354,16 +354,27 @@ public class GlyContainer implements GlycanGraph {
 			}
 		}
 
-		/* make copy of fragments */
+		// make copy of fragments
+		HashMap<Node, Node> fragNode = new HashMap<>();
 		for (GlycanUndefinedUnit und : getUndefinedUnit()) {
 			GlycanUndefinedUnit copyUnd = und.copy();
 			copy.addGlycanUndefinedUnit(copyUnd);
 
+			for (Node node : und.getNodes()) {
+				fragNode.put(node, copyUnd.getNodes().get(und.getNodes().indexOf(node)));
+			}
+
 			ArrayList<Node> acceptorNodes = new ArrayList<>();
 			for (Node acceptor : und.getParents()) {
+				// assign acceptor nodes for core side
 				if (copyIndex.containsKey(acceptor)) {
 					acceptorNodes.add(copyIndex.get(acceptor));
 					copyUnd.getConnections().get(und.getParents().indexOf(acceptor)).setParent(copyIndex.get(acceptor));
+				}
+				// assign acceptor nodes for any sub-graph
+				if (fragNode.containsKey(acceptor)) {
+					acceptorNodes.add(fragNode.get(acceptor));
+					copyUnd.getConnections().get(und.getParents().indexOf(acceptor)).setParent(fragNode.get(acceptor));
 				}
 			}
 			copyUnd.setParentNodes(acceptorNodes);

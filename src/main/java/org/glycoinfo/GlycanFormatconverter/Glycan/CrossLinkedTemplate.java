@@ -22,9 +22,9 @@ public enum CrossLinkedTemplate implements SubstituentInterface {
 	DIPHOSPHOETHANOLAMINE("*NCCOP^XOP^X*/8O/8=O/6O/6=O",	"diphospho-ethanolamine", "PPEtn"),
 	PYROPHOSPHATE		("*OPOPO*/5O/5=O/3O/3=O", "pyrophosphate", "PyrP");
 	
-	private String map;
-	private String notationGlycoCT;
-	private String notationIUPAC;
+	private final String map;
+	private final String notationGlycoCT;
+	private final String notationIUPAC;
 	
 	@Override
 		public String getMAP () {
@@ -41,7 +41,7 @@ public enum CrossLinkedTemplate implements SubstituentInterface {
 		return this.notationIUPAC;
 	}
 	
-	private CrossLinkedTemplate (String _map, String _ct, String _iupac) {
+	CrossLinkedTemplate(String _map, String _ct, String _iupac) {
 		this.map = _map;
 		this.notationGlycoCT = _ct;
 		this.notationIUPAC = _iupac;

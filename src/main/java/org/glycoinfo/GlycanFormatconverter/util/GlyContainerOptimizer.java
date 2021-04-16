@@ -152,6 +152,8 @@ public class GlyContainerOptimizer {
             if (this.isCrossLinkedSubstituent(edge)) {
                 this.optimizeCrossLinkedSubstituent(edge, sub);
             }
+
+            // Optimize head atom
         }
     }
 
@@ -207,7 +209,7 @@ public class GlyContainerOptimizer {
             }
 
             // Check phospho-ethanol amine
-            if (_sub.getSubstituent().equals(BaseCrossLinkedTemplate.PHOSPHO_ETHANOLAMINE)) {
+            if (_sub.getSubstituent().equals(BaseCrossLinkedTemplate.PHOSPHOETHANOLAMINE)) {
                 first.setParentLinkageType(LinkageType.H_AT_OH);
                 second.setChildLinkageType(LinkageType.H_AT_OH);
             }
@@ -349,10 +351,12 @@ public class GlyContainerOptimizer {
         if (_edge.getSubstituent() == null) return false;
         Substituent sub = (Substituent) _edge.getSubstituent();
 
-        //if (sub.getSubstituent() instanceof CrossLinkedTemplate) return true;
-        if (sub.getSubstituent() instanceof BaseCrossLinkedTemplate) return true;
-        return false;
-    }
+        if (sub.getSubstituent() == null) return false;
+
+        if (sub.getSubstituent().equals(BaseCrossLinkedTemplate.ANHYDRO)) return false;
+
+        return (sub.getSubstituent() instanceof BaseCrossLinkedTemplate);
+   }
 
     public boolean isRepeating (Edge _edge) {
         if (_edge.getSubstituent() == null) return false;

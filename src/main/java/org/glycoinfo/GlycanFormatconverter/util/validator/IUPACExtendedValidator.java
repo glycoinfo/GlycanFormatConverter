@@ -167,7 +167,19 @@ public class IUPACExtendedValidator implements TextValidator {
 
     @Override
     public void checkForSubstituents(Edge _edge) throws GlycanException {
-
+        /*
+        if (_edge.getSubstituent() == null) return;
+        Substituent sub = (Substituent) _edge.getSubstituent();
+        if (sub instanceof GlycanRepeatModification) return;
+        if (sub.getSubstituent().equals(BaseCrossLinkedTemplate.R_PYRUVATE) ||
+                sub.getSubstituent().equals(BaseCrossLinkedTemplate.S_PYRUVATE) ||
+                sub.getSubstituent().equals(BaseCrossLinkedTemplate.X_PYRUVATE) ||
+                sub.getSubstituent().equals(BaseCrossLinkedTemplate.R_DEOXYPYRUVATE) ||
+                sub.getSubstituent().equals(BaseCrossLinkedTemplate.S_DEOXYPYRUVATE) ||
+                sub.getSubstituent().equals(BaseCrossLinkedTemplate.X_DEOXYPYRUVATE)) {
+            throw new GlycanException("IUPAC-Extended format can not support " + sub.getSubstituent());
+        }
+         */
     }
 
     @Override

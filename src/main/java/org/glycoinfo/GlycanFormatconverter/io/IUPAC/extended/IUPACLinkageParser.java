@@ -498,6 +498,11 @@ public class IUPACLinkageParser extends SubstituentUtility {
 		Monosaccharide acceptor = (Monosaccharide) _acceptor;
 		String acceptorNotation = nodeIndex.get(_acceptor);
 
+		// remove linkage notation
+		if (acceptorNotation.contains("-(")) {
+			acceptorNotation = acceptorNotation.substring(0, acceptorNotation.indexOf("-("));
+		}
+
 		// parse ring size
 		Matcher matMono = Pattern.compile(".+([pf?]).*").matcher(acceptorNotation);
 		String ringSize = "";

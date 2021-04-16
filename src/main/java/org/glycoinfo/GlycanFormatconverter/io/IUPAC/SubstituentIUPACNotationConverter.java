@@ -142,9 +142,11 @@ public class SubstituentIUPACNotationConverter {
 			if (!mapSubs.containsKey(modT.getIUPACnotation())) {
 				if (isUnsaturate(modT)) mapSubs.put(modT.getIUPACnotation(), String.valueOf(mod.getPositionOne()));
 
+				/*
 				if (modT.equals(ModificationTemplate.UNKNOWN)) {
 					mapSubs.put(modT.getIUPACnotation(), "?");
 				}
+				 */
 			}
 		}
 	}
@@ -279,7 +281,7 @@ public class SubstituentIUPACNotationConverter {
 		BaseSubstituentTemplate subT = (BaseSubstituentTemplate) _sub.getSubstituent();
 
 		// for neugc or neuac
-		return (subT.equals(BaseSubstituentTemplate.ACETYL) || subT.equals(BaseSubstituentTemplate.GLYCOLYL));
+		return (subT.equals(BaseSubstituentTemplate.OACETYL) || subT.equals(BaseSubstituentTemplate.OGLYCOLYL));
 	}
 	
 	private boolean isNeuraminicAcid (String _code) {

@@ -5,8 +5,6 @@ public enum ModificationTemplate {
 	/**modificaiton
 	 * http://www.monosaccharidedb.org/notation.action?topic=basetype
 	 * */
-	//ANHYDROXYL		("*o", "anhydro", "Anhydro"),
-	UNKNOWN 		('*', "", "?"),
 	UNSATURATION_EL ('e', "en", "(E)en"),
 	UNSATURATION_FL ('f', "en", "(X)en"),
 	UNSATURATION_ZL ('z', "en", "(Z)en"),
@@ -27,8 +25,7 @@ public enum ModificationTemplate {
 	HLOSE_7			('7', "h", "dehydro"),
 	HLOSE_8			('8', "h", "dehydro"),
 	HLOSE_X			('X', "h", "dehydro");
-	//ONIC			('A', "a", "onic");
-	
+
 	private final char carbon;
 	private final String glycoCTNotation;
 	private final String iupacNotation;

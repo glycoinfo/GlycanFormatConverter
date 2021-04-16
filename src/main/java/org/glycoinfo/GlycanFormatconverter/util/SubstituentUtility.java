@@ -30,7 +30,7 @@ public class SubstituentUtility {
 	}
 
 	public static boolean isOLinkedSubstituent (BaseCrossLinkedTemplate _crossT) {
-		if (_crossT.equals(BaseCrossLinkedTemplate.PHOSPHO_ETHANOLAMINE)) return true;
+		if (_crossT.equals(BaseCrossLinkedTemplate.PHOSPHOETHANOLAMINE)) return true;
 		return (_crossT.getMAP().startsWith("*O") ||  _crossT.getMAP().startsWith("*1O"));
 	}
 
@@ -82,9 +82,10 @@ public class SubstituentUtility {
 	}
 
 	public static String optimizeSubstituentNotationWithLinkageType (Substituent _sub) {
+		return _sub.getNameWithIUPAC();
+		/*
 		String ret = _sub.getNameWithIUPAC();
 		String bracket = "";
-
 		if (ret.startsWith("(")) {
 			bracket = ret.substring(0, ret.indexOf(")") + 1);
 			String regex = bracket.replace("(", "\\(").replace(")", "\\)");
@@ -100,15 +101,19 @@ public class SubstituentUtility {
 			if (!ret.startsWith("O") && !bracket.equals("")) ret = "C" + ret;
 			//System.out.println("H_LOSE" + " " + ret);
 		}
+		 */
 
 		// Optimize substituent notation using DEOXY
+		/*
 		if (_sub.getFirstPosition().getParentLinkageType().equals(LinkageType.DEOXY)) {
 			if (ret.startsWith("O") && bracket.equals("")) ret = ret.replaceFirst("O", "");
 			if (ret.startsWith("C") && !ret.equals("Cl") && bracket.equals("")) ret = ret.replaceFirst("C", "");
 			//System.out.println("DEOXY " + ret);
 		}
+		 */
 
 		// Optimize substituent notation using H_AT_OH
+		/*
 		if (_sub.getFirstPosition().getParentLinkageType().equals(LinkageType.H_AT_OH)) {
 			if (ret.startsWith("C") && !ret.equals("Cl") && bracket.equals("")) ret = ret.replaceFirst("C", "O");
 			if (!ret.startsWith("C") && !ret.startsWith("O") && bracket.equals("")) ret = "O" + ret;
@@ -117,6 +122,7 @@ public class SubstituentUtility {
 		}
 
 		return bracket + ret;
+		 */
 	}
 
 	public static String optimizeSubstituentNotationWithN_linkage (Substituent _sub) {

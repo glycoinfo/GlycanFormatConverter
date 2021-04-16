@@ -79,7 +79,7 @@ public class KCFNodeConverter {
         }
         if (isPhosphoEthanolamine(_notation)) {
             if (isCrossLinkedSubstituent(_notation))
-                return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PHOSPHO_ETHANOLAMINE);
+                return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PHOSPHOETHANOLAMINE);
             else
                 return this.makeSubstituentNotation(BaseSubstituentTemplate.PHOSPHOETHANOLAMINE);
         }
@@ -87,7 +87,7 @@ public class KCFNodeConverter {
             if (isCrossLinkedSubstituent(_notation))
                 return this.makeSubstituentNotation(BaseCrossLinkedTemplate.PHOSPHATE);
             else
-                return this.makeSubstituentNotation(BaseSubstituentTemplate.PHOSPHATE);
+                return this.makeSubstituentNotation(BaseSubstituentTemplate.OPHOSPHATE);
         }
 
         return null;
@@ -223,7 +223,7 @@ public class KCFNodeConverter {
                     BaseSubstituentTemplate.forIUPACNotationWithIgnore(kcfUtil.splitNotation(childNode).get(1));
 
             if (parentT == null || childT == null) return false;
-            return parentT.equals(BaseSubstituentTemplate.PHOSPHATE) && childT.equals(BaseSubstituentTemplate.PHOSPHATE);
+            return parentT.equals(BaseSubstituentTemplate.OPHOSPHATE) && childT.equals(BaseSubstituentTemplate.OPHOSPHATE);
         }
 
         return false;

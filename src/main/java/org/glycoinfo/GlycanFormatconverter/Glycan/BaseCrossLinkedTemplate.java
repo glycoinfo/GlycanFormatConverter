@@ -6,27 +6,33 @@ package org.glycoinfo.GlycanFormatconverter.Glycan;
 public enum BaseCrossLinkedTemplate implements SubstituentInterface {
 
     // For double
-    ANHYDRO			    ("*o", "anhydro", "Anhydro"),
-    PYRUVATE			("C^X*/2CO/4=O/2C", "pyruvate",	"Py"),
-    R_PYRUVATE			("C^R*/2CO/4=O/2C", "(r)-pyruvate",	"(R)Py"),
-    S_PYRUVATE			("C^R*/2CO/4=O/2C", "(s)-pyruvate",	"(S)Py"),
+    ANHYDRO			    ("*O*", "anhydro", "Anhydro"),
+
+    X_PYRUVATE			("*OC^XO*/3CO/6=O/3C", "pyruvate", "Py"),
+    S_PYRUVATE			("*OC^SO*/3CO/6=O/3C", "pyruvate", "(S)Py"),
+    R_PYRUVATE			("*OC^RO*/3CO/6=O/3C", "pyruvate", "(R)Py"),
+
+    X_DEOXYPYRUVATE	    ("*1OC^X*2/3CO/5=O/3C", "pyruvate", "Py"),
+    R_DEOXYPYRUVATE		("*1OC^RO*2/3CO/6=O/3C", "(r)-pyruvate",	"(R)Py"),
+    S_DEOXYPYRUVATE		("*1OC^SO*2/3CO/6=O/3C", "(s)-pyruvate",	"(S)Py"),
 
     // For both of single or double
-    AMINO				("N*", "amino",	"N"),
-    ETHANOLAMINE		("NCC*", "ethanolamine", ""),
-    IMINO				("=N*", "imino", ""),
-    SULFATE				("S*/2=O/2=O", "sulfate", "S"),
-    N_SULFATE			("NS*/3=O/3=O", "n-sulfate", "NSuc"),
-    SUCCINATE			("CCCC*/5=O/2=O", "succinate", "Suc"),
-    PHOSPHATE			("P^X*/2O/2=O", "phosphate", "P"),
-    PYROPHOSPHATE		("P^XOP^X*/4O/4=O/2O/2=O", "pyrophosphate",	"PyrP"),
-    TRIPHOSPHATE		("P^XOP^XOP^X*/6O/6=O/4O/4=O/2O/2=O", "triphosphate", "Tri-P"),
-    PHOSPHO_ETHANOLAMINE	("NCCOP^X*/6O/6=O", "phospho-ethanolamine",	"PEtn"),
-    DIPHOSPHO_ETHANOLAMINE	("NCCOP^XOP^X*/8O/8=O/6O/6=O", "diphospho-ethanolamine", "PPEtn");
+    THIO                ("*S*", "thio", "SH"),
+    AMINO				("*N*", "amino",	"N"),
+    ETHANOLAMINE		("*NCC*", "ethanolamine", ""),
+    IMINO				("*=N*", "imino", ""),
+    OSULFATE			("*OSO*/3=O/3=O", "sulfate", "S"),
+    NSULFATE			("*NS*/3=O/3=O", "n-sulfate", "NS"),
+    SUCCINATE			("*OCCCCO*/6=O/3=O", "succinate", "Suc"),
+    PHOSPHATE			("*OPO*/3O/3=O", "phosphate", "P"),
+    PYROPHOSPHATE		("*OPOPO*/5O/5=O/3O/3=O", "pyrophosphate",	"PyrP"),
+    TRIPHOSPHATE		("*OP^XOP^XOP^X*/7O/7=O/5O/5=O/3O/3=O", "triphosphate", "Tri-P"),
+    PHOSPHOETHANOLAMINE	("*1NCCOP^XO*2/6O/6=O", "phospho-ethanolamine",	"PEtn"),
+    DIPHOSPHOETHANOLAMINE	("*NCCOP^XOP^X*/8O/8=O/6O/6=O", "diphospho-ethanolamine", "PPEtn");
 
-    private String map;
-    private String gct;
-    private String iupac;
+    private final String map;
+    private final String gct;
+    private final String iupac;
 
     @Override
     public String getMAP () {

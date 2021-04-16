@@ -11,8 +11,8 @@ public class Substituent extends Node{
 	
 	private SubstituentInterface subInterface;
 
-	String headAtom;
-	String tailAtom;
+	private String headAtom;
+	private String tailAtom;
 
 	public Substituent(SubstituentInterface enumSub) {
 		this.setTemplate(enumSub);

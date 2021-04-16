@@ -23,7 +23,7 @@ import java.util.Iterator;
  */
 public class ExporterEntrance {
 
-    private GlyContainer glyCo;
+    private final GlyContainer glyCo;
 
     public ExporterEntrance(GlyContainer _glyCo) {
         this.glyCo = _glyCo;
@@ -32,7 +32,6 @@ public class ExporterEntrance {
     public String toIUPAC (IUPACStyleDescriptor _style) throws GlycanException, GlyCoExporterException, TrivialNameException {
         if (_style == null) throw new GlyCoExporterException(_style + " is incorrect format.");
 
-        StringBuilder ret = new StringBuilder();
         GlyContainer copyGlyco = glyCo.copy();
 
         //validate glycan structure
@@ -65,10 +64,10 @@ public class ExporterEntrance {
             return condExpo.getIUPACCondensed();
         }
 
-        return ret.toString();
+        return "";
     }
 
-    public String toLinearCode () throws GlyCoExporterException, ConverterExchangeException, GlycanException, TrivialNameException {
+    public String toLinearCode () throws GlyCoExporterException, ConverterExchangeException, GlycanException {
         LinearCodeExporter lcExpo = new LinearCodeExporter();
 
         return lcExpo.start(glyCo);

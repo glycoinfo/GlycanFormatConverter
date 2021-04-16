@@ -92,6 +92,7 @@ public class MonosaccharideAnalyzer {
 				if (this.isDoublebond(mod)) mods.add(mod);
 				continue;
 			}
+			if (this.isHLoseType(mod)) continue;
 			this.ModificationToCarbonDescriptor(mod);
 		}
 
@@ -300,12 +301,13 @@ public class MonosaccharideAnalyzer {
 	
 	private boolean isDoublebond (GlyCoModification _glyCoMod) {
 		ModificationTemplate modT = _glyCoMod.getModificationTemplate();
-		if (modT.equals(ModificationTemplate.UNSATURATION_EL)) return true;
-		if (modT.equals(ModificationTemplate.UNSATURATION_FL)) return true;
-		if (modT.equals(ModificationTemplate.UNSATURATION_ZL)) return true;
-		if (modT.equals(ModificationTemplate.UNSATURATION_EU)) return true;
-		if (modT.equals(ModificationTemplate.UNSATURATION_FU)) return true;
-		return modT.equals(ModificationTemplate.UNSATURATION_ZU);
+		return (
+				modT.equals(ModificationTemplate.UNSATURATION_EL) ||
+				modT.equals(ModificationTemplate.UNSATURATION_FL) ||
+				modT.equals(ModificationTemplate.UNSATURATION_ZL) ||
+				modT.equals(ModificationTemplate.UNSATURATION_EU) ||
+				modT.equals(ModificationTemplate.UNSATURATION_FU) ||
+				modT.equals(ModificationTemplate.UNSATURATION_ZU));
 	}
 
 	private char ModificationTempalteToCarbonDescriptor (ModificationTemplate _modT) {
@@ -328,6 +330,7 @@ public class MonosaccharideAnalyzer {
 		for (Edge donorEdge : mono.getChildEdges()) {
 			if (donorEdge.getSubstituent() == null) continue;
 			Substituent sub = (Substituent) donorEdge.getSubstituent();
+			if (sub instanceof GlycanRepeatModification) continue;
 			if (sub.getSubstituent() instanceof BaseSubstituentTemplate) continue;
 
 			if (sub.getFirstPosition().getParentLinkages().contains(mono.getRingStart()) &&
@@ -336,4 +339,15 @@ public class MonosaccharideAnalyzer {
 			}
 		}
 	}
+
+	private boolean isHLoseType (GlyCoModification _gMod) {
+		return (
+		_gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_5) ||
+		_gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_6) ||
+		_gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_7) ||
+		_gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_8) ||
+		_gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_X)
+		);
+	}
+
 }

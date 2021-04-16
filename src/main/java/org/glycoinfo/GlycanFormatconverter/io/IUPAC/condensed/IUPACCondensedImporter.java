@@ -27,13 +27,6 @@ public class IUPACCondensedImporter {
         _iupac = _iupac.replaceAll(" ", "");
         _iupac = _iupac.trim();
 
-        //_iupac = _iupac.replaceAll("\\(", "");
-        //_iupac = _iupac.replaceAll("\\)", "");
-
-        //if (_iupac.contains("[")) {
-        //    _iupac = this.replaceBlockBrakcets(_iupac);
-        //}
-
         /**/
         for (String unit : _iupac.split("\\$,")) {
             if (unit.matches(".+=[\\d?]")) unit += "$,";

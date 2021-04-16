@@ -18,15 +18,12 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 	}
 
 	public void start (Monosaccharide _mono, ArrayList<String> _substituents) throws GlycanException {
-		init();
-
 		this.makeSubstituent(_mono, _substituents);
 	}
 
 	public void start (String _substituent) throws GlycanException, GlyCoImporterException {
-		init();
 		ArrayList<String> temp = resolveSubstituents(_substituent, true);
-		makeSubstituent(null, temp);
+		this.makeSubstituent(null, temp);
 	}
 
 	public ArrayList<String> resolveSubstituents (String _notations, boolean _isSubstituent) {
@@ -89,6 +86,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 	}
 
 	private void makeSubstituent (Monosaccharide _mono, ArrayList<String> _substituents) throws GlycanException {
+		substituents = new ArrayList<>();
 		String regex = "([\\d?:/,(%)-]+(?![RSX]\\)))?([(a-zA-Z?\\-)]+)+(\\d)?([\\d?])?";
 
 		for(String unit : _substituents) {
@@ -110,7 +108,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 			//Native substituent
 			if(positions == null) {
-				subT = BaseSubstituentTemplate.forIUPACNotation(makePlaneNotation(notation));
+				subT = BaseSubstituentTemplate.forIUPACNotation(notation);
 
 				BaseStereoIndex bsi = null;
 				if (!_mono.getStereos().isEmpty()) {
@@ -124,7 +122,7 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 				Linkage firstLink = makeLinkage(positions, "1", 1.0D, 1.0D);
 				Substituent sub = new Substituent(subT, firstLink);
-				sub.setHeadAtom(makeHeadAtom(notation, makePlaneNotation(notation)));
+				sub.setHeadAtom(this.makeHeadAtom(subT));
 
 				substituents.add(sub);
 				continue;
@@ -134,10 +132,10 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 			for(String position : positions.split(":")) {
 				//Dual linkages
 				if((positions.contains(":") && position.contains(",")) || (position.contains(",") && number == 1)) {
-					//subT = CrossLinkedTemplate.forIUPACNotation(notation);
-					String plane = this.makePlaneNotation(notation);
+					subT = BaseCrossLinkedTemplate.forIUPACNotation(notation);
 
-					subT = BaseCrossLinkedTemplate.forIUPACNotation(plane);
+					// check unsupport substituent
+					this.checkSupportSubstituent(subT);
 
 					String[] pos = position.split(",");
 
@@ -151,7 +149,8 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 					//Modify LinkageType and SubstituentTemplate
 					Substituent sub = new Substituent(subT, firstLink, secondLink);
-					sub.setHeadAtom(makeHeadAtom(notation, plane));
+					sub.setHeadAtom(this.makeHeadAtom(subT));
+					//sub.setTailAtom(this.makeHeadAtom(subT));
 
 					substituents.add(sub);
 					continue;
@@ -159,16 +158,14 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 				//fuzzy linkage positions
 				if(position.contains("/")) {
-					String plane = makePlaneNotation(notation);
-
-					subT = BaseSubstituentTemplate.forIUPACNotation(plane);
+					subT = BaseSubstituentTemplate.forIUPACNotation(notation);
 
 					probs = this.trimProbability(position);
 					Linkage firstLink = makeLinkage(extractPos(position)[0], "1", extractProbability(probs[0]), extractProbability(probs[1]));
 
 					//Modify LinkageType and SubstituentTemplate
 					Substituent sub = new Substituent(subT, firstLink);
-					sub.setHeadAtom(makeHeadAtom(notation, plane));
+					sub.setHeadAtom(this.makeHeadAtom(subT));
 
 					substituents.add(sub);
 					continue;
@@ -176,41 +173,20 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 
 				//Single linkage
 				for(String multi : position.split(",")) {
-					String plane = makePlaneNotation(notation);
-
-					subT = BaseSubstituentTemplate.forIUPACNotation(plane);
+					subT = BaseSubstituentTemplate.forIUPACNotation(notation);
 
 					probs = trimProbability(multi);
-					Linkage firstLink = makeLinkage(matSub.group(1).equals("?") ? "-1" : extractPos(multi)[0], "1", extractProbability(probs[0]), extractProbability(probs[1]));
+					String pos = this.extractPos(multi)[0];
+					Linkage firstLink = makeLinkage(matSub.group(1).equals("?") ? "-1" : pos, "1", extractProbability(probs[0]), extractProbability(probs[1]));
 
 					Substituent sub = new Substituent(subT, firstLink);
-					sub.setHeadAtom(makeHeadAtom(notation, plane));
+					sub.setHeadAtom(this.makeHeadAtom(subT));
+					sub = this.modifyHeadAtom(_mono, sub, pos);
 
 					substituents.add(sub);
 				}
 			}			
 		}
-	}
-
-	private String makePlaneNotation (String _notation) {
-		if (_notation.equals("N")) return _notation;
-		if (_notation.equals("Cl")) return _notation;
-		if (_notation.startsWith("O") || _notation.startsWith("C")) {
-			return _notation.substring(1);
-		}
-		if (_notation.startsWith("(")) {
-			String bracket = _notation.substring(0, _notation.indexOf(")") + 1);
-			String regex = bracket.replace("(", "\\(").replace(")", "\\)");
-			_notation = _notation.replaceFirst(regex, "");
-
-			if ((_notation.startsWith("C") && _notation.length() == 3) || (!_notation.startsWith("C") && _notation.length() > 2)) {
-				_notation = _notation.substring(1);
-			}
-
-			return bracket + _notation;
-		}
-
-		return _notation;
 	}
 
 	/**
@@ -281,23 +257,50 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 		return ret;
 	}
 
-	private String makeHeadAtom (String _notation, String _planeNotaiton) {
-		String ret;
+	private String makeHeadAtom (SubstituentInterface _subFace) {
+		if (_subFace == null) return "";
 
-		if (_notation.equals("N") && _planeNotaiton.equals("N")) return _planeNotaiton;
+		if (_subFace instanceof BaseSubstituentTemplate) {
+			BaseSubstituentTemplate baseSub = (BaseSubstituentTemplate) _subFace;
 
-		if (_notation.startsWith("(")) {
-			String bracket = _notation.substring(0, _notation.indexOf(")") + 1);
-
-			// make regex and remove molecular direction
-			String regex = bracket.replace("(", "\\(").replace(")", "\\)");
-			_notation = _notation.replaceFirst(regex, "");
-			_planeNotaiton = _planeNotaiton.replaceFirst(regex, "");
-
+			if (baseSub.getMAP().startsWith("*O")) {
+				return "O";
+			}
+			if (baseSub.getMAP().startsWith("*N")) {
+				return "N";
+			}
+			if (baseSub.equals(BaseSubstituentTemplate.CFORMYL) || baseSub.equals(BaseSubstituentTemplate.CMETHYL)) {
+				return "C";
+			}
 		}
-		ret = _notation.replaceFirst(_planeNotaiton, "");
 
-		return ret;
+		if (_subFace instanceof BaseCrossLinkedTemplate) {
+			BaseCrossLinkedTemplate baseCross = (BaseCrossLinkedTemplate) _subFace;
+			if (baseCross.getMAP().startsWith("*O")) {
+				return "O";
+			}
+			if (baseCross.getMAP().startsWith("*N")) {
+				return "N";
+			}
+		}
+
+		return "";
+	}
+
+	private Substituent modifyHeadAtom (Monosaccharide _mono, Substituent _sub, String _position) {
+		if (_position.equals("?") || _position.equals("")) return _sub;
+		if (_mono == null) return _sub;
+		for (GlyCoModification gMod : _mono.getModifications()) {
+			if (gMod.getPositionOne() != Integer.parseInt(_position)) continue;
+			if (gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_5) ||
+			gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_6) ||
+			gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_7) ||
+			gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_8) ||
+			gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_X)) {
+				_sub.setHeadAtom("C");
+			}
+		}
+		return _sub;
 	}
 
 	private boolean isInteger (char _int) {
@@ -313,7 +316,15 @@ public class SubstituentIUPACNotationAnalyzer extends SubstituentUtility {
 		return (Integer.parseInt(String.valueOf(_unit)));
 	}
 
-	private void init() {
-		substituents = new ArrayList<>();
+	private void checkSupportSubstituent (SubstituentInterface _subInter) throws GlycanException {
+		if (_subInter instanceof BaseSubstituentTemplate) return;
+		if (_subInter.equals(BaseCrossLinkedTemplate.X_PYRUVATE) ||
+		_subInter.equals(BaseCrossLinkedTemplate.R_PYRUVATE) ||
+		_subInter.equals(BaseCrossLinkedTemplate.S_PYRUVATE) ||
+		_subInter.equals(BaseCrossLinkedTemplate.X_DEOXYPYRUVATE) ||
+		_subInter.equals(BaseCrossLinkedTemplate.R_DEOXYPYRUVATE) ||
+		_subInter.equals(BaseCrossLinkedTemplate.S_DEOXYPYRUVATE)) {
+			throw new GlycanException("IUPAC importer can not support " + _subInter);
+		}
 	}
 }

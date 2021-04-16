@@ -48,26 +48,26 @@ public enum TrivialNameDictionary {
 	// Amino sugars
 	BAC("Bac", "glc", "6*m", "2*N_4*N", 6),
 	//MUR("Mur", "glc", "", "3*(R)OLac", 6),
-	MURCE("Mur", "glc", "", "3*(R)OCE", 6),
+	MURCE("Mur", "glc", "", "3*(R)CE", 6),
 	//ISOMUR("iMur", "glc", "", "3*(S)OLac", 6),
-	ISOMURCE("iMur", "glc", "", "3*(S)OCE", 6),
+	ISOMURCE("iMur", "glc", "", "3*(S)CE", 6),
 	PURC("PurC", "dery", "3*d_4*d", "2*N_6*N", 6), //always d configuration
 		
 	// Other
-	API("Api", "ery", "3*6", "3*CMeOH", 4),
-	CYM("Cym", "rib", "2*d_6*m", "3*OMe", 6),
-	OLE("Ole", "ara", "2*d_6*m", "3*OMe", 6),
-	THE("The", "glc", "6*m", "3*OMe", 6),
+	API("Api", "ery", "3*6", "3*MeOH", 4),
+	CYM("Cym", "rib", "2*d_6*m", "3*Me", 6),
+	OLE("Ole", "ara", "2*d_6*m", "3*Me", 6),
+	THE("The", "glc", "6*m", "3*Me", 6),
 	ACO("Aco", "man", "6*m", "3*CMe", 6),
 	DHA("Dha", "dlyx", "1*A_2*O_3*d_7*A", "", 7);
 	//NON("Non", "non", "1*A_2*O_3*d", "", 9),
 	//DDNON("Non", "non", "1*A_2*O_3*d_9*m", "5*N_7*N", 9);
 
-	private String trivialName;
-	private String stereos;
-	private String modifications;
-	private String substituents;
-	private int size;
+	private final String trivialName;
+	private final String stereos;
+	private final String modifications;
+	private final String substituents;
+	private final int size;
 	
 	public String getStereos() {
 		return this.stereos;

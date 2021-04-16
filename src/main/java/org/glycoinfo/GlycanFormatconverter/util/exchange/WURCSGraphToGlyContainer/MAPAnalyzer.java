@@ -18,15 +18,15 @@ public class MAPAnalyzer {
     private BaseCrossLinkedTemplate baseCrossTemp;
     private String headAtom;
     private String tailAtom;
-    private String headPos;
-    private String tailPos;
+    //private String headPos;
+    //private String tailPos;
 
     public MAPAnalyzer () {
         this.baseTemp = null;
         this.headAtom = "";
         this.tailAtom = "";
-        this.headPos = "";
-        this.tailPos = "";
+        //this.headPos = "";
+        //this.tailPos = "";
     }
 
     public String getHeadAtom () {
@@ -44,38 +44,32 @@ public class MAPAnalyzer {
     public void start (String _map) throws WURCSFormatException {
         if (_map.equals("")) return;
 
-        String tempMAP = _map;
-
-        // an hydro
-        this.baseCrossTemp = BaseCrossLinkedTemplate.forMAP(_map);
-        if (this.baseCrossTemp != null && this.baseCrossTemp.equals(BaseCrossLinkedTemplate.ANHYDRO)) {
+        // anhydro
+        if (_map.equals("*O*")) {
+            this.baseCrossTemp = BaseCrossLinkedTemplate.ANHYDRO;
             return;
         }
-
-        if (isMAPOfSingleLinkage(_map)) {
-            tempMAP = tempMAP.replaceFirst("\\*", "");
-        }
-
         // analyze MAP with H_AT_OH
-        if (!tempMAP.contains("*") && _map.startsWith("*O")) {
-            this.headAtom = tempMAP.substring(0, 1);
-            tempMAP = removeOxygenFromHead(tempMAP);
+        if (_map.startsWith("*O")) {
+            int indStar = _map.indexOf("*") + 1;
+            this.headAtom = _map.substring(indStar, indStar + 1);
         }
 
-        this.baseTemp = BaseSubstituentTemplate.forMAP(tempMAP);
+        this.baseTemp = BaseSubstituentTemplate.forMAP(_map);
         if (this.baseTemp != null) {
-            if (baseTemp.equals(BaseSubstituentTemplate.AMINE) && this.headAtom.equals("")) {
+            if (baseTemp.equals(BaseSubstituentTemplate.AMINE)) {
                 this.headAtom = "N";
+            }
+            if (this.isPyruvate()) {
+                this.tailAtom = "O";
             }
             return;
         }
 
         // make base MAP of double linkage substituent
         //*N*, *S*, *(CCC^ZCC^EC$2)/6NSC/9=O/9=O/3O*
-        //if (_map.equals("*N*")) {
         if (_map.matches("\\*[A-Z]\\*.*")) {
-            tempMAP = tempMAP.replaceFirst("\\*", "");
-            this.baseCrossTemp = BaseCrossLinkedTemplate.forMAP(tempMAP);
+            this.baseCrossTemp = BaseCrossLinkedTemplate.forMAP(_map);
             if (baseCrossTemp.equals(BaseCrossLinkedTemplate.AMINO) && this.headAtom.equals("")) {
                 this.headAtom = "N";
                 this.tailAtom = "N";
@@ -83,29 +77,17 @@ public class MAPAnalyzer {
             return;
         }
 
-        // extract deoxy position
-        tempMAP = this.extractHeadPosition(tempMAP);
-        tempMAP = this.extractTailPosition(tempMAP);
-
         // extract head atom from MAP
-        this.headAtom = String.valueOf(tempMAP.charAt(tempMAP.indexOf("*") + 1));
+        this.headAtom = String.valueOf(_map.charAt(_map.indexOf("*") + 1));
 
         // extract tail atom from MAP
-        if (this.countStar(tempMAP) > 1)
-            this.tailAtom = String.valueOf(tempMAP.charAt(tempMAP.lastIndexOf("*") - 1));
+        if (this.countStar(_map) > 1)
+            this.tailAtom = String.valueOf(_map.charAt(_map.lastIndexOf("*") - 1));
 
-        tempMAP = tempMAP.replaceFirst("\\*", "");
-
-        // remove tail oxygen from MAP
-        tempMAP = this.makeDoubleLinkMAP(tempMAP);
-
-        if (tempMAP.startsWith("*")) {
-            tempMAP = tempMAP.substring(1);
-        }
-
-        this.baseCrossTemp = BaseCrossLinkedTemplate.forMAP(tempMAP);
+        this.baseCrossTemp = BaseCrossLinkedTemplate.forMAP(_map);
     }
 
+    /*
     private String makeDoubleLinkMAP (String _map) {
         String ret = _map;
 
@@ -128,10 +110,10 @@ public class MAPAnalyzer {
 
         // Remove oxygen
         if (this.checkLinkageTypeWithAtom(headAtom).equals(LinkageType.H_AT_OH)) {
-            ret = (isSwap) ? this.removeOxygenFromTail(ret) : this.removeOxygenFromHead(ret);
+            //ret = (isSwap) ? this.removeOxygenFromTail(ret) : this.removeOxygenFromHead(ret);
         }
         if (this.checkLinkageTypeWithAtom(tailAtom).equals(LinkageType.H_AT_OH)) {
-            ret = (isSwap) ? this.removeOxygenFromHead(ret) : this.removeOxygenFromTail(ret);
+            //ret = (isSwap) ? this.removeOxygenFromHead(ret) : this.removeOxygenFromTail(ret);
         }
 
         // Add index to MAP star if it has priority order
@@ -143,7 +125,16 @@ public class MAPAnalyzer {
 
         return ret;
     }
+     */
 
+    private boolean isPyruvate () {
+        if (this.baseTemp == null) return false;
+        return (this.baseTemp.equals(BaseCrossLinkedTemplate.X_PYRUVATE) ||
+                this.baseTemp.equals(BaseCrossLinkedTemplate.R_PYRUVATE) ||
+                this.baseTemp.equals(BaseCrossLinkedTemplate.S_PYRUVATE));
+    }
+
+    /*
     private String removeOxygenFromHead (String _map) {
         if (_map.startsWith("NCCOP")) return _map;
 
@@ -176,7 +167,9 @@ public class MAPAnalyzer {
 
         return newMAP;
     }
+     */
 
+    /*
     private String removeOxygenFromTail (String _map) {
         // Remove "O" to MAP code before last "*"
         StringBuilder sb = new StringBuilder(_map);
@@ -224,7 +217,9 @@ public class MAPAnalyzer {
 
         return newMAP;
     }
+     */
 
+    /*
     private boolean isMAPOfSingleLinkage (String _map) {
         int ret = 0;
         for (int i = 0; i < _map.length(); i++) {
@@ -234,7 +229,9 @@ public class MAPAnalyzer {
 
         return (ret == 1);
     }
+     */
 
+    /*
     private String extractHeadPosition (String _map) {
         int pos = _map.indexOf("*");
 
@@ -250,7 +247,9 @@ public class MAPAnalyzer {
 
         return _map;
     }
+     */
 
+    /*
     private String extractTailPosition (String _map) {
         int pos = _map.lastIndexOf("*");
         StringBuilder ret = new StringBuilder(_map);
@@ -269,13 +268,16 @@ public class MAPAnalyzer {
 
         return ret.toString();
     }
+     */
 
+    /*
     private LinkageType checkLinkageTypeWithAtom (String _atom) {
         if (_atom.equals("O") || _atom.equals("N")) {
             return LinkageType.H_AT_OH;
         }
         return LinkageType.DEOXY;
     }
+     */
 
     private int countStar (String _map) {
         int ret = 0;

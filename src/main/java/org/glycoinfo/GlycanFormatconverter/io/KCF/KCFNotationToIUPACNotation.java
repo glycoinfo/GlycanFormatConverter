@@ -1,8 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.io.KCF;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.BaseSubstituentTemplate;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.Glycan.SuperClass;
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.BaseStereoIndex;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.CoreSubstituentMonosaccharide;
@@ -51,12 +49,12 @@ public class KCFNotationToIUPACNotation {
             }
 
             if (prefixSub.group(3).equalsIgnoreCase("formyl")) {
-                BaseSubstituentTemplate subT = BaseSubstituentTemplate.FORMYL;
+                BaseSubstituentTemplate subT = BaseSubstituentTemplate.OFORMYL;
                 subs.add(prefixSub.group(1) + atomType + subT.getIUPACnotation());
                 _input = _input.replace(prefixSub.group(), "");
             }
             if (prefixSub.group(3).equalsIgnoreCase("methyl")) {
-                BaseSubstituentTemplate subT = BaseSubstituentTemplate.METHYL;
+                BaseSubstituentTemplate subT = BaseSubstituentTemplate.OMETHYL;
                 subs.add(prefixSub.group(1) + atomType + subT.getIUPACnotation());
                 _input = _input.replace(prefixSub.group(), "");
             }
@@ -408,7 +406,7 @@ public class KCFNotationToIUPACNotation {
         if (_subNotation.equals("")) return "";
         if (_subNotation.matches("N?diMe")) _subNotation = _subNotation.replaceFirst("di", "Di");
 
-        BaseSubstituentTemplate subT = BaseSubstituentTemplate.forIUPACNotationWithIgnore(_subNotation);
+        SubstituentInterface subT = BaseSubstituentTemplate.forIUPACNotationWithIgnore(_subNotation);
 
         if (subT == null) {
             subT = BaseSubstituentTemplate.forGlycoCTNotationWithIgnore(_subNotation);
@@ -419,14 +417,14 @@ public class KCFNotationToIUPACNotation {
         }
         if (subT == null) {
             if (_subNotation.equals("Me")) {
-                subT = BaseSubstituentTemplate.METHYL;
+                subT = BaseSubstituentTemplate.OMETHYL;
             }
             if (_subNotation.contains("Pyr") || _subNotation.contains("pyr")) {
-                if (_subNotation.startsWith("(R")) subT = BaseSubstituentTemplate.R_PYRUVATE;
-                if (_subNotation.startsWith("(S")) subT = BaseSubstituentTemplate.S_PYRUVATE;
-                if (_subNotation.startsWith("Pyr") || _subNotation.startsWith("pyr")) subT = BaseSubstituentTemplate.X_PYRUVATE; //TODO :pyrも
+                if (_subNotation.startsWith("(R")) subT = BaseCrossLinkedTemplate.R_PYRUVATE;
+                if (_subNotation.startsWith("(S")) subT = BaseCrossLinkedTemplate.S_PYRUVATE;
+                if (_subNotation.startsWith("Pyr") || _subNotation.startsWith("pyr")) subT = BaseCrossLinkedTemplate.X_PYRUVATE; //TODO :pyrも
             }
-            if (_subNotation.equals("Formyl")) subT = BaseSubstituentTemplate.FORMYL;
+            if (_subNotation.equals("Formyl")) subT = BaseSubstituentTemplate.OFORMYL;
         }
 
         if (subT == null) return this.appendHeadAtom(_subNotation);

@@ -171,7 +171,6 @@ public class IUPACExtendedImporter {
 					ret.add(mono.toString());
 					mono = new StringBuilder();
 				}
-
 			}
 		}
 

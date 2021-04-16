@@ -156,7 +156,6 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 		
 		if (!notationIndex.containsKey(sub)) {
 			String subNotation = ((Substituent) sub).getSubstituent().getIUPACnotation();
-			subNotation = "O" + subNotation;
 			subNotation = this.extractPosition(_und.getConnection().getGlycosidicLinkages().get(0).getParentLinkages()) + subNotation;
 			notationIndex.put(sub, subNotation);
 		}

@@ -300,7 +300,8 @@ public class WURCSEdgeToLinkage {
                 }
 
                 if (!cpEdge.getModification().getMAPCode().equals("")) {
-                    current = SubstituentUtility.MAPToSubstituent(cpEdge.getModification());//new Substituent(SubstituentUtility.MAPToInterface(cpEdge.getModification().getMAPCode()));
+                    current = SubstituentUtility.MAPToSubstituent(cpEdge.getModification());
+                    //new Substituent(SubstituentUtility.MAPToInterface(cpEdge.getModification().getMAPCode()));
                     donor = cpEdge.getLinkages();
                     acceptor = donor;
                 }

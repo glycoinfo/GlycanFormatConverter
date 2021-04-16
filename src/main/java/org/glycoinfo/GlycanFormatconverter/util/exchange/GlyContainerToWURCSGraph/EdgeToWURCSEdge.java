@@ -192,6 +192,7 @@ public class EdgeToWURCSEdge {
 	private boolean isRingModification (Edge _edge) {
 		if (_edge.getSubstituent() == null) return false;
 		Substituent sub = (Substituent) _edge.getSubstituent();
+		if (sub instanceof GlycanRepeatModification) return false;
 		if (sub.getSubstituent() instanceof BaseSubstituentTemplate) return false;
 
 		Monosaccharide acceptor = (Monosaccharide) _edge.getParent();
