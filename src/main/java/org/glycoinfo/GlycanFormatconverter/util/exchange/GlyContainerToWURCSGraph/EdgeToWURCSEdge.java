@@ -196,6 +196,9 @@ public class EdgeToWURCSEdge {
 		if (sub.getSubstituent() instanceof BaseSubstituentTemplate) return false;
 
 		Monosaccharide acceptor = (Monosaccharide) _edge.getParent();
+
+		if (acceptor.getRingStart() == -1 || acceptor.getRingEnd() == -1) return false;
+
 		return (sub.getFirstPosition().getParentLinkages().contains(acceptor.getRingStart()) &&
 				sub.getSecondPosition().getParentLinkages().contains(acceptor.getRingEnd()));
 	}

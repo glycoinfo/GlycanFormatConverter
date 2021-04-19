@@ -1,14 +1,13 @@
 package org.glycoinfo.GlycanFormatconverter.util;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.ModifiedMonosaccharideDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
-import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
+import org.glycoinfo.GlycanFormatconverter.util.analyzer.IUPACSubstituentNotationAnalyzer;
 import org.glycoinfo.GlycanFormatconverter.util.comparater.GlyCoModificationComparater;
-import org.glycoinfo.WURCSFramework.wurcs.graph.ModificationRepeat;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
@@ -43,7 +42,7 @@ public class MonosaccharideUtility {
 
     public Monosaccharide appendSubstituents (Node _node,  ArrayList<String> _substituents) throws GlycanException {
         // make substituents for GlyContainer
-        SubstituentIUPACNotationAnalyzer subAna = new SubstituentIUPACNotationAnalyzer();
+        IUPACSubstituentNotationAnalyzer subAna = new IUPACSubstituentNotationAnalyzer();
         subAna.start((Monosaccharide) _node, _substituents);
 
         for (Substituent sub : subAna.getSubstituents()) {

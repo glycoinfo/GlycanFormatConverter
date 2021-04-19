@@ -18,7 +18,7 @@ public class SubstituentUtility {
 	}
 
 	public static boolean isOLinkedSubstituent (Substituent _sub) {
-		SubstituentInterface subFace = (SubstituentInterface) _sub;
+		SubstituentInterface subFace = _sub.getSubstituent();
 		if (subFace instanceof BaseCrossLinkedTemplate) {
 			return isOLinkedSubstituent((BaseCrossLinkedTemplate) subFace);
 		}
@@ -82,8 +82,6 @@ public class SubstituentUtility {
 	}
 
 	public static String optimizeSubstituentNotationWithLinkageType (Substituent _sub) {
-		return _sub.getNameWithIUPAC();
-		/*
 		String ret = _sub.getNameWithIUPAC();
 		String bracket = "";
 		if (ret.startsWith("(")) {
@@ -96,12 +94,9 @@ public class SubstituentUtility {
 
 		// Optimize substituent notation using H_LOSE
 		if (_sub.getFirstPosition().getParentLinkageType().equals(LinkageType.H_LOSE)) {
-			if (ret.startsWith("O")) ret = ret.replaceFirst("O", "C");
-			if (!ret.startsWith("O") && !ret.startsWith("C")) ret = "C" + ret;
-			if (!ret.startsWith("O") && !bracket.equals("")) ret = "C" + ret;
+			if (!bracket.equals("") || !ret.startsWith("C")) ret = "C" + ret;
 			//System.out.println("H_LOSE" + " " + ret);
 		}
-		 */
 
 		// Optimize substituent notation using DEOXY
 		/*
@@ -121,8 +116,8 @@ public class SubstituentUtility {
 			//System.out.println("H_AT_OH " + ret);
 		}
 
-		return bracket + ret;
 		 */
+		return bracket + ret;
 	}
 
 	public static String optimizeSubstituentNotationWithN_linkage (Substituent _sub) {
@@ -135,11 +130,9 @@ public class SubstituentUtility {
 		return ret;
 	}
 
-	public static Substituent changePlaneTemplate (Substituent _sub) {
+	public static void changePlaneTemplate (Substituent _sub) {
 		String plane = optimizeSubstituentNotationWithN_linkage(_sub);
 		BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotationWithIgnore(plane);
 		_sub.setTemplate(bsubT);
-
-		return _sub;
 	}
 }

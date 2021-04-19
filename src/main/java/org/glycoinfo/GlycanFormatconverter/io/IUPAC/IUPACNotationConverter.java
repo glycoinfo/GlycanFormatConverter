@@ -10,9 +10,9 @@ public class IUPACNotationConverter {
 
 	private StringBuilder threeLetterCode = new StringBuilder();
 	private final StringBuilder coreCode = new StringBuilder();
-	private final SubstituentIUPACNotationConverter subConv = new SubstituentIUPACNotationConverter();
+	private final IUPACSubstituentNotationConverter subConv = new IUPACSubstituentNotationConverter();
 
-	public SubstituentIUPACNotationConverter getSubConv () {
+	public IUPACSubstituentNotationConverter getSubConv () {
 		return subConv;
 	}
 

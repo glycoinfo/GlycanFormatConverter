@@ -10,14 +10,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class SubstituentIUPACNotationConverter {
+public class IUPACSubstituentNotationConverter {
 
 	private final StringBuilder prefixSubs;
 	private final StringBuilder surfixSubs;
 	private final StringBuilder surfixCore;
 	private final HashMap<String, String> mapSubs = new HashMap<>();
 
-	public SubstituentIUPACNotationConverter () {
+	public IUPACSubstituentNotationConverter() {
 		prefixSubs = new StringBuilder();
 		surfixCore = new StringBuilder();
 		surfixSubs = new StringBuilder();
@@ -141,12 +141,6 @@ public class SubstituentIUPACNotationConverter {
 			ModificationTemplate modT = mod.getModificationTemplate();
 			if (!mapSubs.containsKey(modT.getIUPACnotation())) {
 				if (isUnsaturate(modT)) mapSubs.put(modT.getIUPACnotation(), String.valueOf(mod.getPositionOne()));
-
-				/*
-				if (modT.equals(ModificationTemplate.UNKNOWN)) {
-					mapSubs.put(modT.getIUPACnotation(), "?");
-				}
-				 */
 			}
 		}
 	}

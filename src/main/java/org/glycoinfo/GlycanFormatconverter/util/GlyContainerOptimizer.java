@@ -152,8 +152,6 @@ public class GlyContainerOptimizer {
             if (this.isCrossLinkedSubstituent(edge)) {
                 this.optimizeCrossLinkedSubstituent(edge, sub);
             }
-
-            // Optimize head atom
         }
     }
 
@@ -312,18 +310,37 @@ public class GlyContainerOptimizer {
     }
 
     public void optimizeSubstituentAtoms (Substituent _sub) {
-        if (_sub.getSubstituent() == null) return;
+        SubstituentInterface subFace = _sub.getSubstituent();
 
-        if (_sub.getHeadAtom() == null) {
-            _sub.setHeadAtom("");
+        if (subFace == null) return;
+        if (_sub.getHeadAtom() == null) _sub.setHeadAtom("");
+        if (_sub.getTailAtom() == null) _sub.setTailAtom("");
+
+        if (subFace instanceof BaseSubstituentTemplate) {
+            BaseSubstituentTemplate baseSub = (BaseSubstituentTemplate) subFace;
+
+            if (baseSub.getMAP().startsWith("*O")) {
+                _sub.setHeadAtom("O");
+            }
+            if (baseSub.getMAP().startsWith("*N")) {
+                _sub.setHeadAtom("N");
+            }
+            if (baseSub.equals(BaseSubstituentTemplate.CFORMYL) || baseSub.equals(BaseSubstituentTemplate.CMETHYL)) {
+                _sub.setHeadAtom("C");
+            }
         }
 
-        if (_sub.getTailAtom() == null) {
-            _sub.setTailAtom("");
+        if (subFace instanceof BaseCrossLinkedTemplate) {
+            BaseCrossLinkedTemplate baseCross = (BaseCrossLinkedTemplate) subFace;
+            if (baseCross.getMAP().startsWith("*O")) {
+                _sub.setHeadAtom("O");
+            }
+            if (baseCross.getMAP().startsWith("*N")) {
+                _sub.setHeadAtom("N");
+            }
         }
 
-        //TODO: 修飾の種類に応じてHeadAtomを最適化する処理が必要
-       //System.out.println(_sub.getSubstituent() + " " + _sub.getHeadAtom());
+        //System.out.println(_sub.getSubstituent() + " " + _sub.getHeadAtom());
     }
 
     public boolean withH_LOSE (Monosaccharide _mono, Substituent _sub) {

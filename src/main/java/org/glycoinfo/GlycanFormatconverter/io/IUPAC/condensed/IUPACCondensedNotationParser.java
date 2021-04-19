@@ -5,7 +5,7 @@ import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.BaseStereoIndex;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
-import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
+import org.glycoinfo.GlycanFormatconverter.util.analyzer.IUPACSubstituentNotationAnalyzer;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.ThreeLetterCodeAnalyzer;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class IUPACCondensedNotationParser {
 
         //parse independent substituent
         if (this.isSubstituent(temp)) {
-            SubstituentIUPACNotationAnalyzer subAna = new SubstituentIUPACNotationAnalyzer();
+            IUPACSubstituentNotationAnalyzer subAna = new IUPACSubstituentNotationAnalyzer();
             subAna.start(temp);
             return subAna.getSubstituents().get(0);
         }
@@ -114,7 +114,7 @@ public class IUPACCondensedNotationParser {
             }
              */
 
-            SubstituentIUPACNotationAnalyzer subAnalyze = new SubstituentIUPACNotationAnalyzer();
+            IUPACSubstituentNotationAnalyzer subAnalyze = new IUPACSubstituentNotationAnalyzer();
             modifications.addAll(subAnalyze.resolveSubstituents(matUlo.group(0), true));
             temp = temp.replace(matUlo.group(1), "");
         }
@@ -296,7 +296,7 @@ public class IUPACCondensedNotationParser {
                 temp = ringSize + temp;
                 ringSize = "";
             }
-            SubstituentIUPACNotationAnalyzer subAnalyze = new SubstituentIUPACNotationAnalyzer();
+            IUPACSubstituentNotationAnalyzer subAnalyze = new IUPACSubstituentNotationAnalyzer();
             subNotations.addAll(subAnalyze.resolveSubstituents(temp, true));
             modifications.addAll(subAnalyze.resolveSubstituents(temp, false));
             temp = temp.replace(temp, "");

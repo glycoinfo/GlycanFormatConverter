@@ -4,7 +4,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
-import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
+import org.glycoinfo.GlycanFormatconverter.util.analyzer.IUPACSubstituentNotationAnalyzer;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.ThreeLetterCodeAnalyzer;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class IUPACNotationParser {
 		LinkedList<String> configurations = new LinkedList<>();
 		LinkedList<String> trivialName = new LinkedList<>();
 
-		SubstituentIUPACNotationAnalyzer subAna = new SubstituentIUPACNotationAnalyzer();
+		IUPACSubstituentNotationAnalyzer subAna = new IUPACSubstituentNotationAnalyzer();
 		MonosaccharideUtility monoUtil = new MonosaccharideUtility();
 
 		// extract linkage positions

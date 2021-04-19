@@ -6,7 +6,7 @@ import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.util.MonosaccharideUtility;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
-import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
+import org.glycoinfo.GlycanFormatconverter.util.analyzer.IUPACSubstituentNotationAnalyzer;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.ThreeLetterCodeAnalyzer;
 
 import java.util.ArrayList;
@@ -102,7 +102,7 @@ public class LinearCodeNodeParser {
         
         // append substituents
         if (_lcStacker.getSubstituent() != null) {
-            SubstituentIUPACNotationAnalyzer subAna = new SubstituentIUPACNotationAnalyzer();
+            IUPACSubstituentNotationAnalyzer subAna = new IUPACSubstituentNotationAnalyzer();
 
             // convert LC notation to IUPAC notation
             substituents.addAll(exchangeLC2IUPACSubs(subAna.resolveSubstituents(_lcStacker.getSubstituent(), true)));

@@ -7,7 +7,7 @@ import org.glycoinfo.GlycanFormatconverter.util.TrivialName.CoreSubstituentMonos
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.PrefixDescriptor;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
 import org.glycoinfo.GlycanFormatconverter.util.analyzer.MonosaccharideNotationAnalyzer;
-import org.glycoinfo.GlycanFormatconverter.util.analyzer.SubstituentIUPACNotationAnalyzer;
+import org.glycoinfo.GlycanFormatconverter.util.analyzer.IUPACSubstituentNotationAnalyzer;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -186,7 +186,7 @@ public class KCFNotationToIUPACNotation {
         }
 
         // parse substituents
-        SubstituentIUPACNotationAnalyzer subAna = new SubstituentIUPACNotationAnalyzer();
+        IUPACSubstituentNotationAnalyzer subAna = new IUPACSubstituentNotationAnalyzer();
         subs.addAll(subAna.resolveSubstituents(trimHyphen(_input), true));
 
         // modified substituent notations

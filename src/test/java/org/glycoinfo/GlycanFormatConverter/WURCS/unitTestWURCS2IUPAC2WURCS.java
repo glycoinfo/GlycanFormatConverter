@@ -261,6 +261,28 @@ public class unitTestWURCS2IUPAC2WURCS {
     }
 
     @Test
+    public void hloseSubstituent2 () {
+        String inWURCS = "WURCS=2.0/1,1,0/[o261m_3*CO]/1/";
+        // WURCS2IUPAC
+        String iupac = this.toIUPAC(this.inWURCS(inWURCS));
+
+        // IUPAC2WURCS
+        String outWURCS = this.toWURCS(this.inIUPAC(iupac));
+        Assert.assertEquals(inWURCS, outWURCS);
+    }
+
+    @Test
+    public void hloseSubstituent3 () {
+        String inWURCS = "WURCS=2.0/3,3,2/[a261m-1a_1-4_3*C=O][a1211h-1a_1-5_2*NC][a222h-1b_1-4_1*N]/1-2-3/a2-b1_b3-c5*OPO*/3O/3=O";
+        // WURCS2IUPAC
+        String iupac = this.toIUPAC(this.inWURCS(inWURCS));
+
+        // IUPAC2WURCS
+        String outWURCS = this.toWURCS(this.inIUPAC(iupac));
+        Assert.assertEquals(inWURCS, outWURCS);
+    }
+
+    @Test
     public void anhydro () {
         String inWURCS = "WURCS=2.0/1,1,0/[Ad2dd22h_3-7_1*OC_6*N]/1/";
         // WURCS2IUPAC
@@ -284,7 +306,7 @@ public class unitTestWURCS2IUPAC2WURCS {
 
     @Test
     public void errorCase () {
-        String inWURCS = "WURCS=2.0/5,8,7/[a2122h-1b_1-5_1*N_2*NCC/3=O][a2122h-1b_1-5_2*NCC/3=O][a1122h-1b_1-5][a1122h-1a_1-5][a2112h-1b_1-5_6*OC/2C]/1-2-3-4-2-4-2-5/a4-b1_b4-c1_c3-d1_c6-f1_d4-e1_f4-g1_g4-h1";
+        String inWURCS = "WURCS=2.0/1,1,0/[a2122h-1b_1-5_2*NCC/3=O_3*OC^XCO/4=O/3C]/1/";
         // WURCS2IUPAC
         String iupac = this.toIUPAC(this.inWURCS(inWURCS));
 
