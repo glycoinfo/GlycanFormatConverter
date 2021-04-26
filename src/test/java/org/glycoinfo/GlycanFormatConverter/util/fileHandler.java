@@ -3,10 +3,7 @@ package org.glycoinfo.GlycanFormatConverter.util;
 import java.io.*;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Created by e15d5605 on 2019/04/05.
@@ -95,30 +92,42 @@ public class fileHandler {
 
     /**
      *
-     * @param a_strFile
+     * @param _fileName
+     * @param _format
      * @return
      * @throws Exception
      */
-    public static HashMap<String, String> openString(String a_strFile) throws Exception {
+    public static Object openString(String _fileName, String _format) throws Exception {
         try {
-            return readWURCS(new BufferedReader(new FileReader(a_strFile)));
-        }catch (IOException e) {
-            throw new Exception();
+            File file = new File(_fileName);
+            if (!file.isFile()) {
+                throw new Exception(file.getAbsolutePath() + " is not found.");
+            }
+
+            if (_format.equals("WURCS")) {
+                return readWURCS(new BufferedReader(new FileReader(_fileName)));
+            }
+            if (_format.equals("KCF")) {
+                return readKCF(new BufferedReader(new FileReader(_fileName)));
+            }
+
+            throw new Exception(_format + " can not support.");
+        } catch (IOException e) {
+            return e.getMessage();
         }
     }
 
     /**
      *
-     * @param a_bfFile
+     * @param _bf
      * @return
      * @throws IOException
      */
-    public static HashMap<String, String> readWURCS(BufferedReader a_bfFile) throws IOException {
+    public static HashMap<String, String> readWURCS(BufferedReader _bf) throws IOException {
         String line = "";
         HashMap<String, String> wret = new HashMap<>();
-        wret.clear();
 
-        while((line = a_bfFile.readLine()) != null) {
+        while((line = _bf.readLine()) != null) {
             line.trim();
 
             if (line.startsWith("%")) continue;
@@ -135,8 +144,51 @@ public class fileHandler {
                 }
             }
         }
-        a_bfFile.close();
+        _bf.close();
 
         return wret;
+    }
+
+    public static HashMap<String, String> readKCF (BufferedReader _bf) throws IOException {
+        String line;
+        HashMap<String, String> ret = new HashMap<>();
+
+        StringBuilder kcfUnit = new StringBuilder();
+        boolean isSkip = false;
+        String key = "";
+
+        while ((line = _bf.readLine()) != null) {
+            line.trim();
+
+            if (line.equals("")) continue;
+            if (line.startsWith("%")) isSkip = true;
+            if (line.startsWith("ENTRY")) {
+                key = trimID(line).get(1);
+            }
+
+            kcfUnit.append(line)
+                    .append("\n");
+
+            if (line.equals("///")) {
+                if (!isSkip) ret.put(key, kcfUnit.toString());
+                kcfUnit = new StringBuilder();
+                isSkip = false;
+            }
+        }
+
+        _bf.close();
+
+        return ret;
+    }
+
+    public static ArrayList<String> trimID (String _id) {
+        ArrayList<String> indexes = new ArrayList<>();
+
+        for (String unit : _id.split("\\s")) {
+            if (unit.equals("")) continue;
+            indexes.add(unit);
+        }
+
+        return indexes;
     }
 }
