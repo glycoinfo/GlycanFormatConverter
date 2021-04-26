@@ -153,6 +153,9 @@ public class IUPACSubstituentNotationAnalyzer extends SubstituentUtility {
 					sub.setHeadAtom(this.makeHeadAtomFromNotation(notation, planeNotation));
 					//sub.setTailAtom(this.makeHeadAtom(subT));
 
+					// check deoxy substituent with H_LOSE
+					this.isDeoxySubstituentWithHLose(_mono, sub, this.makeHeadAtomFromNotation(notation, planeNotation));
+
 					substituents.add(sub);
 					continue;
 				}
@@ -163,11 +166,17 @@ public class IUPACSubstituentNotationAnalyzer extends SubstituentUtility {
 					subT = BaseSubstituentTemplate.forIUPACNotation(planeNotation);
 
 					probs = this.trimProbability(position);
-					Linkage firstLink = makeLinkage(extractPos(position)[0], "1", extractProbability(probs[0]), extractProbability(probs[1]));
+					String pos = extractPos(position)[0];
+					Linkage firstLink = makeLinkage(pos, "1", extractProbability(probs[0]), extractProbability(probs[1]));
 
 					//Modify LinkageType and SubstituentTemplate
 					Substituent sub = new Substituent(subT, firstLink);
 					sub.setHeadAtom(this.makeHeadAtomFromNotation(notation, planeNotation));
+
+					this.modifyHeadAtom(_mono, sub, pos);
+
+					// check deoxy substituent with H_LOSE
+					this.isDeoxySubstituentWithHLose(_mono, sub, this.makeHeadAtomFromNotation(notation, planeNotation));
 
 					substituents.add(sub);
 					continue;
@@ -185,8 +194,10 @@ public class IUPACSubstituentNotationAnalyzer extends SubstituentUtility {
 					Substituent sub = new Substituent(subT, firstLink);
 					sub.setHeadAtom(this.makeHeadAtomFromNotation(notation, planeNotation));
 
-					//TODO : head atomがCだけどH_Loseがない場合の対応（例外）
 					this.modifyHeadAtom(_mono, sub, pos);
+
+					// check deoxy substituent with H_LOSE
+					this.isDeoxySubstituentWithHLose(_mono, sub, this.makeHeadAtomFromNotation(notation, planeNotation));
 
 					substituents.add(sub);
 				}
@@ -278,11 +289,7 @@ public class IUPACSubstituentNotationAnalyzer extends SubstituentUtility {
 		if (_mono == null) return;
 		for (GlyCoModification gMod : _mono.getModifications()) {
 			if (gMod.getPositionOne() != Integer.parseInt(_position)) continue;
-			if (gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_5) ||
-			gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_6) ||
-			gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_7) ||
-			gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_8) ||
-			gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_X)) {
+			if (this.isHLOSE(gMod)) {
 				_sub.setHeadAtom("C");
 			}
 		}
@@ -290,10 +297,7 @@ public class IUPACSubstituentNotationAnalyzer extends SubstituentUtility {
 
 	private String makePlaneNotation (String _notation) throws GlycanException {
 		if (_notation.equals("N") || _notation.matches("C(l|Fo|Me)")) return _notation;
-		if (_notation.startsWith("C")) {
-			throw new GlycanException("IUPAC importer can not support " + _notation);
-			//return _notation.substring(1);
-		}
+		if (_notation.startsWith("C")) return _notation.substring(1);
 		if (_notation.startsWith("(")) {
 			String bracket = _notation.substring(0, _notation.indexOf(")") + 1);
 			String regex = bracket.replace("(", "\\(").replace(")", "\\)");
@@ -336,5 +340,38 @@ public class IUPACSubstituentNotationAnalyzer extends SubstituentUtility {
 		_subInter.equals(BaseCrossLinkedTemplate.S_DEOXYPYRUVATE)) {
 			throw new GlycanException("IUPAC importer can not support " + _subInter);
 		}
+	}
+
+	private void isDeoxySubstituentWithHLose (Monosaccharide _mono, Substituent _sub, String _headAtom) throws GlycanException {
+		SubstituentInterface subInter = _sub.getSubstituent();
+		boolean ret = false;
+		if (_headAtom.equals("N")) return;
+		if (_headAtom.equals("") &&
+				(!subInter.equals(BaseSubstituentTemplate.CFORMYL) &&
+				!subInter.equals(BaseSubstituentTemplate.CMETHYL))) return;
+
+		for (GlyCoModification gMod : _mono.getModifications()) {
+			if (!this.isHLOSE(gMod)) {
+				ret = true;
+				break;
+			}
+		}
+
+		// is modification is empty
+		if (_mono.getModifications().isEmpty()) {
+			throw new GlycanException("The (C)-type linkage of substituent requires some kind of H_LOSE modification at linkage position.");
+		}
+		//
+		if (ret) {
+			throw new GlycanException("The (C)-type linkage of substituent requires some kind of H_LOSE modification at linkage position.");
+		}
+	}
+
+	private boolean isHLOSE (GlyCoModification _gMod) {
+		return (_gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_5) ||
+				_gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_6) ||
+				_gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_7) ||
+				_gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_8) ||
+				_gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_X));
 	}
 }

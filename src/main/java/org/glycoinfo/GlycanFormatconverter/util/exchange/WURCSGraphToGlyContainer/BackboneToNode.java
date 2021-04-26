@@ -85,7 +85,10 @@ public class BackboneToNode {
                 if (i + 1 == _mono.getSuperClass().getSize()) continue;
                 boolean haveMod = false;
                 for (GlyCoModification gMod : ret) {
-                    if (gMod.getPositionOne() == 1) haveMod = true;
+                    if (gMod.getPositionOne() == 1) {
+                        haveMod = true;
+                        break;
+                    }
                 }
                 if (!haveMod) {
                     mod = new GlyCoModification(modT,1);
@@ -121,12 +124,12 @@ public class BackboneToNode {
         }
 
         // sort modifications by position
-        Collections.sort(ret, new GlyCoModificationComparater());
+        ret.sort(new GlyCoModificationComparater());
 
         return ret;
     }
 
-    private Monosaccharide extractSubstituent (Backbone _backbone, Monosaccharide _mono) throws GlycanException, ConverterExchangeException, WURCSFormatException {
+    private void extractSubstituent (Backbone _backbone, Monosaccharide _mono) throws GlycanException, ConverterExchangeException, WURCSFormatException {
         ArrayList<Modification> tempMods = new ArrayList<>();
         for(WURCSEdge we : _backbone.getChildEdges()) {
             Modification mod = we.getModification();
@@ -162,7 +165,6 @@ public class BackboneToNode {
             }
         }
 
-        return _mono;
     }
 
   private Substituent ModificationToSubstituent(Backbone _backbone, Modification _mod) throws ConverterExchangeException, WURCSFormatException {
@@ -300,7 +302,7 @@ public class BackboneToNode {
         return (Monosaccharide) _node;
     }
 
-    private Monosaccharide extractRingPosition (Backbone _backbone, Monosaccharide _mono) throws GlycanException {
+    private void extractRingPosition (Backbone _backbone, Monosaccharide _mono) throws GlycanException {
         int anomericPos = _backbone.getAnomericPosition();
         ArrayList<Integer> ring = new ArrayList<>();
         int start = -1;
@@ -340,14 +342,6 @@ public class BackboneToNode {
             _mono.setRing(start, ring.get(0));
         }
 
-        return _mono;
-    }
-
-    private boolean isRingPosition (Modification _mod, Monosaccharide _mono) {
-        if (_mod.getParentEdges().size() != 2) return false;
-        int start = _mod.getParentEdges().get(0).getLinkages().get(0).getBackbonePosition();
-        int end = _mod.getParentEdges().get(1).getLinkages().get(0).getBackbonePosition();
-        return (_mono.getRingStart() == start && _mono.getRingEnd() == end);
     }
 
     private void checkForCarbonDescriptor (Backbone _backbone) throws WURCSFormatException {

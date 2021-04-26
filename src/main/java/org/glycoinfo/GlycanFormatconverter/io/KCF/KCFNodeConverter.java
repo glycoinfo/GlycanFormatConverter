@@ -124,6 +124,7 @@ public class KCFNodeConverter {
         for (GlyCoModification gMod : mono.getModifications()) {
             if (gMod.getPositionOne() == mono.getAnomericPosition()) continue;
             if (gMod.getPositionOne() == mono.getSuperClass().getSize()) continue;
+            if (this.isHLOSETypeModification(gMod)) continue;
 
             skeletonCode.replace(gMod.getPositionOne() - 2, gMod.getPositionOne() - 1, "");
         }
@@ -370,5 +371,13 @@ public class KCFNodeConverter {
                 donorEdge.setSubstituent(newSub);
             }
         }
+    }
+
+    private boolean isHLOSETypeModification (GlyCoModification _gMod) {
+        return (_gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_5) ||
+                _gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_6) ||
+                _gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_7) ||
+                _gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_8) ||
+                _gMod.getModificationTemplate().equals(ModificationTemplate.HLOSE_X));
     }
 }

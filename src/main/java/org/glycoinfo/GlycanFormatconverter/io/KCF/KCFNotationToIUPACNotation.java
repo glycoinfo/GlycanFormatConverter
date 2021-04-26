@@ -23,7 +23,6 @@ public class KCFNotationToIUPACNotation {
         KCFNodeStateStacker kcfStacker = new KCFNodeStateStacker();
 
         String ringSize = "";
-        boolean haveMod = false;
 
         KCFMonosaccharideDescriptor firstUnit = null;
         KCFMonosaccharideDescriptor secondUnit = null;
@@ -40,14 +39,8 @@ public class KCFNotationToIUPACNotation {
         if (prefixSub.find()) {
             String atomType = "";
             if (prefixSub.group(2) != null && prefixSub.group(2).equals("C")) {
-                if (prefixSub.group(2).equals("C")) {
-                    atomType = "C";
-                }
-                if (prefixSub.group(2).equals("O")) {
-                    atomType = "O";
-                }
+                atomType = "C";
             }
-
             if (prefixSub.group(3).equalsIgnoreCase("formyl")) {
                 BaseSubstituentTemplate subT = BaseSubstituentTemplate.OFORMYL;
                 subs.add(prefixSub.group(1) + atomType + subT.getIUPACnotation());
@@ -69,15 +62,13 @@ public class KCFNotationToIUPACNotation {
         // extract unsaturation
         Matcher unsat = Pattern.compile("-?(\\d)-?(enx|en)-").matcher(_input);
         if (unsat.find()) {
-            haveMod = true;
             subs.add(unsat.group(1) + "(X)" + unsat.group(2));
             _input = _input.replace(unsat.group(), "");
         }
 
         // extract deoxy notation
-        Matcher matDeoxy = Pattern.compile("([\\d,]+)+(d|-deoxy-)+").matcher(_input);
+        Matcher matDeoxy = Pattern.compile("([\\d,]+)+((d|-deoxy)-?)+").matcher(_input);
         if (matDeoxy.find()) {
-            haveMod = true;
             mods.add(analyzeDeoxy(matDeoxy.group(1)));
             _input = _input.replace(matDeoxy.group(), "");
         }
@@ -85,7 +76,6 @@ public class KCFNotationToIUPACNotation {
         // extract ulosonation
         Matcher matUlo = Pattern.compile("-?([\\d,]+)-?(.*ulo)").matcher(_input);
         if (matUlo.find()) {
-            haveMod = true;
             for (String unit : matUlo.group(1).split(",")) {
                 kcfStacker.setUlosonic(unit + "ulo");
             }
@@ -189,9 +179,6 @@ public class KCFNotationToIUPACNotation {
         IUPACSubstituentNotationAnalyzer subAna = new IUPACSubstituentNotationAnalyzer();
         subs.addAll(subAna.resolveSubstituents(trimHyphen(_input), true));
 
-        // modified substituent notations
-        //subs = modifySubstituentNotation(subs);
-
         kcfStacker.setRingSize(ringSize);
         kcfStacker.setFisrtUnit(firstUnit);
         kcfStacker.setSecondUnit(secondUnit);
@@ -211,14 +198,15 @@ public class KCFNotationToIUPACNotation {
         KCFMonosaccharideDescriptor secondUnit = _kcfStacker.getSecondUnit();
 
         // append prefix substituents
-        notation = appendPrefixAnnotations(notation, _kcfStacker.getModifications());
+        appendPrefixAnnotations(notation, _kcfStacker.getModifications());
 
         // append core notation
         if (firstUnit != null) {
             notation = appendCoreNotation(notation, modifyConfiguration(firstConfig, firstUnit.getCode()), firstUnit, (superClass != null));
         }
         if (firstUnit == null && secondUnit == null) {
-            notation.append(((firstConfig.equals("D/L") || firstConfig.equals("")) ? "?" : firstConfig) + "-");
+            notation.append((firstConfig.equals("D/L") || firstConfig.equals("")) ? "?" : firstConfig)
+                    .append("-");
         }
 
         // anomeric status
@@ -261,7 +249,7 @@ public class KCFNotationToIUPACNotation {
         String code = "";
         if (firstUnit != null && secondUnit == null) code = firstUnit.getCode();
         if (secondUnit != null) code = secondUnit.getCode();
-        notation = appendAcidicStatus(notation, _kcfStacker.getSubstituents(), code);
+        appendAcidicStatus(notation, _kcfStacker.getSubstituents(), code);
 
         // append tail modification
         notation.append(_kcfStacker.getTailStatus());
@@ -396,7 +384,10 @@ public class KCFNotationToIUPACNotation {
         }
 
         for (String key : sorted.keySet()) {
-            _sb.append(sorted.get(key) + "-" + key + "-");
+            _sb.append(sorted.get(key))
+               .append("-")
+               .append(key)
+               .append("-");
         }
 
         return _sb;
@@ -416,30 +407,22 @@ public class KCFNotationToIUPACNotation {
             subT = BaseSubstituentTemplate.forGlycoCTNotationWithIgnore(_subNotation);
         }
         if (subT == null) {
-            if (_subNotation.equals("Me")) {
-                subT = BaseSubstituentTemplate.OMETHYL;
-            }
-            if (_subNotation.contains("Pyr") || _subNotation.contains("pyr")) {
+            if (_subNotation.equals("Me")) subT = BaseSubstituentTemplate.OMETHYL;
+            if (_subNotation.contains("Py") || _subNotation.contains("pyr")) {
+                if (_subNotation.equals("Py")) subT = BaseCrossLinkedTemplate.X_PYRUVATE;
                 if (_subNotation.startsWith("(R")) subT = BaseCrossLinkedTemplate.R_PYRUVATE;
                 if (_subNotation.startsWith("(S")) subT = BaseCrossLinkedTemplate.S_PYRUVATE;
                 if (_subNotation.startsWith("Pyr") || _subNotation.startsWith("pyr")) subT = BaseCrossLinkedTemplate.X_PYRUVATE; //TODO :pyrも
             }
             if (_subNotation.equals("Formyl")) subT = BaseSubstituentTemplate.OFORMYL;
+            if (_subNotation.contains("en")) return ModificationTemplate.UNSATURATION_FL.getIUPACnotation();
         }
 
-        if (subT == null) return this.appendHeadAtom(_subNotation);
+        if (subT == null) {
+            throw new GlyCoImporterException(_subNotation + " is not defined.");
+        }
 
-        /*
-
-          if (matSub.group(2).startsWith("C") || matSub.group(2).startsWith("O") || matSub.group(2).startsWith("N") ||
-                        matSub.group(2).startsWith("(") || matSub.group(2).equals("A") || matSub.group(2).equals("N")) {
-                    ret.add(sub);
-                    continue;
-                }
-
-         */
-
-        return this.appendHeadAtom(subT.getIUPACnotation());
+        return subT.getIUPACnotation();
     }
 
     private String modifyConfiguration (String _configuration, String _notation) {
@@ -502,13 +485,5 @@ public class KCFNotationToIUPACNotation {
         _notation = _notation.replaceAll("-", "");
 
         return _notation;
-    }
-
-    private String appendHeadAtom (String _subNode) {
-        if (_subNode.startsWith("C") || _subNode.startsWith("O") || _subNode.startsWith("N") ||
-                _subNode.startsWith("(") || _subNode.equals("A") || _subNode.equals("N")) {
-            return _subNode;
-        }
-        return "O" + _subNode;
     }
 }
