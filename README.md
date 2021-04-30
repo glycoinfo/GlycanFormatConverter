@@ -5,7 +5,7 @@
 ## Overview
 GlycanFormatConverter behaves as a library for implementing glycan text conversion functions.
 
-If you would to convert any glycan text format at local, please refer to GlycanFormatConverter-cli.
+If you would to convert any glycan text format at stand-alone, please refer to GlycanFormatConverter-cli.
 * https://github.com/glycoinfo/GlycanFormatConverter-cli
 
 GlycanFormatConverter is also available as an API.
@@ -24,6 +24,5 @@ An examples of the restrictions is shown below:
 - Containing substituent fragments
 - Containing monosaccharide modifications such as deoxy
 
-## Citation
-Please citation as below:\
-Tsuchiya S, Yamada I, Aoki-Kinoshita KF. GlycanFormatConverter: a conversion tool for translating the complexities of glycans. Bioinformatics. 2019 Jul 15;35(14):2434-2440. 
+## Publication
+[Tsuchiya Shinichiro, Yamada Issaku, Kiyoko F. Aoki-Kinoshita. GlycanFormatConverter: a conversion tool for translating the complexities of glycans. Bioinformatics. 2019 Jul 15;35(14):2434-2440.](https://pubmed.ncbi.nlm.nih.gov/30535258/)
