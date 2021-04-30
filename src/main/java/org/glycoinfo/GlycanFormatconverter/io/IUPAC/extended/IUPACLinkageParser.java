@@ -155,7 +155,7 @@ public class IUPACLinkageParser extends SubstituentUtility {
 			  group(9) : parent pos
 			  */
 
-			Matcher matLin = Pattern.compile("([\\d?])+(\u002D(\\d)?([(a-zA-Z)]+)+(\\d)?)?[\u002D\u2192\u2194]?(([\\d?]+),?([\\d?]+)?%)?([\\d?/]+)?").matcher(unit);
+			Matcher matLin = Pattern.compile("([\\d?])+([\u002D\u2190](\\d)?([(a-zA-Z)]+)+(\\d)?)?[\u002D\u2192\u2194]?(([\\d?]+),?([\\d?]+)?%)?([\\d?/]+)?").matcher(unit);
 
 			if(matLin.find()) {
 				Edge parentEdge = new Edge();
@@ -174,11 +174,9 @@ public class IUPACLinkageParser extends SubstituentUtility {
 					// HEAD is parent, Tail is child
 					if (matLin.group(5) != null) {
 						bridge.getSecondPosition().addChildLinkage(Integer.parseInt(matLin.group(5)));
-						//bridge.getFirstPosition().addChildLinkage(Integer.parseInt(matLin.group(5)));
 					}
 					if (matLin.group(3) != null) {
 						bridge.getFirstPosition().addChildLinkage(Integer.parseInt(matLin.group(3)));
-						//bridge.getSecondPosition().addChildLinkage(Integer.parseInt(matLin.group(3)));
 					}
 
 					parentEdge.setSubstituent(bridge);

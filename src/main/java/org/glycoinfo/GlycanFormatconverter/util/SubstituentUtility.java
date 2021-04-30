@@ -14,7 +14,7 @@ public class SubstituentUtility {
 
 		if (bsubT.getIUPACnotation().equals("N")) return false;
 
-		return (bsubT.getIUPACnotation().startsWith("N"));
+		return (bsubT.getIUPACnotation().startsWith("N") || bsubT.equals(BaseSubstituentTemplate.ETHANOLAMINE));
 	}
 
 	public static boolean isOLinkedSubstituent (Substituent _sub) {
@@ -120,19 +120,32 @@ public class SubstituentUtility {
 		return bracket + ret;
 	}
 
-	public static String optimizeSubstituentNotationWithN_linkage (Substituent _sub) {
-		String ret = _sub.getNameWithIUPAC();
+	public static void changeOlinkedTemplate (Substituent _sub) {
+		if (!isNLinkedSubstituent(_sub)) return;
 
-		// Optimize substituent notation using N-linked
-		if (SubstituentUtility.isNLinkedSubstituent(_sub)) {
-			ret = ret.replaceFirst("N", "");
+		BaseSubstituentTemplate bsubT;
+		if (_sub.getSubstituent().equals(BaseSubstituentTemplate.ETHANOLAMINE)) {
+			bsubT = BaseSubstituentTemplate.ETHANOL;
+		} else {
+			String plane = _sub.getNameWithIUPAC().replaceFirst("N", "");
+			bsubT = BaseSubstituentTemplate.forIUPACNotationWithIgnore(plane);
 		}
-		return ret;
+
+		_sub.setTemplate(bsubT);
+		_sub.setHeadAtom("O");
 	}
 
-	public static void changePlaneTemplate (Substituent _sub) {
-		String plane = optimizeSubstituentNotationWithN_linkage(_sub);
-		BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotationWithIgnore(plane);
+	public static void changeNlinkedTemplate (Substituent _sub) {
+		if (isNLinkedSubstituent(_sub)) return;
+
+		BaseSubstituentTemplate bsubT;
+		if (_sub.getSubstituent().equals(BaseSubstituentTemplate.ETHANOL)) {
+			bsubT = BaseSubstituentTemplate.ETHANOLAMINE;
+		} else {
+			bsubT = BaseSubstituentTemplate.forIUPACNotationWithIgnore("N" + _sub.getNameWithIUPAC());
+		}
+
 		_sub.setTemplate(bsubT);
+		_sub.setHeadAtom("N");
 	}
 }

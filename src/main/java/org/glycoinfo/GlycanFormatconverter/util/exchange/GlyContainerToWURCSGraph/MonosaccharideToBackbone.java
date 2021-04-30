@@ -59,7 +59,7 @@ public class MonosaccharideToBackbone {
 	
 	public void start (Node _node) throws WURCSExchangeException, GlycanException {
 		mono = (Monosaccharide) _node;
-		this.anomericPos = mono.getRingStart();
+		this.anomericPos = mono.getAnomericPosition();
 		this.anomericSymbol = mono.getAnomer().getAnomericState();
 		
 		if (this.anomericPos == Monosaccharide.OPEN_CHAIN) {
@@ -79,11 +79,15 @@ public class MonosaccharideToBackbone {
 		}
 
 		int numOfAtom = mono.getSuperClass().getSize();
+
+		// analyze Sugar (<Q>)
 		if (numOfAtom == 0) {
 			this.backbone = new Backbone();
 			BackboneCarbon bc = new BackboneCarbon(this.backbone, CarbonDescriptor.SZX_UNDEF_ALL, true);
 			this.backbone.addBackboneCarbon(bc);
-			this.backbone.setAnomericSymbol(this.anomericSymbol);
+			this.backbone.setAnomericPosition(mono.getAnomericPosition());
+			this.backbone.setAnomericSymbol(
+					(this.anomericSymbol == 'o') ? AnomericStateDescriptor.UNKNOWN_STATE.getAnomericState() : this.anomericSymbol);
 			return;
 		}
 

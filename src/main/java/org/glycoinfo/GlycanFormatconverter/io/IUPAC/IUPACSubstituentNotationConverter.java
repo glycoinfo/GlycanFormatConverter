@@ -49,12 +49,12 @@ public class IUPACSubstituentNotationConverter {
 
 			if (sub.getSubstituent() == null || sub instanceof GlycanRepeatModification || child.getChild() != null) continue;
 
-			// extract only N (Amino group) part from N-linked substituent
+			// extract N-linked substituent for hexosamine (HexN)
 			if (haveNativeSubstituentWithNsulfate(_code, sub, _node)) {
 				nativeSub.append(BaseSubstituentTemplate.AMINE.getIUPACnotation());
 
 				//make plane substituent
-				SubstituentUtility.changePlaneTemplate(sub);
+				SubstituentUtility.changeOlinkedTemplate(sub);
 			}
 
 			if (haveNativeSubstituentInNeu(_code, sub)) {
@@ -256,10 +256,10 @@ public class IUPACSubstituentNotationConverter {
 		// for N-acetyl hexosamine
 		if (subT.equals(BaseSubstituentTemplate.NACETYL)) return true;
 
-		//if (is6DeoxyHexose(_code)) return false;
+		if (is6DeoxyHexose(_code)) return false;
 
 		// for hexosamine
-		return (_sub.getHeadAtom().equals("N"));
+		return (subT.equals(BaseSubstituentTemplate.AMINE));
 	}
 	
 	private boolean haveNativeSubstituentInNeu(String _code, Substituent _sub) {

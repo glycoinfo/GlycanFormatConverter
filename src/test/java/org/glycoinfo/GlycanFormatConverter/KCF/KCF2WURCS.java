@@ -2,17 +2,11 @@ package org.glycoinfo.GlycanFormatConverter.KCF;
 
 import org.glycoinfo.GlycanFormatConverter.util.fileHandler;
 import org.glycoinfo.GlycanFormatconverter.Glycan.GlyContainer;
-import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 import org.glycoinfo.GlycanFormatconverter.io.KCF.KCFImporter;
 import org.glycoinfo.GlycanFormatconverter.util.ExporterEntrance;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
-import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
-import org.glycoinfo.WURCSFramework.util.validation.WURCSValidationReport;
-import org.glycoinfo.WURCSFramework.util.validation.WURCSValidator;
 import org.junit.Test;
 
-import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -24,7 +18,7 @@ public class KCF2WURCS {
 
     @Test
     public void kcf2wurcs_case1 (){
-        String inputFile = "src/test/resources/KCF/" + "KCF_errorlist.txt";
+        String inputFile = "src/test/resources/KCF/" + "";
 
         try {
             Object kcfMap = fileHandler.openString(inputFile, "KCF");

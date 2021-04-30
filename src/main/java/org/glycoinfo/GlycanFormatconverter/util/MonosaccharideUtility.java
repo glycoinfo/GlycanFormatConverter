@@ -161,11 +161,6 @@ public class MonosaccharideUtility {
         for( String unit : _modifications) {
             // parse single notation
             switch (unit) {
-                /*
-                case "??" :
-                    hashMod.put(0, ModificationTemplate.UNKNOWN);
-                    break;
-                 */
                 case "ol" :
                     hashMod.put(1, ModificationTemplate.HYDROXYL);
                     break;

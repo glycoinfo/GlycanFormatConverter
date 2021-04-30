@@ -55,6 +55,7 @@ public class IUPACSubstituentNotationAnalyzer extends SubstituentUtility {
 			}
 
 			if (isLink && isNotation && isInteger(_notations.charAt(i+1))) {
+				// single substituent
 				if (notation.split(",").length == 1) {
 					subs.add(notation);
 					notation = "";
@@ -63,6 +64,7 @@ public class IUPACSubstituentNotationAnalyzer extends SubstituentUtility {
 					continue;
 				}
 
+				// multiple substituent
 				if (notation.split(",").length == toInteger(unit)) {
 					subs.add(notation);
 					notation = "";
@@ -71,6 +73,14 @@ public class IUPACSubstituentNotationAnalyzer extends SubstituentUtility {
 					continue;
 				}
 
+				// ring substituent
+				if (this.isCyclic(notation) && this.isAlphabet(unit)) {
+					subs.add(notation);
+					notation = "";
+					isNotation = false;
+					isLink = false;
+					continue;
+				}
 			}
 
 			if (!isLink && isNotation && isInteger(_notations.charAt(i+1))) {
@@ -173,7 +183,7 @@ public class IUPACSubstituentNotationAnalyzer extends SubstituentUtility {
 					Substituent sub = new Substituent(subT, firstLink);
 					sub.setHeadAtom(this.makeHeadAtomFromNotation(notation, planeNotation));
 
-					this.modifyHeadAtom(_mono, sub, pos);
+					//this.modifyHeadAtom(_mono, sub, pos);
 
 					// check deoxy substituent with H_LOSE
 					this.isDeoxySubstituentWithHLose(_mono, sub, this.makeHeadAtomFromNotation(notation, planeNotation));
@@ -328,6 +338,10 @@ public class IUPACSubstituentNotationAnalyzer extends SubstituentUtility {
 	private Integer toInteger (char _unit) {
 		if (!String.valueOf(_unit).matches("\\d")) return -1;
 		return (Integer.parseInt(String.valueOf(_unit)));
+	}
+
+	private boolean isCyclic (String _notation) {
+		return (_notation.matches("([\\d?]-[\\d?]),([\\d?]-[\\d?]).+"));
 	}
 
 	private void checkSupportSubstituent (SubstituentInterface _subInter) throws GlycanException {

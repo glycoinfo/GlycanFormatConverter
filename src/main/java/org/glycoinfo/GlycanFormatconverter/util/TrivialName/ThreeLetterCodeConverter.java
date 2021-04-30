@@ -169,7 +169,7 @@ public class ThreeLetterCodeConverter {
 			for(Substituent tempSub : subs) {
 				if(!sub.getFirstPosition().getParentLinkages().contains(tempSub.getFirstPosition().getParentLinkages().get(0))) continue;
 				if(SubstituentUtility.isNLinkedSubstituent(sub)) {
-					SubstituentUtility.changePlaneTemplate(sub);
+					SubstituentUtility.changeOlinkedTemplate(sub);
 					break;
 				}
 				if(tempSub.getSubstituent().equals(sub.getSubstituent())) {

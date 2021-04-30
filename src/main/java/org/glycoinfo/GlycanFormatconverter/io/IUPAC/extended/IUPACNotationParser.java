@@ -120,6 +120,7 @@ public class IUPACNotationParser {
 		//group 2 : ulosonic
 		//String partially = "[a-z]{2,3}[A-Z][a-z]{2}";
 		//String totally = "[\\dedi]*[A-Z][a-z]{2}C?";
+		//TODO : Hep4PyrPが誤って抽出されている totallyに誤認されていることの解決 G81812UT G49784FR
 		Matcher matCore = Pattern.compile("(Sugar|Ko|[a-z]{2,3}[A-Z][a-z]{2}|[\\dedi]*[A-Z][a-z]{2}C?)+((\\dulo)+)?").matcher(coreNotation);
 		if(matCore.find()) {
 
@@ -216,11 +217,17 @@ public class IUPACNotationParser {
 	}
 
 	private int extractAnomericPosition (Monosaccharide _mono, String _linkage, String _code, ArrayList<String> _mods) {
+		if (_code.equalsIgnoreCase("sugar")) {
+			if (_mono.getAnomer().equals(AnomericStateDescriptor.ALPHA) || _mono.getAnomer().equals(AnomericStateDescriptor.BETA)) {
+				return Monosaccharide.UNKNOWN_RING;
+			}
+			if (_mono.getAnomer().equals(AnomericStateDescriptor.UNKNOWN_STATE)) {
+				return Monosaccharide.OPEN_CHAIN;
+			}
+		}
 		if(_linkage.equals("")) {
 			if (_mono.getAnomer().equals(AnomericStateDescriptor.OPEN)) return Monosaccharide.OPEN_CHAIN;
 			else return Monosaccharide.UNKNOWN_RING;
-			//if (_mono.getAnomericPosition() != 0) return _mono.getAnomericPosition();
-			//return Monosaccharide.OPEN_CHAIN;
 		}
 		int childPos = Monosaccharide.UNKNOWN_RING;
 		AnomericStateDescriptor anomer = _mono.getAnomer();

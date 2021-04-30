@@ -46,6 +46,10 @@ public enum BaseSubstituentTemplate implements SubstituentInterface {
     R_LACTATE			("*OCC^RC/4O/3=O", "(r)-lactate", "(R)Lac"),
     X_LACTATE			("*OCC^XC/4O/3=O", "(x)-lactate", "(X)Lac");
 
+    //NITRATE             ("", "nitrate", "Ni");
+    //IMINO               ("", "imino", "Im");
+    //NMETHYLCARBAMOYL    ("", "n-methyl-carbamoyl", "");
+
     private final String map;
     private final String gct;
     private final String iupac;

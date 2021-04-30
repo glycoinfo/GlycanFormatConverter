@@ -17,13 +17,13 @@ import java.util.LinkedList;
 
 public class WURCSGraphToGlyContainer {
 
-	private HashMap<WURCSComponent, Node> backbone2node;
+	private Backbone root;
 	private GlyContainer glyCo;
 	private ArrayList<ModificationAlternative> antennae;
 	private ArrayList<ModificationAlternative> undefinedLinkages; // 09/24/2018 Masaaki added
 	private ArrayList<ModificationAlternative> undefinedSubstituents; // 09/25/2018 Masaaki added
-	private Backbone root;
-	private LinkedList<Backbone> sortedList;
+	private final LinkedList<Backbone> sortedList;
+	private final HashMap<WURCSComponent, Node> backbone2node;
 
 	public WURCSGraphToGlyContainer () {
 		this.backbone2node = new HashMap<>();
@@ -590,19 +590,20 @@ public class WURCSGraphToGlyContainer {
 			for (WURCSEdge wurcsEdge : bb.getChildEdges()) {
 				Modification mod = wurcsEdge.getModification();
 
-				if (!mod.getMAPCode().equals("")) {
-					if (mod.getEdges().size() > 1) count++;
-					else continue;
-				}
 				if (mod.isRing()) continue;
-
+				if (mod.isGlycosidic()) {
+					count++;
+					continue;
+				}
 				if (mod instanceof ModificationAlternative) {
 					if (((ModificationAlternative) mod).getLeadOutEdges().isEmpty() ||
 					((ModificationAlternative) mod).getLeadInEdges().isEmpty()) {
 						count++;
 					}
-				} else {
-					count++;
+					continue;
+				}
+				if (!mod.getMAPCode().equals("")) {
+					if (mod.getEdges().size() > 1) count++;
 				}
 			}
 		}

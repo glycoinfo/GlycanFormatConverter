@@ -61,16 +61,14 @@ public class GlyContainerOptimizer {
                 throw new GlycanException("Substituent could not defined.");
 
             if (sub1.getSubstituent().equals(BaseSubstituentTemplate.AMINE)) {
-                String oldNotation = sub2.getSubstituent().getIUPACnotation();
-                BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotationWithIgnore("N" + oldNotation);
+                BaseSubstituentTemplate bsubT = this.convertOtoNsubstituent(sub2);
                 sub2.setTemplate(bsubT);
                 sub2.setHeadAtom("N");
 
                 _mono.removeChildEdge(edges.get(0));
             }
             if (sub2.getSubstituent().equals(BaseSubstituentTemplate.AMINE)) {
-                String oldNotation = sub1.getSubstituent().getIUPACnotation();
-                BaseSubstituentTemplate bsubT = BaseSubstituentTemplate.forIUPACNotationWithIgnore("N" + oldNotation);
+                BaseSubstituentTemplate bsubT = this.convertOtoNsubstituent(sub1);
                 sub1.setTemplate(bsubT);
                 sub2.setHeadAtom("N");
 
@@ -429,6 +427,15 @@ public class GlyContainerOptimizer {
             }
         }
         return (haveDeoxy && haveUnsaturation);
+    }
+
+    private BaseSubstituentTemplate convertOtoNsubstituent (Substituent _sub) {
+        String oldNotation = _sub.getSubstituent().getIUPACnotation();
+        if (_sub.getSubstituent().equals(BaseSubstituentTemplate.ETHANOL)) {
+            return BaseSubstituentTemplate.ETHANOLAMINE;
+        } else {
+            return BaseSubstituentTemplate.forIUPACNotationWithIgnore("N" + oldNotation);
+        }
     }
 
     private void checkStatus (Node _node) {

@@ -14,8 +14,8 @@ import java.util.HashMap;
 
 public class groupTestForWURCS2IUPAC2WURCS {
 
-    private final String filePath = "src/test/resources/";
-    private final String outPath = "src/test/resources/result/";
+    private final static String filePath = "src/test/resources/";
+    private final static String outPath = "src/test/resources/result/";
 
     @Test
     public void simple () {
@@ -53,6 +53,18 @@ public class groupTestForWURCS2IUPAC2WURCS {
         fileHandler.writeFile(outPath + "WIW_repeats", this.makeMap(fileData), ".tsv");
     }
 
+    @Test
+    public void glytoucanEntries () {
+        String fileData = fileHandler.openTSV(filePath + "20210427-GlyTouCan_Entries_WURCS.tsv");
+        fileHandler.writeFile(outPath + "GlyTouCanEntries", this.makeMap(fileData), ".tsv");
+    }
+
+    @Test
+    public void errorCase () {
+        String fileData = fileHandler.openTSV(filePath + "errorCase.tsv");
+        fileHandler.writeFile(outPath + "errorCase", this.makeMap(fileData), ".tsv");
+    }
+
     // utils
     private Object inIUPAC (String _iupac) {
         try {
@@ -63,7 +75,7 @@ public class groupTestForWURCS2IUPAC2WURCS {
         }
     }
 
-    private String toIUPAC (Object _gc) {
+    private String toIUPAC (Object _gc, IUPACStyleDescriptor _style) {
         try {
             if (_gc == null) {
                 throw new Exception("case1: the error happened in the toIUPAC");
@@ -72,7 +84,7 @@ public class groupTestForWURCS2IUPAC2WURCS {
                 throw new Exception((String) _gc);
             }
             ExporterEntrance ee = new ExporterEntrance((GlyContainer) _gc);
-            return ee.toIUPAC(IUPACStyleDescriptor.GREEK);
+            return ee.toIUPAC(_style);
         } catch (Exception e) {
             return e.getMessage();
         }
@@ -124,7 +136,7 @@ public class groupTestForWURCS2IUPAC2WURCS {
             String model = this.optimizeWURCS(columns[1]);
 
             // wurcs to iupac-extended
-            iupac = this.toIUPAC(this.inWURCS(model));
+            iupac = this.toIUPAC(this.inWURCS(model), IUPACStyleDescriptor.GREEK);
 
             // iupac-extended to wurcs
             wurcs = this.toWURCS(this.inIUPAC(iupac));
@@ -134,6 +146,7 @@ public class groupTestForWURCS2IUPAC2WURCS {
             //values[0] : model wurcs
             //values[1] : iupac-extended
             //values[2] : remodel wurcs
+            //values[3] : error type
 
             //#0
             values.add(model);
@@ -143,6 +156,12 @@ public class groupTestForWURCS2IUPAC2WURCS {
             values.add(wurcs);
             //#3
             values.add(String.valueOf(model.equals(wurcs)));
+            //#4
+            /*
+              0: complete
+              1: can not support substituent
+              2:
+             */
 
             resultMap.put(columns[0], values);
         }

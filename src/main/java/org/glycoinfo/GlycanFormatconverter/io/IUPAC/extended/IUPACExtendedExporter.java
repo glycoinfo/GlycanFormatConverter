@@ -28,6 +28,7 @@ public class IUPACExtendedExporter extends IUPACExporterUtility implements Expor
 
 		ret = ret.replaceAll("<->", "\u2194");
 		ret = ret.replaceAll("->", "\u2192");
+		ret = ret.replaceAll("<-", "\u2190");
 
 		return ret;
 	}
