@@ -1,6 +1,7 @@
 package org.glycoinfo.GlycanFormatconverter.util;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
+import org.glycoinfo.GlycanFormatconverter.io.GlyCoImporterException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -429,8 +430,13 @@ public class GlyContainerOptimizer {
         return (haveDeoxy && haveUnsaturation);
     }
 
-    private BaseSubstituentTemplate convertOtoNsubstituent (Substituent _sub) {
+    private BaseSubstituentTemplate convertOtoNsubstituent (Substituent _sub) throws GlycanException {
         String oldNotation = _sub.getSubstituent().getIUPACnotation();
+
+        if (_sub.getSubstituent().equals(BaseSubstituentTemplate.ACYL)) {
+            throw new GlycanException("GlycanFormatConverter can not support N linked acyl group.");
+        }
+
         if (_sub.getSubstituent().equals(BaseSubstituentTemplate.ETHANOL)) {
             return BaseSubstituentTemplate.ETHANOLAMINE;
         } else {

@@ -146,7 +146,15 @@ public class KCFImporter {
             parentNode = nodeIndex.get(kcfUtil.extractID(childLin));
         }
 
-        if (childNode instanceof Substituent && (parentNode instanceof Substituent || parentNode == null)) return;
+        if (childNode instanceof Substituent) {
+            if (parentNode == null) return;
+            if (parentNode instanceof Substituent) {
+                if (isMultipleSubstituent(childNode)) {
+                    nodeIndex.put(cID, childNode);
+                }
+                return;
+            }
+        }
 
         Edge edge = new Edge();
 
@@ -578,4 +586,9 @@ public class KCFImporter {
         return (sub.getSubstituent() instanceof BaseSubstituentTemplate);
     }
 
+    private boolean isMultipleSubstituent (Node _parent) {
+        Substituent sub = (Substituent) _parent;
+        return (sub.getSubstituent().equals(BaseSubstituentTemplate.PYROPHOSPHATE) ||
+        sub.getSubstituent().equals(BaseSubstituentTemplate.PHOSPHOETHANOLAMINE));
+    }
 }

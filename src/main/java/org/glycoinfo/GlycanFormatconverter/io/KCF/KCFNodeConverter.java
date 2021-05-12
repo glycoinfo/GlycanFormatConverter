@@ -89,6 +89,12 @@ public class KCFNodeConverter {
             else
                 return this.makeSubstituentNotation(BaseSubstituentTemplate.OPHOSPHATE);
         }
+        if (unit.equalsIgnoreCase("etn")) {
+            if (isCrossLinkedSubstituent(_notation))
+                return this.makeSubstituentNotation(BaseCrossLinkedTemplate.ETHANOLAMINE);
+            else
+                return this.makeSubstituentNotation(BaseSubstituentTemplate.ETHANOLAMINE);
+        }
 
         return null;
     }
@@ -249,8 +255,13 @@ public class KCFNodeConverter {
             String acceptorNode = kcfUtil.getNodeByID(kcfUtil.splitNotation(edge).get(2));
             if (donorNode.equals("") || acceptorNode.equals("")) continue;
 
-            if (kcfUtil.splitNotation(donorNode).get(1).equals("EtN") &&
-                    kcfUtil.splitNotation(acceptorNode).get(1).equals("P")) {
+            if (kcfUtil.splitNotation(donorNode).get(1).equalsIgnoreCase("etn") &&
+                    kcfUtil.splitNotation(acceptorNode).get(1).equalsIgnoreCase("p")) {
+                ret = true;
+                break;
+            }
+            if (kcfUtil.splitNotation(donorNode).get(1).equalsIgnoreCase("p") &&
+                    kcfUtil.splitNotation(acceptorNode).get(1).equalsIgnoreCase("etn")) {
                 ret = true;
                 break;
             }

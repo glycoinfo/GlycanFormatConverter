@@ -35,7 +35,7 @@ public enum BaseSubstituentTemplate implements SubstituentInterface {
     HYDROXYMETHYL		("*CO", "hydroxymethyl", "MeOH"),
     THIO				("*S", "thio", "SH"),
     AMINE				("*N", "amino", "N"),
-    FLUOLO				("*F", "fluoro", "F"),
+    FLUORO				("*F", "fluoro", "F"),
     CHLORO				("*Cl", "chloro", "Cl"),
     BROMO				("*Br", "bromo", "Br"),
     IODO				("*I", "iodo", "I"),
@@ -44,10 +44,12 @@ public enum BaseSubstituentTemplate implements SubstituentInterface {
     X_CARBOXYETHYL		("*OC^XCO/4=O/3C", "(x)-carboxyethyl", "(X)CE"),
     S_LACTATE			("*OCC^SC/4O/3=O", "(s)-lactate", "(S)Lac"),
     R_LACTATE			("*OCC^RC/4O/3=O", "(r)-lactate", "(R)Lac"),
-    X_LACTATE			("*OCC^XC/4O/3=O", "(x)-lactate", "(X)Lac");
+    X_LACTATE			("*OCC^XC/4O/3=O", "(x)-lactate", "(X)Lac"),
 
-    //NITRATE             ("", "nitrate", "Ni");
-    //IMINO               ("", "imino", "Im");
+    ACYL                ("*OCR/3=O", "acyl", "acyl");
+    //NACYL               ("*NCR/3=O", "n-acyl", "");
+    //NITRATE             ("", "nitrate", "Ni"),
+    //IMINO               ("", "imino", "Im"),
     //NMETHYLCARBAMOYL    ("", "n-methyl-carbamoyl", "");
 
     private final String map;

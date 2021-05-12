@@ -13,6 +13,7 @@ public enum SubstituentTypeToMAP {
 	ANHYDRO				("anhydro",	"",	"", null, "O", "O"),
 	EPOXY				("epoxy",	"",	"", null, "O", "O"),	// same as anhydro
 	LACTONE				("lactone",	"",	"", null, "O", "O"),	// same as anhydro
+	ACYL 				("acyl",		"CR/2=O", null, null, "C", null),
 	ACETYL				("acetyl",				"CC/2=O",	null, null, "C", null),
 	BROMO				("bromo",				"Br",		null, null, "Br", null),
 	CHLORO				("chloro",				"Cl",		null, null, "Cl", null),
@@ -63,7 +64,7 @@ public enum SubstituentTypeToMAP {
 	SULFATE				("sulfate",			"SO/2=O/2=O",		"S*/2=O/2=O",		null, "S", "S"),
 	PHOSPHO_ETHANOLAMINE	("phospho-ethanolamine",	"P^XOCCN/2O/2=O",				"NCCOP^X*/6O/6=O",				true, "P", "N"),
 	DIPHOSPHO_ETHANOLAMINE	("diphospho-ethanolamine",	"P^XOP^XOCCN/4O/4=O/2O/2=O",	"NCCOP^XOP^X*/8O/8=O/6O/6=O",	true, "P", "N");
-//	X_PYRUVATE			("(x)-pyruvate","--"),
+	//	X_PYRUVATE			("(x)-pyruvate","--"),
 
 	private String m_strName;
 	private String m_strMAPSingle;
