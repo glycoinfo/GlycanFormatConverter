@@ -11,6 +11,20 @@ If you would to convert any glycan text format at stand-alone, please refer to G
 GlycanFormatConverter is also available as an API.
 * https://api.glycosmos.org/glycanformatconverter/
 
+## Release note
+
+### 2.6.0
+WURCS
+* Added an exception for deoxy substituent
+    * ex. \*SO/2=O/2=O (sulfate group) cannot support in the latest edition
+
+IUPAC-Extended
+* Added exceptions:
+    * pyruvate (x-, r- and s-) groups
+
+KCF (KEGG Chemical Function)
+* Added acyl group.
+
 ## Restrictions
 If input the text of IUPAC (-Extended, -Condensed, -Short) format contains inappropriate structural characters, a conversion error based on the restrictions will be returned.
 Such restrictions are takes into account when converting from IUPAC format to WURCS format.
