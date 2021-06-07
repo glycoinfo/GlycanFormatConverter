@@ -439,6 +439,8 @@ public class GlyContainerOptimizer {
 
         if (_sub.getSubstituent().equals(BaseSubstituentTemplate.ETHANOL)) {
             return BaseSubstituentTemplate.ETHANOLAMINE;
+        } else if (_sub.getSubstituent().equals(BaseSubstituentTemplate.CMETHYL)) {
+            return BaseSubstituentTemplate.NMETHYL;
         } else {
             return BaseSubstituentTemplate.forIUPACNotationWithIgnore("N" + oldNotation);
         }
