@@ -32,7 +32,7 @@ public enum SubstituentTypeToMAP {
 	N_METHYL			("n-methyl",			"NC",		null, null, "N", null),
 	N_SUCCINATE			("n-succinate",			"NCCCCO/6=O/3=O",	null, null, "N", null),
 	N_TRIFLOUROACETYL	("n-triflouroacetyl",	"NCCF/4F/4F/3=O",	null, null, "N", null),
-	NITRATE				("nitrate",				"N=O/2O",	null, null, "N", null), //20210714, S.TSUCHIYA modified MAP
+	NITRATE				("nitrate",				"C=O/2=O",	null, null, "C", null),
 	R_LACTATE			("(r)-lactate",			"CC^RC/3O/2=O",		null, null, "C", null),
 	S_LACTATE			("(s)-lactate",			"CC^SC/3O/2=O",		null, null, "C", null),
 	THIO				("thio",				"S",		null, null, "S", null),
@@ -55,7 +55,7 @@ public enum SubstituentTypeToMAP {
 	// For both of single or double
 	AMINO				("amino",			"N",				"N*",	null,  "N", "N"),
 	ETHANOLAMINE		("ethanolamine",	"NCCO",				"NCC*",	false, "N", "C"),
-	IMINO				("imino",			"=N",				"=N*",	false, "N", "N"),  //20210606, S.TSUCHIYA added
+	IMINO				("imino",			"=N",				"=N*",	false, "N", "N"),
 	SUCCINATE			("succinate",		"CCCCO/5=O/2=O",	"CCCC*/5=O/2=O",	null, "C", "C"),
 	N_SULFATE			("n-sulfate",		"NSO/3=O/3=O",		"NS*/3=O/3=O",		true, "N", "S"),
 	PHOSPHATE			("phosphate",		"PO/2O/2=O",		"P^X*/2O/2=O",		null, "P", "P"),
