@@ -13,30 +13,11 @@ GlycanFormatConverter is also available as an API.
 
 ## Release note
 
-### 2.6.0
-WURCS
-* Added an exception for deoxy substituent
-    * ex. \*SO/2=O/2=O (sulfate group) cannot support in the latest edition
-
-IUPAC-Extended
-* Added exceptions:
-    * pyruvate (x-, r- and s-) groups
-
-KCF (KEGG Chemical Function)
-* Added acyl group.
+Latest version: 2.6.0\
+Please see about [details](CHANGELOG.md#260-).
 
 ## Restrictions
-If input the text of IUPAC (-Extended, -Condensed, -Short) format contains inappropriate structural characters, a conversion error based on the restrictions will be returned.
-Such restrictions are takes into account when converting from IUPAC format to WURCS format.
-An examples of the restrictions is shown below:
-- Containing repeating units
-- Containing cyclic units
-- Containing cross-linked substituent
-- Containing repeating units with cross-linked substituent
-- Containing cyclic substituent in any monosaccharide
-- Containing monosaccharide fragments
-- Containing substituent fragments
-- Containing monosaccharide modifications such as deoxy
+Please see [restrictions](RESTRICTIONS.md#conversion-260-or-later)
 
 ## Publication
 [Tsuchiya Shinichiro, Yamada Issaku, Kiyoko F. Aoki-Kinoshita. GlycanFormatConverter: a conversion tool for translating the complexities of glycans. Bioinformatics. 2019 Jul 15;35(14):2434-2440.](https://pubmed.ncbi.nlm.nih.gov/30535258/)
