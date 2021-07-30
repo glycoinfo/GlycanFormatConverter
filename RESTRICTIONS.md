@@ -1,9 +1,10 @@
 # Restrictions
 
 ## Conversion (2.6.0 or later)
-If input the text of IUPAC (-Extended, -Condensed, -Short) format contains inappropriate structural characters, a conversion error based on the restrictions will be returned.
-Such restrictions are takes into account when converting from IUPAC format to WURCS format.
-An examples of the restrictions is shown below:
+If you input a text of IUPAC (short, condensed or extended) format that contains the following glycan features, the text will be handled as an exception and conversion error will be output.\
+These exceptions are checked into conversion with IUPAC format to WURCS format.|
+
+An examples of the restrictions:
 - Containing repeating units
 - Containing cyclic units
 - Containing cross-linked substituent
@@ -45,7 +46,7 @@ An examples of the restrictions is shown below:
 | r/s-lactate           | :heavy_check_mark:  |                    |                    | 
 
 ### Supporting divalent substituent
-| Notation              | O-linked (H_AT_OH) | N-linked           | C-linked (DEOXY)   | 
+| Notation              | O-linked（H_AT_OH） | N-linked           | C-linked（DEOXY）   | 
 | --------------------- | ------------------ | ------------------ | ------------------ | 
 | Anydro                | :heavy_check_mark: |                    |                    | 
 | r/s-pyruvate          | :heavy_check_mark: |                    |                    | 
@@ -62,12 +63,13 @@ An examples of the restrictions is shown below:
 | Phosphoethanoleamine  |                    |                    | :heavy_check_mark: | 
 | Diphosphoethanolamine |                    |                    | :heavy_check_mark: | 
 
-WURCS
-* Added an exception for deoxy substituent
-    * ex. \*SO/2=O/2=O (sulfate group bonded at monosaccharide with deoxy) cannot support in the latest version
+* WURCS\
+MAP in WURCS indicate substituent, this notation differs depending on the state of the molecule when bound to the monosaccharide.\
+For example, if WURCS string input to GlycanFormatConverter contains MAP of `*SO/2=O/2=O`, it will be output a message indicating a conversion error.\
+`*SO/2=O/2=O` is indicates the state of DEOXY in the monovalent substituent.
 
-IUPAC-Extended
-* Added exceptions for pyruvate (x-, r- and s-) group
+* IUPAC-Extended\
+IUPAC converter can not be handle divalent substituents such as r/s-pyruvate
 
-KCF (KEGG Chemical Function)
-* Added acyl group
+* KCF (KEGG Chemical Function)\
+Added acyl group

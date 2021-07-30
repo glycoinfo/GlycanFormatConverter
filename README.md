@@ -3,18 +3,21 @@
 * maven 3.6 (or later)
 
 ## Overview
-GlycanFormatConverter behaves as a library for implementing glycan text conversion functions.
+GlycanFormatConverter is core library of glycan text conversion tools.\
+Currently, we are releasing API and client for GlycanFormatConverter.
 
-If you would to convert any glycan text format at stand-alone, please refer to GlycanFormatConverter-cli.
-* https://github.com/glycoinfo/GlycanFormatConverter-cli
+## Usecase
+* Client
+  * https://github.com/glycoinfo/GlycanFormatConverter-cli
 
-GlycanFormatConverter is also available as an API.
-* https://api.glycosmos.org/glycanformatconverter/
+
+* API
+  * https://api.glycosmos.org/glycanformatconverter/
 
 ## Release note
 
-Latest version: 2.6.0\
-Please see about [details](CHANGELOG.md#260-).
+Latest version: 2.6.1\
+Please see about [details](CHANGELOG.md#261-21210608).
 
 ## Restrictions
 Please see [restrictions](RESTRICTIONS.md#conversion-260-or-later)
