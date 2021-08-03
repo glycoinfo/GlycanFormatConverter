@@ -16,7 +16,7 @@ Currently, we are releasing API and client for GlycanFormatConverter.
 
 ## Release note
 
-Latest version: 2.6.1\
+Latest version: 2.7.0\
 Please see about [details](CHANGELOG.md#261-21210608).
 
 ## Restrictions
