@@ -119,8 +119,20 @@ public class SubstituentToModification {
 
 		// Add oxygen
 		if ( this.m_oLinTypeParent == LinkageType.H_AT_OH ) {
+			// 20210726 S.TSUCHIYA added
 			this.m_strHeadAtom = "O";
-			t_strMAP = this.addOxygenToHead(t_strMAP);
+			if (this.m_enumSubstTypeToMAP == SubstituentTypeToMAP.NITRATE) {
+				this.m_enumSubstTypeToMAP = SubstituentTypeToMAP.O_NITRATE;
+				t_strMAP = this.m_enumSubstTypeToMAP.getMAPSingle();
+			} else {
+				t_strMAP = this.addOxygenToHead(t_strMAP);
+			}
+			// End of added
+			// Original code
+			/*
+				this.m_strHeadAtom = "O";
+				t_strMAP = this.addOxygenToHead(t_strMAP);
+			 */
 		}
 
 		return "*"+t_strMAP;
