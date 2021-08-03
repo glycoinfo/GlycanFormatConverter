@@ -32,7 +32,8 @@ public enum SubstituentTypeToMAP {
 	N_METHYL			("n-methyl",			"NC",		null, null, "N", null),
 	N_SUCCINATE			("n-succinate",			"NCCCCO/6=O/3=O",	null, null, "N", null),
 	N_TRIFLOUROACETYL	("n-triflouroacetyl",	"NCCF/4F/4F/3=O",	null, null, "N", null),
-	NITRATE				("nitrate",				"C=O/2=O",	null, null, "C", null),
+	NITRATE				("nitrate",				"N=O/2=O",	null, null, "N", null),//20210726 S.TSUCHIYA changed
+	O_NITRATE			("nitrate",				"ONO/3=O", null, null, "O", null), // 20210726 S.TSUCHIYA added
 	R_LACTATE			("(r)-lactate",			"CC^RC/3O/2=O",		null, null, "C", null),
 	S_LACTATE			("(s)-lactate",			"CC^SC/3O/2=O",		null, null, "C", null),
 	THIO				("thio",				"S",		null, null, "S", null),
