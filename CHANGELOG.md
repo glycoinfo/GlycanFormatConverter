@@ -1,11 +1,13 @@
 # Change log
 
-## 2.7.0 (Pending)
+## 2.7.0 (20210803)
+* Changed a MAP of Nitrate from C=O/2=O to N=O/2=O ([#a44828](https://github.com/glycoinfo/GlycanFormatConverter/commit/a44828743631349b3ae6b5dddad3909736931943))
+* Added O-Nitrate in SubstituentTypeToMAP ([#a44828](https://github.com/glycoinfo/GlycanFormatConverter/commit/a44828743631349b3ae6b5dddad3909736931943))
+* Added conditional branch for O-nitrate to the processing of MAPCode single ([#196915](https://github.com/glycoinfo/GlycanFormatConverter/commit/196915cc5988ea7e460db8c3c8a1b07bc1999af7))
 
 ## 2.6.1 (21210608)
-* Added acyl group ()
-* Updated [read me](README.md) ()
-
+* Added acyl group ([#d15731](https://github.com/glycoinfo/GlycanFormatConverter/commit/d15731d80b70e9616a78827944182a9d13246102))
+* Updated [read me](README.md) ([#28353e](https://github.com/glycoinfo/GlycanFormatConverter/commit/28353e39e4fedf75f9f91f045e7bdd72c626e4d0), [#3554f4](https://github.com/glycoinfo/GlycanFormatConverter/commit/3554f4a917156488a8f22852eca85962d18a5c0a))
 
 ## 2.6.0 (20210430)
 * Removed C-linked substituent from BaseSubstituentTemplate/BaseCrossLinkedTemplate ([#183dc7](https://github.com/glycoinfo/GlycanFormatConverter/commit/183dc76459fa4297e6286624f15fa3ee7f15c49f), [#148bd1](https://github.com/glycoinfo/GlycanFormatConverter/commit/148bd1e6ec4c1096edc26180b361d9c932c70c3c))
