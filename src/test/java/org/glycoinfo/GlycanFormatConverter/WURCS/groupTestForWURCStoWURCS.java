@@ -16,6 +16,10 @@ public class groupTestForWURCStoWURCS {
     private final String filePath = "src/test/resources/";
     private final String outPath = "src/test/resources/result/";
 
+    // for error cases
+    private final String fileErrorPath = "./Error/";
+    private final String outErrorPath = "./Error/";
+
     @Test
     public void fragments () {
         String fileData = fileHandler.openTSV(filePath + "WURCS_fragments.tsv");
@@ -44,6 +48,18 @@ public class groupTestForWURCStoWURCS {
     public void repeats () {
         String fileData = fileHandler.openTSV(filePath + "WURCS_repeats.tsv");
         fileHandler.writeFile(outPath + "WW_repeats", this.makeMap(fileData), ".tsv");
+    }
+
+    @Test
+    public void errorCasesFA () {
+        String fileData = fileHandler.openTSV(fileErrorPath + "wurcs_roundrobin_failures_aglycon-2021-08-02.tsv");
+        fileHandler.writeFile(outErrorPath + "WW_WRFA", this.makeMap2(fileData), ".tsv");
+    }
+
+    @Test
+    public void errorCasesF () {
+        String fileData = fileHandler.openTSV(fileErrorPath + "wurcs_roundrobin_failures-2021-08-02.tsv");
+        fileHandler.writeFile(outErrorPath + "WW_WRF", this.makeMap2(fileData), ".tsv");
     }
 
     // utils
@@ -105,6 +121,31 @@ public class groupTestForWURCStoWURCS {
 
             resultMap.put(columns[0], values);
         }
+
+        return resultMap;
+    }
+
+    public HashMap<String, ArrayList<String>> makeMap2 (String _fileData) {
+        HashMap<String, ArrayList<String>> resultMap = new HashMap<>();
+        for (String item : _fileData.split("\\n")) {
+            if (item.startsWith("?")) continue;
+            String[] columns = item.split("\\t");
+
+            ArrayList<String> values = new ArrayList<>();
+
+            // plane
+            //values.add(columns[1]);
+
+            // modified
+            values.add(this.modifyArray(columns[1]));
+
+            // reconverted
+            values.add(this.toWURCS(columns[1]));
+
+            resultMap.put(columns[0], values);
+        }
+
+        System.out.println(resultMap);
 
         return resultMap;
     }

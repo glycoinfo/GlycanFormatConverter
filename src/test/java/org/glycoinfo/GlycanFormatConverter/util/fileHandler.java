@@ -191,4 +191,26 @@ public class fileHandler {
 
         return indexes;
     }
+
+    public static HashMap<String, ArrayList<String>> openPubChemResult (String _directory) throws IOException {
+        String line;
+        HashMap<String, ArrayList<String>> ret = new HashMap<>();
+
+        BufferedReader bf = new BufferedReader(new FileReader(_directory));
+
+        while ((line = bf.readLine()) != null) {
+            line.trim();
+            if (line.startsWith("Reading")) continue;
+            String id = Arrays.asList(line.split(" ")).get(0);
+
+            ArrayList<String> wurcs = new ArrayList();
+            wurcs.add(Arrays.asList(line.split(" ")).get(6).replaceAll("\"", ""));
+
+            ret.put(id, wurcs);
+        }
+
+        bf.close();
+
+        return ret;
+    }
 }
