@@ -60,8 +60,6 @@ public enum TrivialNameDictionary {
 	THE("The", "glc", "6*m", "3*Me", 6),
 	ACO("Aco", "man", "6*m", "3*CMe", 6),
 	DHA("Dha", "dlyx", "1*A_2*O_3*d_7*A", "", 7);
-	//NON("Non", "non", "1*A_2*O_3*d", "", 9),
-	//DDNON("Non", "non", "1*A_2*O_3*d_9*m", "5*N_7*N", 9);
 
 	private final String trivialName;
 	private final String stereos;

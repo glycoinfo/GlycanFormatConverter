@@ -65,28 +65,32 @@ public class SkeletonCodeToStereo {
     }
 
     private LinkedList<String> checkStereos(MS _ms) throws ConverterExchangeException {
-        LinkedList<String> a_aStereo = new LinkedList<>();
-        String a_sSkeletonCode = _ms.getSkeletonCode();
+        LinkedList<String> stereos = new LinkedList<>();
+        String skeletonCode = _ms.getSkeletonCode();
 
-        if (a_sSkeletonCode.equals("<Q>")) {
-            a_aStereo.addLast("Sugar");
+        if (skeletonCode.equals("<Q>")) {
+            stereos.addLast("Sugar");
+            return stereos;
         }
 
-        /* check uncertain groups */
-        if (haveUncertainGroups(_ms)) return a_aStereo;
+        // check uncertain groups
+        if (haveUncertainGroups(_ms)) return stereos;
 
-        if(a_aStereo.isEmpty()) {
-            throw new ConverterExchangeException(_ms.getSkeletonCode() + " could not handled");
-        }
+        // check deoxy non ulosonate
+        if (this.isDeoxynonulosonate(skeletonCode)) return stereos;
 
-        return a_aStereo;
+        throw new ConverterExchangeException(_ms.getSkeletonCode() + " could not handled");
+
     }
 
     private boolean haveUncertainGroups (MS _ms) {
         boolean ret = false;
+        String skeletonCode = _ms.getSkeletonCode();
 
-        for (int i = 0; i < _ms.getSkeletonCode().length(); i++) {
-            if (i == 0 || i == _ms.getSkeletonCode().length() - 1) continue;
+        if (skeletonCode.length() == 9) return false;
+
+        for (int i = 0; i < skeletonCode.length(); i++) {
+            if (i == 0 || i == skeletonCode.length() - 1) continue;
             CarbonDescriptor cd =
                     CarbonDescriptor.forCharacter(_ms.getSkeletonCode().charAt(i), false);
 
@@ -231,5 +235,11 @@ public class SkeletonCodeToStereo {
     private boolean isChiralCarbonDescriptor (char _carbonDescriptor) {
         return (_carbonDescriptor == '5' || _carbonDescriptor == '6' ||
                 _carbonDescriptor == '7' || _carbonDescriptor == '8' || _carbonDescriptor == 'X');
+    }
+
+    private boolean isDeoxynonulosonate (String _skeletonCode) {
+        if (_skeletonCode.length() != 9) return false;
+
+        return (_skeletonCode.equals("AUdxxxxxh") || _skeletonCode.equals("Aadxxxxxh"));
     }
 }

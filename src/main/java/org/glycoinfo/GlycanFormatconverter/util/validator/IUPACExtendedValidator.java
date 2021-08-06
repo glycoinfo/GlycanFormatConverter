@@ -1,8 +1,9 @@
-package org.glycoinfo.GlycanFormatconverter.util.validator;
+package org.glycoinfo.GlycanFormatconverter.util.validator.exporter;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.ThreeLetterCodeConverter;
+import org.glycoinfo.GlycanFormatconverter.util.validator.TextValidator;
 
 import java.util.ArrayList;
 
@@ -197,6 +198,7 @@ public class IUPACExtendedValidator implements TextValidator {
         if (!mono.getAnomer().equals(AnomericStateDescriptor.OPEN) &&
         mono.getAnomericPosition() != Monosaccharide.OPEN_CHAIN) return;
 
+        /*
         for (GlyCoModification gMod : mono.getModifications()) {
             //check for unknown keto-monosaccharide
             if (gMod.getPositionOne() == 2 &&
@@ -204,6 +206,7 @@ public class IUPACExtendedValidator implements TextValidator {
                 throw new GlycanException("IUPAC-Extended format can not handle ketose with unknown anomer state.");
             }
         }
+         */
 
         //check for unknown aldose
         /*

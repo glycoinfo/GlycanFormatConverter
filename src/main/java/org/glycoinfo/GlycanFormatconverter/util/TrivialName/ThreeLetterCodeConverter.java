@@ -27,7 +27,8 @@ public class ThreeLetterCodeConverter {
 	}
 	
 	public void start(Node _node) throws GlycanException{
-		if (((Monosaccharide) _node).getStereos().isEmpty()) return;
+		Monosaccharide mono = (Monosaccharide) _node;
+		if (mono.getStereos().isEmpty()) return;
 
 		// extract trivial name list
 		String stereo = makeNotation(_node, false);
@@ -71,8 +72,9 @@ public class ThreeLetterCodeConverter {
 	}
 	
 	private TrivialNameDictionary checkDideoxyHexose(Node _node, TrivialNameDictionary _dict) {
-		if(_dict == null) return _dict;
-		String configuration = this.trimConfiguration(((Monosaccharide) _node).getStereos().get(0));
+		Monosaccharide mono = (Monosaccharide) _node;
+		if (_dict == null || mono.getStereos().isEmpty()) return _dict;
+		String configuration = this.trimConfiguration(mono.getStereos().get(0));
 		
 		if((_dict.equals(TrivialNameDictionary.ABE) || _dict.equals(TrivialNameDictionary.COL)) && configuration.equals("?")) {
 			return null;
@@ -97,7 +99,8 @@ public class ThreeLetterCodeConverter {
 	}
 	
 	private boolean checkSubstituentAndModifications (Node _node, TrivialNameDictionary _dict) throws GlycanException{
-		if (((Monosaccharide) _node).getSuperClass() != null) {
+		Monosaccharide mono = (Monosaccharide) _node;
+		if (mono.getSuperClass() != null) {
 			if (_dict.getSize() != ((Monosaccharide) _node).getSuperClass().getSize()) return false;			
 		}
 

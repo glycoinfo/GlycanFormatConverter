@@ -94,7 +94,8 @@ public enum MonosaccharideIndex {
     OLE("Ole", "D", "p", 1),
     THE("The", "D", "p", 1),
     ACO("Aco", "D", "p", 1),
-    PURC("PurC", "D", "p", 1);
+    PURC("PurC", "D", "p", 1),
+    NON("Non", "?", "?", 2);
 
     private final String trivialName;
     private final String configuration1;
