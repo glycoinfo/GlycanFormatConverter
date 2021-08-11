@@ -69,7 +69,11 @@ public class BackboneToNode {
             }
 
             if (i != 0) {
-                if (carbon == 'O' || carbon == 'a') modT = ModificationTemplate.KETONE_U;
+                //20210810, changed
+                if (carbon == 'O') modT = ModificationTemplate.ULOSONIC;
+                if (carbon == 'a') modT = ModificationTemplate.ULOSONIC;
+                if (carbon == 'U') modT = ModificationTemplate.KETONE_U;
+                // end of change
             }
             if (i == (_mono.getSuperClass().getSize() -1 ) && carbon == 'A') {
                 modT = ModificationTemplate.URONICACID;
