@@ -234,7 +234,8 @@ public class ThreeLetterCodeConverter {
 			ModificationTemplate modT = ModificationTemplate.forCarbon(split_unit[1].charAt(0));
 
 			if(modT != null) {
-				if(modT.equals(ModificationTemplate.ULOSONIC)) modT = ModificationTemplate.KETONE_U;
+				// 20210810 comment out
+				//if(modT.equals(ModificationTemplate.ULOSONIC)) modT = ModificationTemplate.KETONE_U;
 				if (_item.startsWith("1*A") && !split_unit[0].equals("1") && modT.equals(ModificationTemplate.ALDONICACID)) {
 					modT = ModificationTemplate.URONICACID;
 				}

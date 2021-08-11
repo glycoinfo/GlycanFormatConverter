@@ -238,12 +238,14 @@ public class IUPACCondensedValidator implements TextValidator {
                 mono.getAnomericPosition() != Monosaccharide.OPEN_CHAIN) return;
 
         //check for unknown keto-monosaccharide
+        /* 20210811 comment out
         for (GlyCoModification gMod : mono.getModifications()) {
             if (gMod.getPositionOne() == 2 &&
                     gMod.getModificationTemplate().equals(ModificationTemplate.KETONE_U)) {
                 throw new GlycanException("IUPAC-Condensed format can not handle ketose with unknown anomer state.");
             }
         }
+         */
 
         //check for unknown aldose
         boolean isUnknownAldose = false;

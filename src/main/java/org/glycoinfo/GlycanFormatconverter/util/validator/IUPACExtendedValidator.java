@@ -1,9 +1,8 @@
-package org.glycoinfo.GlycanFormatconverter.util.validator.exporter;
+package org.glycoinfo.GlycanFormatconverter.util.validator;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.ThreeLetterCodeConverter;
-import org.glycoinfo.GlycanFormatconverter.util.validator.TextValidator;
 
 import java.util.ArrayList;
 
@@ -198,6 +197,7 @@ public class IUPACExtendedValidator implements TextValidator {
         if (!mono.getAnomer().equals(AnomericStateDescriptor.OPEN) &&
         mono.getAnomericPosition() != Monosaccharide.OPEN_CHAIN) return;
 
+        // 20210810 removed, ketose can be supported (2.8.0 or later)
         /*
         for (GlyCoModification gMod : mono.getModifications()) {
             //check for unknown keto-monosaccharide

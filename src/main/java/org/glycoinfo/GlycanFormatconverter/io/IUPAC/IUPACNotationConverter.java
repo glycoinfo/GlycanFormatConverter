@@ -12,6 +12,8 @@ public class IUPACNotationConverter {
 	private final StringBuilder coreCode = new StringBuilder();
 	private final IUPACSubstituentNotationConverter subConv = new IUPACSubstituentNotationConverter();
 
+	private ThreeLetterCodeConverter threeLetterConverter; // 20210810 added
+
 	public IUPACSubstituentNotationConverter getSubConv () {
 		return subConv;
 	}
@@ -28,6 +30,10 @@ public class IUPACNotationConverter {
 		return this.threeLetterCode.toString();
 	}
 
+	//20210810, added
+	public ThreeLetterCodeConverter getThreeLetterCodeConverter () {
+		return this.threeLetterConverter;
+	}
 
 	public void makeTrivialName (Node _node) throws GlycanException {
 		StringBuilder trivialName;
@@ -35,17 +41,24 @@ public class IUPACNotationConverter {
 		Monosaccharide mono = (Monosaccharide) _node;
 
 		// convert to tivial name (D-gro-D-galNon -> D-Neu)
-		ThreeLetterCodeConverter threeCon = new ThreeLetterCodeConverter();
-		threeCon.start(_node);
+		// 20210810 changed
+		//ThreeLetterCodeConverter threeCon = new ThreeLetterCodeConverter();
+		//threeCon.start(_node);
+		this.threeLetterConverter = new ThreeLetterCodeConverter();
+		this.threeLetterConverter.start(_node);
 
-		if(threeCon.getThreeLetterCode().equals("")) {
+		//if(threeCon.getThreeLetterCode().equals("")) {
+		// 20210810 changed
+		if(this.threeLetterConverter.getThreeLetterCode().equals("")) {
 			if (mono.getStereos().isEmpty()) {
 				trivialName = new StringBuilder(mono.getSuperClass().getSuperClass());
 			} else {
 				trivialName = new StringBuilder(makeStandardName(mono));
 			}
 		} else {
-			trivialName = new StringBuilder(makeTrivialName(mono, threeCon));
+			//trivialName = new StringBuilder(makeTrivialName(mono, threeCon));
+			//20210810 changed
+			trivialName = new StringBuilder(makeTrivialName(mono, this.threeLetterConverter));
 		}
 
 		subConv.start(trivialName.toString(), mono);
@@ -242,8 +255,8 @@ public class IUPACNotationConverter {
 	
 	public boolean isAlditol(Node _node) {
 		Monosaccharide mono = (Monosaccharide) _node;
-		
-		if(mono.getAnomericPosition() != 0) return false;
+
+		if(mono.getAnomericPosition() != Monosaccharide.OPEN_CHAIN) return false;
 
 		boolean ret = false;
 		for(GlyCoModification mod : mono.getModifications()) {
@@ -253,6 +266,8 @@ public class IUPACNotationConverter {
 					mod.getModificationTemplate().equals(ModificationTemplate.KETONE)) ret = false;
 			if(mod.getPositionOne() == 2 &&
 					mod.getModificationTemplate().equals(ModificationTemplate.KETONE_U)) ret = false;
+			if(mod.getPositionOne() == 2 && // 20210811 added
+					mod.getModificationTemplate().equals(ModificationTemplate.ULOSONIC)) ret = false;
 		}		
 		
 		return ret;
@@ -282,11 +297,17 @@ public class IUPACNotationConverter {
 		if (mono.getAnomericPosition() != Monosaccharide.OPEN_CHAIN) return false;
 
 		for (GlyCoModification gMod : mono.getModifications()) {
+			if (gMod.getPositionOne() != 2) continue;
+			if (!gMod.getModificationTemplate().equals(ModificationTemplate.ULOSONIC)) continue;
+			ret = true;
+			/*
+			20210810 comment out
 			ModificationTemplate modTemp = gMod.getModificationTemplate();
 			if (modTemp.equals(ModificationTemplate.KETONE) && gMod.getPositionOne() == 2) {
 				ret = true;
 				break;
 			}
+			 */
 		}
 		return ret;
 	}
@@ -321,11 +342,12 @@ public class IUPACNotationConverter {
 		ModifiedMonosaccharideDescriptor mdict = ModifiedMonosaccharideDescriptor.forTrivialName(_code);
 		
 		if(dict != null) {
-			if(dict.equals(TrivialNameDictionary.KO)) return true;
-			if(dict.equals(TrivialNameDictionary.NEU)) return true;
-			if(dict.equals(TrivialNameDictionary.LEG)) return true;
-			if(dict.equals(TrivialNameDictionary.KDO)) return true;
-			if(dict.equals(TrivialNameDictionary.KDN)) return true;
+			// 20210810 changed
+			if(dict.equals(TrivialNameDictionary.KO) || dict.equals(TrivialNameDictionary.KO_U)) return true;
+			if(dict.equals(TrivialNameDictionary.NEU) || dict.equals(TrivialNameDictionary.NEU_U)) return true;
+			if(dict.equals(TrivialNameDictionary.LEG) || dict.equals(TrivialNameDictionary.LEG_U)) return true;
+			if(dict.equals(TrivialNameDictionary.KDO) || dict.equals(TrivialNameDictionary.KDO_U)) return true;
+			if(dict.equals(TrivialNameDictionary.KDN) || dict.equals(TrivialNameDictionary.KDN_U)) return true;
 		}
 		if(mdict != null) {
 			if(mdict.equals(ModifiedMonosaccharideDescriptor.NEU5AC)) return true;
@@ -348,5 +370,18 @@ public class IUPACNotationConverter {
 		if((start + end == 6) || (start == 2 && end == 6)) return "p";
 		
 		return "?";
+	}
+
+	// 20210811 added
+	public String appendOpenStatus (String _notation, Node _node) {
+		if (((Monosaccharide) _node).getAnomericPosition() != Monosaccharide.OPEN_CHAIN) return _notation;
+
+		StringBuilder ret = new StringBuilder(_notation);
+		// make modification with head
+		if(isAlditol(_node)) ret.append("-ol");
+		if(isAldose(_node)) ret.insert(0, "aldehyde-");
+		if(isKetose(_node)) ret.insert(0, "keto-");
+
+		return ret.toString();
 	}
 }

@@ -281,7 +281,7 @@ public class IUPACSubstituentNotationConverter {
 	private boolean isNeuraminicAcid (String _code) {
 		TrivialNameDictionary dict = TrivialNameDictionary.forThreeLetterCode(_code);
 		if (dict == null) return false;
-		return dict.equals(TrivialNameDictionary.NEU);
+		return (dict.equals(TrivialNameDictionary.NEU) || dict.equals(TrivialNameDictionary.NEU_U)); // 20210810 changed
 	}
 	
 	protected boolean haveNativeSubstituentWithNsulfate(String _code, Substituent _sub, Node _current) {

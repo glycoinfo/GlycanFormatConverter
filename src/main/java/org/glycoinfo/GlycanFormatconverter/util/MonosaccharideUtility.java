@@ -262,7 +262,9 @@ public class MonosaccharideUtility {
 
         for(Integer key : hashMod.keySet()) {
         		ModificationTemplate modT = hashMod.get(key);
-            if(modT.equals(ModificationTemplate.ULOSONIC)) modT = ModificationTemplate.KETONE_U;
+        	// 20210810 comment out
+            //if(modT.equals(ModificationTemplate.ULOSONIC)) modT = ModificationTemplate.KETONE_U;
+            //
             GlyCoModification mod = new GlyCoModification(modT, key);
 
             _mono.addModification(mod);

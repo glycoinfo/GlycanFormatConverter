@@ -1,9 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.io.IUPAC.extended;
 
-import org.glycoinfo.GlycanFormatconverter.Glycan.AnomericStateDescriptor;
-import org.glycoinfo.GlycanFormatconverter.Glycan.GlycanException;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Node;
+import org.glycoinfo.GlycanFormatconverter.Glycan.*;
 import org.glycoinfo.GlycanFormatconverter.io.IUPAC.IUPACNotationConverter;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.MonosaccharideIndex;
 import org.glycoinfo.GlycanFormatconverter.util.TrivialName.TrivialNameException;
@@ -18,7 +15,13 @@ public class ExtendedConverter extends IUPACNotationConverter {
 
         makeTrivialName(copy);
 
-        return makeExtendedNotation(copy);
+        String notation = this.makeExtendedNotation(copy);
+
+        // 20210811 added
+        notation = appendOpenStatus(notation, _node);
+        //
+
+        return notation;
     }
 
     public String makeExtendedNotation (Node _copy) throws TrivialNameException {
@@ -47,13 +50,13 @@ public class ExtendedConverter extends IUPACNotationConverter {
         ret.append(extractUlonic(mono));
 
 		// make ring size
-        ret.append(defineRingSize(_copy));
+        ret.append(defineRingSize(mono));
 
 		// append core substituent
         ret.append(getSubConv().getCoreSubstituentNotaiton());
 
 		// make acidic tail
-        String acidicStatus = makeAcidicStatus(_copy);
+        String acidicStatus = makeAcidicStatus(mono);
         if(acidicStatus.equals("A")) {
             ret.append(acidicStatus);
         }
@@ -68,9 +71,12 @@ public class ExtendedConverter extends IUPACNotationConverter {
         ret = new StringBuilder(defineAnomericState(_copy, ret));
 
 		// make modification with head
-        if(isAlditol(_copy)) ret.append("-ol");
-        if(isAldose(_copy)) ret.insert(0, "aldehyde-");
-        if(isKetose(_copy)) ret.insert(0, "keto-");
+        // 20210811, moved to appendOpenStatus
+        /*
+        if(isAlditol(mono)) ret.append("-ol");
+        if(isAldose(mono)) ret.insert(0, "aldehyde-");
+        if(isKetose(mono)) ret.insert(0, "keto-");
+         */
 
         return ret.toString();
     }

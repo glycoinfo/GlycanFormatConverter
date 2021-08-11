@@ -6,7 +6,7 @@ public enum TrivialNameDictionary {
 
 	//http://www.monosaccharidedb.org/notation.action?topic=trivialname
 	
-	// Ketoses
+	// Ketose
 	ERU("Eru", "gro", "1*h_2*O", "", 4),
 	RUL("Rul", "ery", "1*h_2*O", "", 5),
 	XUL("Xul", "thr", "1*h_2*O", "", 5),
@@ -15,18 +15,40 @@ public enum TrivialNameDictionary {
 	SOR("Sor", "xyl", "1*h_2*O", "", 6),
 	PSI("Psi", "rib", "1*h_2*O", "", 6),
 	SED("Sed", "alt", "1*h_2*O", "", 7),
-	
+
+	// Ketose (unknown), 20210810 added
+	ERU_U("Eru", "gro", "1*h_2*U", "", 4),
+	RUL_U("Rul", "ery", "1*h_2*U", "", 5),
+	XUL_U("Xul", "thr", "1*h_2*U", "", 5),
+	FRU_U("Fru", "ara", "1*h_2*U", "", 6),
+	TAG_U("Tag", "lyx", "1*h_2*U", "", 6),
+	SOR_U("Sor", "xyl", "1*h_2*U", "", 6),
+	PSI_U("Psi", "rib", "1*h_2*U", "", 6),
+	SED_U("Sed", "alt", "1*h_2*U", "", 7),
+
 	// Keto-ulosonic acids
 	KO ("Ko", "dgro_dtal", "1*A_2*O", "", 8), //always d configuration
 	KDO("Kdo", "dman", "1*A_2*O_3*d", "", 8), //always d configuration
 	KDN("Kdn", "dgro_dgal", "1*A_2*O_3*d", "", 9), //always d configuration
 	NEU("Neu", "dgro_dgal", "1*A_2*O_3*d", "5*N", 9), //always d configuration
 	LEG("Leg", "dgro_dgal", "1*A_2*O_3*d_9*m", "5*N_7*N", 9), //always d configuration
-	PSE("Pse", "lgro_lman", "1*A_2*O_3*d_9*m", "5*N_7*N", 9), //always l configuration
+	//PSE("Pse", "lgro_lman", "1*A_2*O_3*d_9*m", "5*N_7*N", 9), //always l configuration
+	PSE("Pse", "lgro_lman", "2*O_3*d_9*m", "5*N_7*N", 9), //always l configuration 20210811 changed
 	ACI("Aci", "lgro_lalt", "1*A_2*O_3*d_9*m", "5*N_7*N", 9),
 	FELEG("4eLeg", "dgro_dtal", "1*A_2*O_3*d_9*m", "5*N_7*N", 9), //always d configuration
 	EELEG("8eLeg", "lgro_dgal", "1*A_2*O_3*d_9*m", "5*N_7*N", 9), //always l configuration
-	
+
+	// Keto-ulosonic acids (Unknown), 20210810 added
+	KO_U("Ko", "dgro_dtal", "1*A_2*U", "", 8), //always d configuration
+	KDO_U("Kdo", "dman", "1*A_2*U_3*d", "", 8), //always d configuration
+	KDN_U("Kdn", "dgro_dgal", "1*A_2*U_3*d", "", 9), //always d configuration
+	NEU_U("Neu", "dgro_dgal", "1*A_2*U_3*d", "5*N", 9), //always d configuration
+	LEG_U("Leg", "dgro_dgal", "1*A_2*U_3*d_9*m", "5*N_7*N", 9), //always d configuration
+	PSE_U("Pse", "lgro_lman", "2*U_3*d_9*m", "5*N_7*N", 9), //always l configuration
+	ACI_U("Aci", "lgro_lalt", "1*A_2*U_3*d_9*m", "5*N_7*N", 9),
+	FELEG_U("4eLeg", "dgro_dtal", "1*A_2*U_3*d_9*m", "5*N_7*N", 9), //always d configuration
+	EELEG_U("8eLeg", "lgro_dgal", "1*A_2*U_3*d_9*m", "5*N_7*N", 9), //always l configuration
+
 	// Deoxy monosaccharides
 	QUI("Qui", "glc", "6*m", "", 6),
 	RHA("Rha", "man", "6*m", "", 6),
@@ -59,7 +81,8 @@ public enum TrivialNameDictionary {
 	OLE("Ole", "ara", "2*d_6*m", "3*Me", 6),
 	THE("The", "glc", "6*m", "3*Me", 6),
 	ACO("Aco", "man", "6*m", "3*CMe", 6),
-	DHA("Dha", "dlyx", "1*A_2*O_3*d_7*A", "", 7);
+	DHA("Dha", "dlyx", "1*A_2*O_3*d_7*A", "", 7),
+	DHA_U("Dha", "dlyx", "1*A_2*U_3*d_7*A", "", 7); // 20210810 added
 
 	private final String trivialName;
 	private final String stereos;

@@ -22,7 +22,13 @@ public class CondensedConverter extends IUPACNotationConverter {
 
         makeTrivialName(copy);
 
-        return makeCondensedNotation(copy);
+        String notation = makeCondensedNotation(copy);
+
+        // 20210811 added
+        notation = appendOpenStatus(notation, _node);
+        //
+
+        return notation;
     }
 
     private String makeCondensedNotation (Node _copy) throws TrivialNameException {
@@ -80,9 +86,12 @@ public class CondensedConverter extends IUPACNotationConverter {
         if (!acidicStatus.equals("A") && !containUlonicAcid(getThreeLetterCode())) ret.append(acidicStatus);
 
         // make modification with head
+        // 20210811 moved to appendOpenStatus
+        /*
         if (isAlditol(_copy)) ret.append("-ol");
         if (isAldose(_copy)) ret.insert(0, "aldehyde-");
         if (isKetose(_copy)) ret.insert(0, "keto-");
+         */
 
         return ret.toString();
     }
