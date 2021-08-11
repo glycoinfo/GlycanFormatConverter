@@ -66,8 +66,13 @@ public class IUPACNotationParser {
 		if(matMod.find()) {
 			// extract anomeric state
 			if(matMod.group(5) != null && matMod.group(8) != null) {
-				if (!matMod.group(5).equals("aldehyde")) anomericState = matMod.group(5);
-				else modifications.add(matMod.group(5));
+				// 20210810, changed
+				if (matMod.group(5).equals("aldehyde") || matMod.group(5).equals("keto")) {
+					modifications.add(matMod.group(5));
+				} else {
+					anomericState = matMod.group(5);
+				}
+				// end of change
 
 				String regex = matMod.group(4).replace("?", "\\?");
 				temp = temp.replaceFirst(regex, "");

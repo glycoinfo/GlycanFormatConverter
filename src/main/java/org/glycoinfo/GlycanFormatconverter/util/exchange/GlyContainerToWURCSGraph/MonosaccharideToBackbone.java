@@ -250,7 +250,7 @@ public class MonosaccharideToBackbone {
 		boolean ret = false;
 		for (GlyCoModification gMod : this.mono.getModifications()) {
 			if (gMod.getPositionOne() != 2) continue;
-			if (gMod.getModificationTemplate().equals(ModificationTemplate.KETONE_U)) {
+			if (gMod.getModificationTemplate().equals(ModificationTemplate.ULOSONIC)) { //20210810 changed
 				ret = true;
 				break;
 			}
