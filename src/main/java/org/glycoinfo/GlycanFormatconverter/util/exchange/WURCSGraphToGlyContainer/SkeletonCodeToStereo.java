@@ -240,6 +240,6 @@ public class SkeletonCodeToStereo {
     private boolean isDeoxynonulosonate (String _skeletonCode) {
         if (_skeletonCode.length() != 9) return false;
 
-        return (_skeletonCode.matches("^A[UaO]dx{5}h$"));
+        return (_skeletonCode.matches("^A[UaO]dx{5}[hm]$"));
     }
 }
