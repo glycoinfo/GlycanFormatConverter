@@ -253,7 +253,7 @@ public class BackboneToNode {
         return ret;
     }
 
-    private AnomericStateDescriptor parseAnomericState (Backbone _backbone) {
+    private AnomericStateDescriptor parseAnomericState (Backbone _backbone) throws GlycanException {
         String skeletonCode = _backbone.getSkeletonCode();
         char anomericState = _backbone.getAnomericSymbol();
 
@@ -264,7 +264,9 @@ public class BackboneToNode {
         }
 
         AnomericStateDescriptor anomDesc = AnomericStateDescriptor.forAnomericState(anomericState);
-        if (anomDesc == null) return AnomericStateDescriptor.UNKNOWN_STATE;
+        if (anomDesc == null) {
+            throw new GlycanException("GlycanFormatConverter can not be handle this anomeric state: " + anomericState);
+        }
         else return anomDesc;
     }
 
