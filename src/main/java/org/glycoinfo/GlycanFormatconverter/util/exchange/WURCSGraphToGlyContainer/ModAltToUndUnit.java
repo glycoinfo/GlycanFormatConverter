@@ -1,7 +1,6 @@
 package org.glycoinfo.GlycanFormatconverter.util.exchange.WURCSGraphToGlyContainer;
 
 import org.glycoinfo.GlycanFormatconverter.Glycan.*;
-import org.glycoinfo.GlycanFormatconverter.Glycan.Monosaccharide;
 import org.glycoinfo.GlycanFormatconverter.util.SubstituentUtility;
 import org.glycoinfo.WURCSFramework.util.array.WURCSFormatException;
 import org.glycoinfo.WURCSFramework.util.graph.comparator.WURCSEdgeComparator;
@@ -17,12 +16,12 @@ import java.util.LinkedList;
  */
 public class ModAltToUndUnit {
 
-    private ArrayList<ModificationAlternative> antennae;
-    private ArrayList<ModificationAlternative> undefinedLinkages;
-    private ArrayList<ModificationAlternative> undefinedSubstituents;
+    private final ArrayList<ModificationAlternative> antennae;
+    private final ArrayList<ModificationAlternative> undefinedLinkages;
+    private final ArrayList<ModificationAlternative> undefinedSubstituents;
 
-    private GlyContainer glyCo;
-    private HashMap<WURCSComponent, Node> backbone2Node;
+    private final GlyContainer glyCo;
+    private final HashMap<WURCSComponent, Node> backbone2Node;
 
     public ModAltToUndUnit(GlyContainer _glyco, HashMap<WURCSComponent, Node> _backbone2Node) {
         this.antennae = new ArrayList<>();
@@ -33,7 +32,7 @@ public class ModAltToUndUnit {
         this.backbone2Node = _backbone2Node;
     }
 
-    public GlyContainer getGlycan () { return this.glyCo; }
+    //public GlyContainer getGlycan () { return this.glyCo; }
 
     public ArrayList<ModificationAlternative> getAntennae () {
         return this.antennae;
@@ -57,7 +56,8 @@ public class ModAltToUndUnit {
             this.parseFragments(bb);
         }
 
-        this.backboneToUndefinedUnit();
+        //20211206_S.TSCHIYA comment out
+        //this.backboneToUndefinedUnit();
     }
 
     private void parseFragments (Backbone _backbone) throws GlycanException {
@@ -132,8 +132,8 @@ public class ModAltToUndUnit {
         this.undefinedSubstituents.add(t_modAlt);
     }
 
+    /* 20211206_S.TSUCHIYA, comment out
     private void backboneToUndefinedUnit () throws GlycanException, WURCSFormatException {
-
         //define monosaccharide compositons
         this.convertCompositon();
 
@@ -148,8 +148,10 @@ public class ModAltToUndUnit {
             throw new GlycanException ("Parse fragment did not correctly performed.");
         }
     }
+    */
 
-    private void convertCompositon () throws GlycanException {
+    /* 20211206_S.TSUCHIYA, comment out
+    private void convertCompositon () {
         if (!this.getUndefinedLinkages().isEmpty()) {
             throw new GlycanException("Monosaccharide composition with linkages can not support.");
         }
@@ -178,8 +180,24 @@ public class ModAltToUndUnit {
             glyCo.addGlycanUndefinedUnit(und);
         }
     }
+    */
 
-    private void convertMonosacchrideFragment () throws GlycanException {
+    public ArrayList<GlycanUndefinedUnit> convertComposition (ArrayList<Backbone> _backbones) throws GlycanException {
+        ArrayList<GlycanUndefinedUnit> ret = new ArrayList<>();
+        for (Backbone backbone : _backbones) {
+            Node current = this.backbone2Node.get(backbone);
+            GlycanUndefinedUnit und = new GlycanUndefinedUnit();
+            und.addNode(current);
+
+            ret.add(und);
+        }
+
+        return ret;
+    }
+
+    public ArrayList<GlycanUndefinedUnit> convertMonosacchrideFragment () throws GlycanException {
+        ArrayList<GlycanUndefinedUnit> ret = new ArrayList<>();
+
         for (ModificationAlternative modAltNode : this.antennae) {
             GlycanUndefinedUnit und = new GlycanUndefinedUnit();
 
@@ -201,11 +219,17 @@ public class ModAltToUndUnit {
 
             und.addNode(fragRoot);
 
-            glyCo.addGlycanUndefinedUnit(und);
+            ret.add(und);
+            //20211206_S.TSUCHIYA comment out
+            //glyCo.addGlycanUndefinedUnit(und);
         }
+
+        return ret;
     }
 
-    private void convertSubstituentFragment () throws GlycanException, WURCSFormatException {
+    public ArrayList<GlycanUndefinedUnit> convertSubstituentFragment () throws GlycanException, WURCSFormatException {
+        ArrayList<GlycanUndefinedUnit> ret = new ArrayList<>();
+
         for (ModificationAlternative modAltSub : this.undefinedSubstituents) {
             GlycanUndefinedUnit und = new GlycanUndefinedUnit();
 
@@ -229,8 +253,12 @@ public class ModAltToUndUnit {
             //fragRoot.setSecondPosition(new Linkage());
             und.addNode(fragRoot);
 
-            glyCo.addGlycanUndefinedUnit(und);
+            ret.add(und);
+            //20211206_S.TSUCHIYA comment out
+            //glyCo.addGlycanUndefinedUnit(und);
         }
+
+        return ret;
     }
 
     private Edge parseLinkagePosition (WURCSEdge _inEdge, WURCSEdge _donorEdge, Node _fragRoot) throws GlycanException {

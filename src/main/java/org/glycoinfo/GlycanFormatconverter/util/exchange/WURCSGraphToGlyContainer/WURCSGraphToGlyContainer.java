@@ -68,20 +68,42 @@ public class WURCSGraphToGlyContainer {
 		this.antennae = gfParser.getAntennae();
 		this.undefinedLinkages = gfParser.getUndefinedLinkages();
 		this.undefinedSubstituents = gfParser.getUndefinedSubstituents();
-		this.glyCo = gfParser.getGlycan();
+		//this.glyCo = gfParser.getGlycan(); 20211206_S.TSUCHIYA, comment out
 
 		// extract compositions
 		if (isCompositions(_graph)) {
+			/* 20211206_S.TSUCHIYA, comment out
 			for (Backbone bb : _graph.getBackbones()) {
 				compositionToUndefinedUnit(bb);
 			}
+			 */
+			// 20211206_S.TSUCHIYA, add
+			for (GlycanUndefinedUnit und : gfParser.convertComposition(_graph.getBackbones())) {
+				this.glyCo.addGlycanUndefinedUnit(und);
+			}
+
 			/* 2018/09/24 Masaaki: Set number of undefined linkages */
 			this.glyCo.setNumberOfUndefinedLinkages(undefinedLinkages.size());
+			/* 20211206_S.TSUCHIYA comment out
 			for (ModificationAlternative modAlt : this.undefinedSubstituents) {
 				compositionToUndefinedUnitForSubstituent(modAlt);
 			}
+			 */
+			// 20211206_S.TSUCHIYA, add
+			for (GlycanUndefinedUnit und : gfParser.convertSubstituentFragment()) {
+				this.glyCo.addGlycanUndefinedUnitForSubstituent(und);
+			}
 		} else {
 			if (glyCo.getNodes().isEmpty()) glyCo.addNode(backbone2node.get(root));
+
+			// 20211206_S.TSUCHIYA, add
+			// generate glycan fragments (substituent)
+			for (GlycanUndefinedUnit und : gfParser.convertMonosacchrideFragment()) {
+				this.glyCo.addGlycanUndefinedUnit(und);
+			}
+			for (GlycanUndefinedUnit und : gfParser.convertSubstituentFragment()) {
+				this.glyCo.addGlycanUndefinedUnitForSubstituent(und);
+			}
 
 			// convert linkage
 			for (Backbone bb : this.sortedList) {
@@ -425,6 +447,7 @@ public class WURCSGraphToGlyContainer {
 		glyCo.addGlycanUndefinedUnitForSubstituent(t_und);
 	}
 
+	/* 20211206_S.TSUCHIYA comment out
 	private void compositionToUndefinedUnit (Backbone _backbone) throws GlycanException {
 		Node current = backbone2node.get(_backbone);
 		GlycanUndefinedUnit und = new GlycanUndefinedUnit();
@@ -432,6 +455,7 @@ public class WURCSGraphToGlyContainer {
 
 		glyCo.addGlycanUndefinedUnit(und);
 	}
+	 */
 
 	private Edge WURCSEdgeToEdge (LinkedList<LinkagePosition> _donor, LinkedList<LinkagePosition> _acceptor) throws GlycanException {
 		Edge edge = new Edge();
@@ -577,11 +601,14 @@ public class WURCSGraphToGlyContainer {
 		return ret;
 	}
 
+	/*
 	private boolean isFlipFlop (Backbone _parent) {
 		if (!_parent.isRoot() || root.equals(_parent) || antennae.contains(_parent)) return false;
 		return (backbone2node.get(_parent).getParentEdges().isEmpty());
 	}
+	 */
 
+	/* 20211206_S.TSUCHIYA, comment out
 	private boolean isCompositions (WURCSGraph _graph) {
 		int count = 0;
 
@@ -609,6 +636,19 @@ public class WURCSGraphToGlyContainer {
 		}
 
 		return count == 0;
+	}
+	 */
+
+	// 20211206_S.TSUCHIYA, add
+	private boolean isCompositions (WURCSGraph _graph) {
+		int count = 0;
+
+		if (_graph.getBackbones().size() == 1) return false;
+		for (Backbone bb : _graph.getBackbones()) {
+			if (bb.isRoot()) count++;
+		}
+
+		return (_graph.getBackbones().size() == count);
 	}
 
 	private boolean isDefinedLinkage (Backbone _acceptor, Edge _edge, Backbone _donor) {
