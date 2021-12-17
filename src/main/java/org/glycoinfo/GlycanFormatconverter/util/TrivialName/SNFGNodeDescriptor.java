@@ -98,6 +98,16 @@ public enum SNFGNodeDescriptor {
     SOR         ("L-Sorbose", "Sor", "ha121h-2x_2-6", "hO121h", "hU121h"),
     PSI         ("D-Psicose", "Psi", "ha222h-2x_2-6", "hO222h", "hU222h");
 
+    // 20210811 added
+    /*
+    ERU         ("D-Erythrulose", "Eru", "ha2h-2x_2-6", "hO2h", "hU2h"),
+    RUL         ("D-Ribulose", "Rul", "ha22h-2x_2-5", "hO22h", "hU22h"),
+    XUL         ("D-Xylulose", "Xul", "ha12h-2x_2-5", "hO12h", "hU12h"),
+    SED         ("", "Sed", "ha1222h-2x_2-6", "hO1222h", "hU1222h"),
+    Ko          ("", "Ko", "Aa11122h-2x_2-6", "AO11122h", "AU11122h"),
+    EIGTHLEG    ("", "8eLeg", "Aad21121m-2x_2-6_5*N_7*N", "AOd21121m_5*N_7*N", "AUd21121m_5*N_7*N");
+     */
+
     SNFGNodeDescriptor (String _commonName, String _abbreviation, String _ringForm, String _openChain, String _composition) {
         this.commonName = _commonName;
         this.abbreviation = _abbreviation;

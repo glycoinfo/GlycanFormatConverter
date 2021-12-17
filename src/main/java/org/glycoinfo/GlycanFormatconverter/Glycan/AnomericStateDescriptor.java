@@ -6,7 +6,9 @@ public enum AnomericStateDescriptor {
 	BETA('b', "beta"),//\u03B2
 	OPEN('o', ""),
 	UNKNOWN_STATE('x', "?"),
-	UNKNOWN('?', "?");
+	//UP('u', "up"), // left side in Fisher projection
+	//DOWN('d', "down"), // right side in Fisher projection
+	UNKNOWN('?', "?"); //
 	
 	private char a_cNotation;
 	private String a_sIUPACNotaiton;
