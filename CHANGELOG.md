@@ -1,4 +1,10 @@
+
 # Change log
+
+## 2.8.0 (20211217)
+* Resolved problems: the WURCS sequence of composition with linkage can not convert to GlycoCT in the WURCS2GlycoCT converter ([#8d6647](https://github.com/glycoinfo/GlycanFormatConverter/commit/8d664762fd022e155baad30c94957aab5672ad3f)).
+* Added the anomeric state of `u` and `d` in the AnomericStateDescriptor ([#c1c2ec](https://github.com/glycoinfo/GlycanFormatConverter/commit/c1c2ec565ea2469411274bc40bc45eb23f99c748))
+* Analyzer for ketose of open chaine ([#ca5cd8](https://github.com/glycoinfo/GlycanFormatConverter/commit/ca5cd8e99645f600d088a67e9ded6c1a578826f1))
 
 ## 2.7.0 (20210803)
 * Changed a MAP of Nitrate from C=O/2=O to N=O/2=O ([#a44828](https://github.com/glycoinfo/GlycanFormatConverter/commit/a44828743631349b3ae6b5dddad3909736931943))
