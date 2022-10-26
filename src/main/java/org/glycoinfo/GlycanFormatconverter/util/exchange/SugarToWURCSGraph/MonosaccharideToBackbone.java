@@ -71,10 +71,10 @@ public class MonosaccharideToBackbone {
 		int t_nCAtom = a_oMonosaccharide.getSuperclass().getCAtomCount();
 		// For unknown sugar
 		if ( t_nCAtom == 0 ) {
-			//20200717, S.TSUCHIYA, changed
 			this.m_oBackbone = new Backbone();
 			this.m_oBackbone.setAnomericSymbol(this.m_cAnomericSymbol);
-			//this.m_oBackbone = new BackboneUnknown_TBD(this.m_cAnomericSymbol);
+			BackboneCarbon bc = new BackboneCarbon(this.m_oBackbone, CarbonDescriptor.SSX_UNDEF_ALL, true);
+			this.m_oBackbone.addBackboneCarbon(bc);
 			return;
 		}
 
