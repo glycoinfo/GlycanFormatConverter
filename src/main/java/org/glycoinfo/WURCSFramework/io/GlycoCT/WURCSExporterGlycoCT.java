@@ -13,6 +13,7 @@ import org.glycoinfo.GlycanFormatconverter.util.exchange.SugarToWURCSGraph.Sugar
 import org.glycoinfo.WURCSFramework.util.WURCSException;
 import org.glycoinfo.WURCSFramework.util.WURCSFactory;
 import org.glycoinfo.WURCSFramework.util.graph.visitor.WURCSGraphExporterUniqueMonosaccharides;
+import org.glycoinfo.WURCSFramework.util.validation.WURCSValidator;
 import org.glycoinfo.WURCSFramework.wurcs.graph.WURCSGraph;
 
 import java.util.ArrayList;
@@ -87,6 +88,9 @@ public class WURCSExporterGlycoCT {
 		WURCSFactory t_oFactory = new WURCSFactory(t_oGraph);
 		this.m_strWURCS = t_oFactory.getWURCS();
 
+		// Validate WURCS
+		this.m_strWURCS = this.validate(this.m_strWURCS);
+
 		// Do not collect ResidueCodes if the flag is false
 		if ( !this.m_bResidueCodeCollection ) return;
 
@@ -117,21 +121,26 @@ public class WURCSExporterGlycoCT {
 		t_validationWURCS.start(a_objSugar);
 
 		// Marge errors and warnings
+		StringBuilder t_sbLog = new StringBuilder();
 		t_aErrorStrings.addAll( t_validationWURCS.getErrors() );
 		t_aWarningStrings.addAll( t_validationWURCS.getWarnings() );
+
+		if ( !t_aErrorStrings.isEmpty() || !t_aWarningStrings.isEmpty() )
+			t_sbLog.append("[GlycoCT validation]\n");
+
 		if ( !t_aErrorStrings.isEmpty() )
-			this.m_sbLog.append("Errors:\n");
+			t_sbLog.append("Errors:\n");
 		for ( String err : t_aErrorStrings )
-			this.m_sbLog.append(err+"\n");
+			t_sbLog.append(err+"\n");
 
 		if ( !t_aWarningStrings.isEmpty() )
-			this.m_sbLog.append("Warnings:\n");
-		for ( String warn : t_aWarningStrings ) {
-			this.m_sbLog.append(warn+"\n");
-		}
-		if ( !t_aErrorStrings.isEmpty() ) {
+			t_sbLog.append("Warnings:\n");
+		for ( String warn : t_aWarningStrings )
+			t_sbLog.append(warn+"\n");
+
+		this.m_sbLog.append(t_sbLog);
+		if ( !t_aErrorStrings.isEmpty() )
 			throw new GlycoVisitorException("Error in GlycoCT validation.");
-		}
 	}
 
 	/** Nomarize sugar */
@@ -143,4 +152,21 @@ public class WURCSExporterGlycoCT {
 		return t_objTo.getNormalizedSugar();
 	}
 
+	/** Validate WURCS */
+	private String validate(String a_strWURCS) throws WURCSException {
+		// Validate WURCS string
+		WURCSValidator t_validation = new WURCSValidator();
+		t_validation.start(a_strWURCS);
+
+		StringBuilder t_sbLog = new StringBuilder();
+		if ( t_validation.getReport().hasError() || t_validation.getReport().hasWarning() ) {
+			t_sbLog.append("[WURCS validation]\n");
+			t_sbLog.append( t_validation.getReport().getResultsSimple() );
+		}
+		this.m_sbLog.append(t_sbLog);
+		if ( t_validation.getReport().hasError() )
+			throw new WURCSException("Error in WURCS validation.");
+
+		return t_validation.getReport().getStandardString();
+	}
 }
