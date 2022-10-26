@@ -1,5 +1,8 @@
 
 # Change log
+## 2.8.1 (20221026)
+* Fixed creation of unknown Backbone
+* Added process for validation of output WURCS
 
 ## 2.8.0 (20211217)
 * Resolved problems: the WURCS sequence of composition with linkage can not convert to GlycoCT in the WURCS2GlycoCT converter ([#8d6647](https://github.com/glycoinfo/GlycanFormatConverter/commit/8d664762fd022e155baad30c94957aab5672ad3f)).
