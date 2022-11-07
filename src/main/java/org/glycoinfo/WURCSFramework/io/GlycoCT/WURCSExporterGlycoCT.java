@@ -32,7 +32,7 @@ public class WURCSExporterGlycoCT {
 		this.m_strWURCS   = "";
 		this.m_bResidueCodeCollection = false;
 		this.m_setResidueCodes = new TreeSet<>();
-		this.m_sbLog = new StringBuffer("");
+		this.m_sbLog = new StringBuffer();
 	}
 
 	public void setResidueCodeCollection(boolean a_bCollection) {
@@ -68,6 +68,9 @@ public class WURCSExporterGlycoCT {
 	 */
 	public void start( String a_strGlycoCT ) throws SugarImporterException, GlycoVisitorException, WURCSException {
 		this.m_strGlycoCT = a_strGlycoCT;
+
+		// Reset log
+		this.m_sbLog = new StringBuffer();
 
 		SugarImporter t_objImporterGlycoCT = new SugarImporterGlycoCTCondensed();
 		SugarToWURCSGraph t_objExporterWURCSGraph = new SugarToWURCSGraph();
