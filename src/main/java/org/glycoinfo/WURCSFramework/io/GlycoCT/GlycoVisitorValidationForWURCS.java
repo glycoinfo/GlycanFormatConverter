@@ -146,6 +146,30 @@ public class GlycoVisitorValidationForWURCS  implements GlycoVisitor
 			this.m_aErrorList.add("Ring start must be anomeric position. :" + a_objMonosaccharid.getGlycoCTName());
 		}
 
+		// Check linkages on ring end
+		int t_iRingEnd = a_objMonosaccharid.getRingEnd();
+		for ( GlycoEdge edge : a_objMonosaccharid.getChildEdges() )
+			for ( Linkage link : edge.getGlycosidicLinkages() ) {
+				if ( !link.getParentLinkages().contains(t_iRingEnd) )
+					continue;
+				if ( link.getParentLinkageType() == LinkageType.H_LOSE )
+					continue;
+				// TODO: confirm that replacement of ring oxygen is allowed or not in GlycoCT
+				ArrayList<String> lPoss = new ArrayList<>();
+				for ( int pos : link.getParentLinkages() )
+					lPoss.add(String.valueOf(pos));
+				String strChild = link.getParentLinkageType().getType()+"("+String.join("/", lPoss)+"+";
+				lPoss = new ArrayList<>();
+				for ( int pos : link.getChildLinkages() )
+					lPoss.add(String.valueOf(pos));
+				strChild += String.join("/", lPoss)+")"+link.getChildLinkageType().getType()+":";
+				if ( edge.getChild() instanceof Monosaccharide )
+					strChild += ((Monosaccharide)edge.getChild()).getGlycoCTName();
+				else if ( edge.getChild() instanceof Substituent )
+					strChild += ((Substituent)edge.getChild()).getSubstituentType().getName();
+				this.m_aErrorList.add("Can not have linkage at ring end with linkage types other than H_LOSE (h). :"
+				+ a_objMonosaccharid.getGlycoCTName() + "|" + strChild);
+			}
 	}
 
 	@Override
