@@ -1,5 +1,8 @@
 
 # Change log
+## 2.8.2 (20221108)
+* Added GlycoCT validation for linkages on ring end position
+
 ## 2.8.1 (20221026)
 * Fixed creation of unknown Backbone
 * Added process for validation of output WURCS
